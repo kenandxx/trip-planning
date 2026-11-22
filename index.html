@@ -99,15 +99,18 @@ h2{margin:3px 0 0;font:600 19px/1.3 var(--serif)}
 .nav-card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
 .nav-card.highlight{border-color:var(--nav);background:color-mix(in srgb,var(--nav) 5%,var(--card))}
 .nav-card.scenic{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 5%,var(--card))}
-.nav-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.nav-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 8px;margin-bottom:6px}
 .nav-step{display:inline-flex;align-items:center;justify-content:center;font:700 11.5px/1 var(--mono);padding:4px 8px;border-radius:6px;background:var(--ink);color:var(--paper);flex-shrink:0}
 .nav-step.blue{background:var(--nav);color:#fff}
 .nav-step.green{background:var(--ok);color:#fff}
 .nav-step.orange{background:var(--accent);color:#fff}
-.nav-title{font-weight:700;font-size:14.5px;line-height:1.35;flex:1}
+.nav-title{font-weight:700;font-size:15px;line-height:1.35;flex:1 1 100%;order:3}
 .nav-meta{font-size:12px;color:var(--soft);margin:2px 0 8px;line-height:1.5}
-.nav-tip{font-size:12px;background:var(--card2);border-radius:8px;padding:7px 10px;margin-bottom:10px;color:var(--ink);line-height:1.5}
+.nav-tip{font-size:12px;background:var(--card2);border-radius:8px;padding:7px 10px;margin-bottom:8px;color:var(--ink);line-height:1.5}
 .nav-tip b{color:var(--accent)}
+.route-check{font-size:12px;line-height:1.5;padding:7px 10px;border-radius:8px;margin-bottom:9px;background:var(--ok-bg);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);color:var(--ink)}
+.route-check b{color:var(--ok)}
+.route-check .no{color:var(--err);font-weight:700}
 .nav-actions{display:grid;grid-template-columns:1fr auto;gap:8px}
 .nav-actions.tri{grid-template-columns:1fr 1fr;gap:8px}
 .gbtn{display:flex;align-items:center;justify-content:center;gap:5px;padding:10.5px 12px;border-radius:10px;font-size:13.5px;font-weight:700;background:var(--nav);color:#fff;text-align:center;box-shadow:0 2px 6px rgba(26,115,232,.25)}
@@ -281,11 +284,11 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
     </div>
 
     <div class="alert ok" style="margin-bottom:10px">
-      <b>🧭 新手跟导航 3 条铁律：</b>
+      <b>🧭 新手跟导航防选错 3 条铁律：</b>
       <ul>
-        <li><b>在微信打开若无法直唤 App</b>：点右上角 <b>「···」→「在默认浏览器（Safari / Chrome）中打开」</b>，再点下方蓝色按钮就能秒开 Google Maps 语音导航！</li>
-        <li><b>开车不碰手机，下一段全部交给副驾点！</b>每段只设一个清晰目的地，避免高速中途弹窗卡壳。</li>
-        <li><b>错过路口别急刹硬并线</b>：顺着往前开，Google Maps 3 秒内自动重算路线，安全第一！</li>
+        <li><b>每段都有绿色「1秒选线核对」</b>：若 Google Maps 弹出 2–3 条线，只需核对那 1 个路名再点「开始」，绝不会误入封路或窄巷！</li>
+        <li><b>采用「安全停车点接力分段」，不在高速中间乱插经由点</b>：手机版 Google Maps 到达每个经由点都会暂停弹窗要你点「继续」，高速上点手机极危险！用真实免费停车点分段最稳，副驾快到前 1 公里直接点下一段无缝衔接即可。</li>
+        <li><b>微信打开若无法直唤 App</b>：点右上角 <b>「···」→「在默认浏览器（Safari / Chrome）中打开」</b>，再点下方蓝色按钮就能秒开语音导航！错过路口别急刹硬并线，3 秒内自动重算。</li>
       </ul>
     </div>
 
@@ -315,7 +318,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
         <span class="tag ok">约 70 分</span>
       </div>
       <div class="nav-meta">默认定位新宿东口正牌停车场（新宿3-38-1，30分400日元，限高2.1m），上方填朋友酒店名即自动替换。</div>
-      <div class="nav-tip"><b>发车前3秒核对：</b>11/23 首都高11号台场线（彩虹大桥）04:00–14:00 封路！确认蓝线走的是<b>京叶道路 → 7号小松川线</b>（不走彩虹桥）再出发！</div>
+      <div class="route-check"><b>✅ 1秒选线核对：</b>认准蓝线含 <b>「京葉道路 / 7号小松川線」</b> ｜ <span class="no">❌ 绝不选含「湾岸線 / 11号台場線」的线</span>（11/23 04:00–14:00 彩虹大桥官方封路，当天实时路况大概率已自动标红绕开）。</div>
       <div class="nav-actions">
         <a id="leg1-go" class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=35.691958,139.701291&travelmode=driving&dir_action=navigate">🧭 一键开启 Google 导航</a>
         <a id="leg1-pre" class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&destination=35.691958,139.701291&travelmode=driving">👀 预览</a>
@@ -330,14 +333,14 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
         <span class="tag ok">约 18–22 分</span>
       </div>
       <div class="nav-meta"><b>单向入口只通东名高速・用贺方向！</b>不钻山手隧道、不绕大桥JCT地下四层螺旋、物理上不可能开错方向！</div>
-      <div class="nav-tip"><b>新手避坑：</b>绝不进4号新宿线下行（西新宿JCT不能转C2）。进池尻ETC闸门直上3号涩谷线，一直直开就是东名高速！</div>
+      <div class="route-check"><b>✅ 1秒选线核对：</b><b>闭眼选最快那条蓝线即可！</b>几条都是市区普通道，终点是单向高速入口，绝不误入4号新宿线。</div>
       <div class="nav-actions">
         <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%B1%A0%E5%B0%BB%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F3%E5%8F%B7%E6%B8%8B%E8%B0%B7%E7%B7%9A&travelmode=driving&dir_action=navigate">🧭 一键导至 池尻入口</a>
         <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E6%96%B0%E5%AE%BF%E9%A7%85%E6%9D%B1%E5%8F%A3&destination=%E6%B1%A0%E5%B0%BB%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F3%E5%8F%B7%E6%B8%8B%E8%B0%B7%E7%B7%9A&travelmode=driving">👀 预览</a>
       </div>
     </div>
 
-    <!-- ROUTE A: SKYLINE LEGS -->
+    <!-- ROUTE A: SKYLINE LEGS (NATURAL-STOP RELAY LOCK) -->
     <div id="nav-skyline">
       <div class="nav-card scenic">
         <div class="nav-top">
@@ -346,7 +349,8 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
           <span class="tag warn">约 50–55 分</span>
         </div>
         <div class="nav-meta">神奈川県海老名市大谷南5-2-1（528小车位超宽敞，位于厚木IC前一站，零绕路！）。</div>
-        <div class="nav-tip"><b>进站必吃：</b>① <b>ぽるとがる 哈密瓜面包</b> ② <b>小田原吉匠 炸竹荚鱼</b> ③ <b>えびえび焼き</b>！09:40过绫濑预计轻堵约+13分，刚好下车休整30分钟。</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准全程 <b>「首都高3号 → 東名高速」</b> 直达 ｜ <span class="no">❌ 就算绫濑微堵(+13分)也别下高速绕「国道246」</span>，老实走高速最省心！</div>
+        <div class="nav-tip"><b>进站必吃：</b>① <b>ぽるとがる 哈密瓜面包</b> ② <b>小田原吉匠 炸竹荚鱼</b> ③ <b>えびえび焼き</b>！刚好休整 30 分钟。</div>
         <div class="nav-actions">
           <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A+%E7%A5%9E%E5%A5%88%E5%B7%9D%E7%9C%8C%E6%B5%B7%E8%80%81%E5%90%8D%E5%B8%82%E5%A4%A7%E8%B0%B7%E5%8D%975-2-1&travelmode=driving&dir_action=navigate">🧭 一键导至 海老名SA（下り）</a>
           <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E5%B0%BB%E5%85%A5%E5%8F%A3&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
@@ -355,29 +359,43 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
 
       <div class="nav-card scenic">
         <div class="nav-top">
-          <span class="nav-step green">第 3A 段・上山绝景</span>
-          <div class="nav-title">海老名SA → 伊豆スカイライン「熱海峠IC」入口</div>
-          <span class="tag ok">约 65 分</span>
+          <span class="nav-step green">第 3A 段・锁死小田厚</span>
+          <div class="nav-title">海老名SA → 道の駅 箱根峠（自动锁死小田厚＋箱根新道！）</div>
+          <span class="tag ok">约 50 分</span>
         </div>
-        <div class="nav-meta">路线：厚木IC → <b>小田原厚木道路</b>（11/23下行无拥堵，完美绕开东名大井松田施工！）→ <b>箱根新道（免费上坡好开）</b>→ 箱根峠 → 经十国峠 → 熱海峠IC。</div>
-        <div class="nav-tip"><b>现金/ETCX 必看：</b>在熱海峠收费站交 <b>500日元</b>（普通车到龟石峠），<b>普通ETC不可用</b>！副驾请提前拿好硬币/千元纸币。想再升级风景可点右侧先去「大观山展望台（ターンパイク箱根 900日元）」。</div>
+        <div class="nav-meta"><b>接力防错妙招：</b>把终点设在箱根新道山顶的「道の駅 箱根峠」（免费停车＋看芦之湖），比走东名御殿场快 18 分钟，Google Maps 会<b>自动把蓝线锁死在「厚木IC → 小田原厚木道路 → 箱根新道（免费上坡）」</b>，完美绕开大井松田施工！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准蓝线含 <b>「小田原厚木道路 → 箱根新道」</b> ｜ <span class="no">❌ 绝不选「東名 → 御殿場」</span>。不想在箱根峠停车？快到前 1 公里让副驾直接点下方第 3B 段无缝衔接！</div>
         <div class="nav-actions">
-          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3+%E7%86%B1%E6%B5%B7%E5%B3%A0IC&travelmode=driving&dir_action=navigate">🧭 一键导至 熱海峠IC</a>
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E7%AE%B1%E6%A0%B9%E5%B3%A0+%E7%A5%9E%E5%A5%88%E5%B7%9D%E7%9C%8C%E7%AE%B1%E6%A0%B9%E7%94%BA%E7%AE%B1%E6%A0%B9381-22&travelmode=driving&dir_action=navigate">🧭 一键导至 道の駅 箱根峠</a>
           <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E3%82%A2%E3%83%8D%E3%82%B9%E3%83%88%E5%B2%A9%E7%94%B0+%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A6%E3%83%B3%E3%82%B8+%E5%A4%A7%E8%A6%B3%E5%B1%B1&travelmode=driving&dir_action=navigate">🗻 经大观山(900円)</a>
         </div>
       </div>
 
       <div class="nav-card scenic">
         <div class="nav-top">
-          <span class="nav-step green">第 3B 段・富士山打卡</span>
-          <div class="nav-title">伊豆スカイライン：滝知山展望台 → 池の向展望台 → 亀石峠IC下山</div>
-          <span class="tag ok">16.5km / 含拍照50分</span>
+          <span class="nav-step green">第 3B 段・直进天际线</span>
+          <div class="nav-title">箱根峠 → 滝知山展望台（经十国峠 → 熱海峠IC 交500円）</div>
+          <span class="tag ok">约 18 分 / 12km</span>
         </div>
-        <div class="nav-meta">进熱海峠仅 3.1km 即达<b>滝知山展望台</b>（免费45车位，东望相模湾・西望富士山＆骏河湾）；继续沿山脊南下经<b>池の向展望台</b>，至<b>亀石峠IC</b>驶离天际线！</div>
-        <div class="nav-tip"><b>新手下山要领：</b>从<b>亀石峠IC</b>下山走<b>県道19号（大仁方向）</b>，双向双车道宽敞好开！下长坡请挂 <b>低档/B档（发动机制动）</b> 控速40–50km/h，遇后方快车在避让带靠边礼让即可。</div>
-        <div class="nav-actions tri">
-          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3&travelmode=driving&dir_action=navigate">🗻 1.导至 滝知山展望台</a>
-          <a class="gbtn walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3+%E4%BA%80%E7%9F%B3%E5%B3%A0IC&travelmode=driving&dir_action=navigate">🚗 2.导至 亀石峠IC出口</a>
+        <div class="nav-meta">出箱根峠直走県道20号（经十国峠免费大停车场）→ 熱海峠收费站交 <b>500日元现金/ETCX（普通ETC不可用！）</b> → 仅开 3.1km 即达免费 45 车位<b>滝知山展望台</b>（拍富士山＋相模/骏河双海）！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b><b>物理单线（県道20号 → 熱海峠IC → 伊豆スカイライン）</b>，几乎无岔路，闭眼点开始！</div>
+        <div class="nav-actions">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3&travelmode=driving&dir_action=navigate">🗻 一键导至 滝知山展望台</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E9%81%93%E3%81%AE%E9%A7%85+%E7%AE%B1%E6%A0%B9%E5%B3%A0&destination=%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3&travelmode=driving">👀 预览</a>
+        </div>
+      </div>
+
+      <div class="nav-card scenic">
+        <div class="nav-top">
+          <span class="nav-step green">第 3C 段・山脊绝景出口</span>
+          <div class="nav-title">滝知山展望台 → スカイポート亀石駐車場（亀石峠IC出口）</div>
+          <span class="tag ok">约 18 分 / 13.4km</span>
+        </div>
+        <div class="nav-meta">沿天际线山脊继续南下，途经西丹那/池の向展望台均可靠边拍富士山；到<b>亀石峠IC</b>驶离收费道（旁边即免费停车场＋洗手间，餐厅已结业）。</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b><b>物理单线（全程沿着「伊豆スカイライン」直开）</b>，闭眼点开始！</div>
+        <div class="nav-actions">
+          <a class="gbtn walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%9D%E3%83%BC%E3%83%88%E4%BA%80%E7%9F%B3%E9%A7%90%E8%BB%8A%E5%A0%B4&travelmode=driving&dir_action=navigate">🚗 一键导至 亀石峠IC出口</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3&destination=%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%9D%E3%83%BC%E3%83%88%E4%BA%80%E7%9F%B3%E9%A7%90%E8%BB%8A%E5%A0%B4&travelmode=driving">👀 预览</a>
         </div>
       </div>
     </div>
@@ -391,7 +409,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
           <span class="tag warn">约 75–85 分</span>
         </div>
         <div class="nav-meta">静岡県駿東郡小山町桑木603-18（511小车位，西馆2楼富士山展望露台＋足柄牛名物）。</div>
-        <div class="nav-tip"><b>施工提醒：</b>大井松田IC〜足柄SIC 右线昼夜封闭，全部合流左线！请提前靠左稳妥驶入足柄SA。</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准全程 <b>「首都高3号 → 東名高速」</b> 直达 ｜ ⚠️ 大井松田IC〜足柄SIC 右线昼夜施工封闭，请提前靠左稳妥驶入足柄SA。</div>
         <div class="nav-actions">
           <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A+%E9%9D%99%E5%B2%A1%E7%9C%8C%E9%A7%BF%E6%9D%B1%E9%83%A1%E5%B0%8F%E5%B1%B1%E7%94%BA%E6%A1%91%E6%9C%A8603-18&travelmode=driving&dir_action=navigate">🧭 一键导至 足柄SA（下り）</a>
           <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E5%B0%BB%E5%85%A5%E5%8F%A3&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
@@ -405,6 +423,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
           <span class="tag err">11:15 硬止损</span>
         </div>
         <div class="nav-meta">11/23叠加沼津秋祭，若足柄出发已过<b>10:40</b>，请直接跳过本段点下方第4段直奔修善寺！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准 <b>「新東名 → 長泉沼津IC → 伊豆縦貫道」</b>（全高速零山路）。</div>
         <div class="nav-actions">
           <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%B2%BC%E6%B4%A5%E3%81%BF%E3%81%AA%E3%81%A8%E6%96%B0%E9%AE%AE%E9%A4%A8+%E9%9D%99%E5%B2%A1%E7%9C%8C%E6%B2%BC%E6%B4%A5%E5%B8%82%E5%8D%83%E6%9C%AC%E6%B8%AF%E7%94%BA128-1&travelmode=driving&dir_action=navigate">🧭 一键导至 沼津港</a>
           <a class="pview" target="_blank" rel="noopener" href="#sim">看时间测算</a>
@@ -416,11 +435,12 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
     <div class="nav-card">
       <div class="nav-top">
         <span class="nav-step">第 4 段</span>
-        <div class="nav-title">先逛修善寺温泉街 → 「月の庭駐車場」（新手宽敞好停）</div>
+        <div class="nav-title">宽道下山先逛修善寺 → 「月の庭駐車場」（新手宽敞好停）</div>
         <span class="tag ok">50车位・专人引导</span>
       </div>
       <div class="nav-meta">全天500日元、平地宽道有管理员指挥停放。<b>绝不直接导「修禅寺」本堂</b>（避免钻进窄巷）！</div>
-      <div class="nav-tip"><b>现金提醒：</b>经伊豆中央道（200日元）或修善寺道路（200日元）普通ETC刷不了，副驾备好硬币走<b>「一般」通道</b>！先去 16:00 闭园的修禅寺庭园。</div>
+      <div class="route-check"><b>✅ 1秒选线核对：</b>从龟石峠出发认准往 <b>「大仁 / 伊豆の国 / 県道19号」</b> 宽敞双车道下山（路线B认准<b>「伊豆縦貫道 → 修善寺道路」</b>）｜ <span class="no">❌ 绝不往「伊東 / 宇佐美」方向！</span>下长坡挂 <b>低档/B档</b> 发动机制动控速。</div>
+      <div class="nav-tip"><b>现金提醒：</b>经伊豆中央道（200円）或修善寺道路（200円）普通ETC刷不了，副驾备好硬币走<b>「一般」通道</b>！先去 16:00 闭园的修禅寺庭园。</div>
       <div class="nav-actions">
         <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%9C%88%E3%81%AE%E5%BA%AD%E9%A7%90%E8%BB%8A%E5%A0%B4+%E4%BF%AE%E5%96%84%E5%AF%BA&travelmode=driving&dir_action=navigate">🧭 一键导至 月の庭駐車場</a>
         <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E5%B0%8F%E5%B1%B1%E9%A7%90%E8%BB%8A%E5%A0%B4+%E4%BF%AE%E5%96%84%E5%AF%BA&travelmode=driving&dir_action=navigate">备选：小山80位</a>
@@ -435,6 +455,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
         <span class="tag ok">约 15 分</span>
       </div>
       <div class="nav-meta">静岡県伊豆の国市長岡1110（免费室外停车34台，1房限1车，入住15:00起，含早不含晚）。</div>
+      <div class="route-check"><b>✅ 1秒选线核对：</b>短途约 15 分钟，闭眼选最快蓝线直达旅馆门口即可！</div>
       <div class="nav-actions">
         <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=35.03003,138.93376&travelmode=driving&dir_action=navigate">🧭 一键导至 弘法の湯 长冈店</a>
         <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%BC%98%E6%B3%95%E3%81%AE%E6%B9%AF+%E9%95%B7%E5%B2%A1%E5%BA%97">查看旅馆</a>
@@ -463,6 +484,33 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
         </div>
       </div>
     </div>
+
+    <!-- CO-PILOT LOCKED-ROUTE WITH WAYPOINTS & YAHOO CARNAVI -->
+    <details class="more-nav">
+      <summary>🔒 副驾专用：带经由点「单线锁死版」链接 ＆ 防选错神器推荐（展开）</summary>
+      <div class="alert warn" style="margin-top:10px;font-size:12px">
+        <b>⚠️ 为什么不能在高速高架上插经由点？</b><br>
+        手机版 Google Maps 会把每个经由点当成「经停站」，到达时会<b>暂停语音并弹窗要你手动点『继续』</b>，而且高架桥上的坐标极易吸附到桥下辅路或对向车道！<br>
+        👉 下方 2 条「锁死版」只选了<b>真实免费停车观景点</b>做经由点，点开<b>只有 1 条唯一蓝线</b>（到达经由点请由副驾点「继续」或直接停车拍照）。
+      </div>
+      <div class="mini-nav-list">
+        <div class="mini-nav">
+          <div><b>🔒 锁死全山景：海老名SA → 修善寺（经 箱根峠｜滝知山｜亀石峠）</b><br><span style="font-size:11.5px;color:var(--soft)">3个真实免费停车经由点，100% 锁死小田厚＋箱根新道＋伊豆Skyline＋大仁宽道！</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;text-align:center">
+            <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%9C%88%E3%81%AE%E5%BA%AD%E9%A7%90%E8%BB%8A%E5%A0%B4+%E4%BF%AE%E5%96%84%E5%AF%BA&waypoints=%E9%81%93%E3%81%AE%E9%A7%85+%E7%AE%B1%E6%A0%B9%E5%B3%A0%7C%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3%7C%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%9D%E3%83%BC%E3%83%88%E4%BA%80%E7%9F%B3%E9%A7%90%E8%BB%8A%E5%A0%B4&travelmode=driving&dir_action=navigate">锁死导航</a>
+            <a style="background:var(--indigo)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&destination=%E6%9C%88%E3%81%AE%E5%BA%AD%E9%A7%90%E8%BB%8A%E5%A0%B4+%E4%BF%AE%E5%96%84%E5%AF%BA&waypoints=%E9%81%93%E3%81%AE%E9%A7%85+%E7%AE%B1%E6%A0%B9%E5%B3%A0%7C%E6%BB%9D%E7%9F%A5%E5%B1%B1%E5%B1%95%E6%9C%9B%E5%8F%B0+%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3%7C%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%9D%E3%83%BC%E3%83%88%E4%BA%80%E7%9F%B3%E9%A7%90%E8%BB%8A%E5%A0%B4&travelmode=driving">👀 预览蓝线</a>
+          </div>
+        </div>
+        <div class="mini-nav">
+          <div><b>🔒 锁死大仁宽道下山：亀石峠 → 道の駅 伊豆のへそ → 修善寺</b><br><span style="font-size:11.5px;color:var(--soft)">100% 强制走県道19号大仁侧宽敞双车道，彻底杜绝误入陡急伊东侧！</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%9C%88%E3%81%AE%E5%BA%AD%E9%A7%90%E8%BB%8A%E5%A0%B4+%E4%BF%AE%E5%96%84%E5%AF%BA&waypoints=%E9%81%93%E3%81%AE%E9%A7%85+%E4%BC%8A%E8%B1%86%E3%81%AE%E3%81%B8%E3%81%9D&travelmode=driving&dir_action=navigate">锁死导航</a>
+        </div>
+      </div>
+      <div class="alert ok" style="margin-top:10px;font-size:12px">
+        <b>🇯🇵 日本新手强烈建议再装一个免费「Yahoo!カーナビ」做双保险：</b><br>
+        Google Maps 在日本偶尔爱抄小巷，<b>Yahoo!カーナビ（完全免费，支持 CarPlay / Android Auto）</b>原生自带<b>「広い道優先（宽道优先）」</b>＋<b>首都高 JCT 3D 实景车道分叉图</b>！明天主驾用上面的一键导航，副驾手机开 Yahoo!カーナビ 看高速分叉口，完全不怕走错！
+      </div>
+    </details>
 
     <!-- BONUS: DAY 4 & DAY 5 -->
     <details class="more-nav">
