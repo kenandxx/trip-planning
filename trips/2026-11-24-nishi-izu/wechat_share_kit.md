@@ -28,5 +28,5 @@ https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/
 
 ## 分享图片
 - SVG竖版矢量预览：poster_v2.svg
-- SVG横版预览：og-cover.svg
+- SVG横版预览：og-cover.png
 - PNG版本尚未生成，因此暂时不能把SVG称作Skill要求的PNG海报；PNG转换与本地图片打包仍为待完成事项。
