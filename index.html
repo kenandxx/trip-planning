@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)">
+<title>11/23 伊豆自驾行前速览｜时间轴・高速拥堵・新宿东口接人</title>
+<meta name="description" content="11月23日（周一・祝）千叶→新宿东口接人→伊豆长冈/修善寺。含NEXCO官方拥堵预测、首都高封路避坑与两种推荐发车方案。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="11/23 伊豆自驾行前速览｜时间轴・高速拥堵・新宿东口接人">
+<meta property="og:description" content="明日快晴0%・日落16:36。含东名下行9-13时拥堵预测、首都高11号线封路预警、新宿东口上车点与今晚需确认2件事。">
+<meta property="og:image" content="og-cover.png">
+<style>
+:root{
+  --paper:#f5f0e7; --card:#fcf9f4; --card2:#f0e9dc; --ink:#1f1c18; --soft:#6b6358; --line:#dfd7c8;
+  --accent:#c2542a; --accent-soft:#f5e1d6; --indigo:#2b4c59; --indigo-soft:#dde8ec;
+  --ok:#256d49; --ok-bg:#e2f2e9; --warn:#a16207; --warn-bg:#f8ebd0; --err:#b91c1c; --err-bg:#fbe3e3;
+  --shadow:0 1px 2px rgba(55,40,18,.06),0 6px 18px rgba(55,40,18,.05);
+  --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#151412; --card:#1f1d1a; --card2:#282520; --ink:#ede7db; --soft:#a59d90; --line:#35312b;
+    --accent:#e57c52; --accent-soft:#3b271e; --indigo:#8fb7c7; --indigo-soft:#1f2e34;
+    --ok:#52b788; --ok-bg:#1b3326; --warn:#e6b655; --warn-bg:#382b12; --err:#f07171; --err-bg:#3a1d1d;
+    --shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;color:inherit}
+.wx-thumb{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.wrap{max-width:740px;margin:0 auto;padding:0 14px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#243b46 0%,#3a5661 55%,#7c452d 100%);color:#fff;padding:24px 16px 20px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,220,185,.22),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding:0}
+.kicker{font:600 11.5px/1.2 var(--mono);letter-spacing:.1em;opacity:.88;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.kicker span{background:rgba(255,255,255,.15);padding:4px 8px;border-radius:99px;backdrop-filter:blur(4px)}
+.hero h1{margin:0;font:600 24px/1.28 var(--serif);letter-spacing:.02em}
+.hero .sub{margin:8px 0 0;font-size:13.5px;opacity:.92;line-height:1.55}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.hstat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 10px}
+.hstat .l{font-size:11px;opacity:.8}
+.hstat .v{font:700 14.5px/1.3 var(--mono);margin-top:2px}
+
+/* Sticky nav */
+nav{position:sticky;top:0;z-index:30;background:var(--paper);background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:13px;font-weight:500;color:var(--soft);padding:6px 12px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
+nav a.on{background:var(--ink);color:var(--paper)}
+
+main{padding:16px 0 40px}
+section{margin-bottom:22px;scroll-margin-top:58px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 10px}
+.sec-k{font:700 11px/1 var(--mono);letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+h2{margin:3px 0 0;font:600 19px/1.3 var(--serif)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.card+.card{margin-top:10px}
+
+/* Alert banners */
+.alert{border-radius:12px;padding:12px 14px;font-size:13.5px;border:1px solid}
+.alert.err{background:var(--err-bg);border-color:color-mix(in srgb,var(--err) 35%,transparent);color:var(--ink)}
+.alert.err b.t{color:var(--err)}
+.alert.ok{background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.alert.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.alert ul{margin:6px 0 0;padding-left:18px}
+.alert li{margin:4px 0}
+
+/* Decision box for friends */
+.decision-grid{display:grid;gap:10px}
+.dec-item{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.dec-item .num{font:700 11px var(--mono);color:var(--accent);letter-spacing:.08em}
+.dec-item h3{margin:3px 0 4px;font-size:15px}
+.dec-item p{margin:0;font-size:13.5px;color:var(--soft)}
+
+/* Preset switcher */
+.presets{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
+@media(min-width:600px){.presets{grid-template-columns:repeat(3,1fr)}}
+.pbtn{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s}
+.pbtn.on{border-color:var(--accent);background:var(--accent-soft)}
+.pbtn .top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px}
+.pbtn .name{font-weight:700;font-size:13.5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.tag.err{background:var(--err-bg);color:var(--err)}
+.pbtn .desc{font-size:12px;color:var(--soft);line-height:1.45}
+
+/* Controls */
+.ctrl{display:grid;grid-template-columns:1fr;gap:10px;padding:12px;background:var(--card2);border-radius:11px;margin-bottom:12px;font-size:13px}
+@media(min-width:600px){.ctrl{grid-template-columns:1.2fr 1fr 1fr;align-items:center}}
+.ctrl label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.ctrl input[type=range]{width:100%;accent-color:var(--accent);margin-top:4px}
+.ctrl select{width:100%;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:12.5px}
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}
+.mono{font-family:var(--mono)}
+
+/* KPI row */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card2);border-radius:10px;padding:9px 10px}
+.kpi .kl{font-size:11.5px;color:var(--soft)}
+.kpi .kv{font:700 15.5px/1.3 var(--mono);margin-top:2px}
+.kpi .ks{font-size:11.5px;color:var(--soft);margin-top:2px}
+
+/* Gantt */
+.gantt-wrap{margin:10px 0 12px}
+.gantt-axis{position:relative;height:18px;font:11px var(--mono);color:var(--soft);margin-bottom:4px}
+.gantt-track{position:relative;height:42px;border-radius:9px;background:var(--card2);overflow:hidden}
+.gseg{position:absolute;top:4px;bottom:4px;border-radius:6px;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gline{position:absolute;top:0;bottom:0;width:2px;background:var(--err);z-index:5}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--soft);margin-top:7px}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* Timeline list */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.tl li:last-child{border-bottom:0}
+.tl .tm{font:600 12.5px/1.5 var(--mono);color:var(--accent)}
+.tl .tm i{display:block;font-style:normal;font-size:11px;color:var(--soft);font-weight:400}
+.tl .ti{font-weight:600;font-size:14px}
+.tl .nt{font-size:12.5px;color:var(--soft);margin-top:2px}
+
+/* Congestion chart */
+.cchart{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:142px;padding:12px 4px 0;border-bottom:1px solid var(--line)}
+.ccol{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%;border-radius:6px 6px 0 0;padding:0 1px}
+.ccol.best{background:var(--ok-bg)}
+.cbar{width:46%;border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;font:700 9.5px var(--mono);color:#fff;padding-top:2px}
+.caxis{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;text-align:center;font:11px var(--mono);color:var(--soft);margin-top:4px}
+
+/* Tables */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11.5px;color:var(--soft);font-weight:600;background:var(--card2)}
+tr:last-child td{border-bottom:0}
+
+/* Step cards & route pills */
+.steps{display:grid;gap:10px}
+@media(min-width:600px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--card2);border-radius:11px;padding:12px}
+.step .st{font:700 12px var(--mono);color:var(--indigo);margin-bottom:4px}
+.step p{margin:0;font-size:13px;line-height:1.55}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:9px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.tel{background:var(--indigo);border-color:var(--indigo);color:#fff}
+
+/* Risk accordion / cards */
+.risk{border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--card);margin-bottom:8px}
+.risk .rh{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px}
+.risk .rt{font-weight:700;font-size:13.5px}
+.risk .rb{font-size:12.5px;color:var(--soft);display:grid;gap:4px}
+.risk .rb b{color:var(--ink)}
+
+/* Checklist */
+.chk{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:9px;background:var(--card2);margin-bottom:6px;cursor:pointer;font-size:13.5px}
+.chk input{margin-top:3px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.chk.done span{text-decoration:line-through;color:var(--soft)}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<img class="wx-thumb" src="og-cover.png" alt="11/23 伊豆自驾行前速览">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">
+      <span>2026.11.23 周一・勤劳感谢之日</span>
+      <span>四人同车</span>
+      <span>伊豆预报：晴 0%</span>
+    </div>
+    <h1>东京 → 伊豆长冈 自驾行前速览</h1>
+    <p class="sub">千叶滝不動出发 → 新宿站东口接2位朋友 → 东名高速 → 伊豆长冈（弘法の湯 长冈店）＆ 修善寺</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="l">天气 / 气温</div><div class="v">晴 15℃ / 5℃</div></div>
+      <div class="hstat"><div class="l">日落时间</div><div class="v">16:36 天黑</div></div>
+      <div class="hstat"><div class="l">全程里程</div><div class="v">约 185 km</div></div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#decide" class="on">今晚拍板</a>
+    <a href="#sim">时间轴模拟</a>
+    <a href="#traffic">高速拥堵＆封路</a>
+    <a href="#pickup">新宿东口接人</a>
+    <a href="#risks">避坑与风险</a>
+    <a href="#todo">行前清单</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 0. TONIGHT DECISIONS -->
+  <section id="decide">
+    <div class="sec-head">
+      <div><div class="sec-k">DECIDE TONIGHT</div><h2>今晚（11/22）需要大家确认的 2 件事</h2></div>
+      <button class="btn pri" id="copy-wx-btn" type="button">复制微信群确认文案</button>
+    </div>
+    <div class="decision-grid">
+      <div class="dec-item">
+        <div class="num">决定 01 · 明早集合时间（二选一）</div>
+        <h3>方案 B「08:00 新宿东口集合」 vs 方案 C「09:00 集合、跳过沼津港」</h3>
+        <p>如果 09:00 出发还去沼津港，会同时撞上 <b>东名下行 10km 拥堵</b> ＋ <b>沼津港 12 点祝日峰值排队</b>，到修善寺就天黑（16:36日落）。<b>想吃沼津港建议 08:00 集合；想睡个懒觉建议 09:00 集合但跳过沼津港！</b></p>
+      </div>
+      <div class="dec-item">
+        <div class="num">决定 02 · 晚饭预约 ＆ 行李尺寸</div>
+        <h3>弘法の湯只含早饭，祝日 4 人务必今晚订位！＋ 报一下雪杖＆箱包尺寸</h3>
+        <p>首选旅馆步行 9 分钟的 <b>ひょうたん寿司（LO 19:30）</b>，停好车步行吃饭、司机也能喝一杯；同时确认今天在东京买的雪杖长度与箱子个数，方便明早 3 分钟快速装车。</p>
+        <div class="btns">
+          <a class="btn tel" href="tel:055-948-0733">📞 预约 ひょうたん寿司</a>
+          <a class="btn" href="tel:0558-73-2388">📞 备选 あまご茶屋（LO 18:30）</a>
+          <a class="btn" target="_blank" rel="noopener" href="https://japan2026.guox.in/#d23">查看原五日路书 ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. SCHEDULE SIMULATOR -->
+  <section id="sim">
+    <div class="sec-head">
+      <div><div class="sec-k">TIMELINE</div><h2>行程松紧度对比与实时模拟</h2></div>
+      <span id="verdict-pill" class="tag ok">余裕充足 ◎</span>
+    </div>
+
+    <div class="presets">
+      <button class="pbtn on" data-preset="planB" type="button">
+        <div class="top"><span class="name">方案 B：早发错峰</span><span class="tag ok">最推荐 ◎</span></div>
+        <div class="desc">08:00 新宿东口 → 9点前零堵过东名 → 11点前沼津港早午饭 → 先逛明亮修善寺</div>
+      </button>
+      <button class="pbtn" data-preset="planC" type="button">
+        <div class="top"><span class="name">方案 C：跳过沼津港</span><span class="tag ok">最轻松 ◎</span></div>
+        <div class="desc">09:00 新宿东口 → 不去沼津港排队 → 直奔伊豆午饭 → 先逛明亮修善寺再入住</div>
+      </button>
+      <button class="pbtn" data-preset="planA" type="button">
+        <div class="top"><span class="name">方案 A：原计划对照</span><span class="tag err">偏紧 ✕</span></div>
+        <div class="desc">09:00 新宿东口 → 踩中东名拥堵＋沼津港12点峰值 → 15点入住后再去修善寺天已黑</div>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="ctrl">
+        <div>
+          <div class="ctrl-row"><span>千叶滝不動发车</span><b id="dep-out" class="mono">06:45</b></div>
+          <input id="dep-slider" type="range" min="360" max="510" step="15" value="405">
+          <div class="ctrl-row" style="font-size:11px;color:var(--soft)"><span>06:00</span><span>新宿约 <b id="sjk-hint">07:55</b> 集合</span><span>08:30</span></div>
+        </div>
+        <div>
+          <select id="traffic-mode">
+            <option value="nexco" selected>NEXCO官方预测（9–13时 绫濑+18分）</option>
+            <option value="smooth">超顺畅（全线 +0分）</option>
+            <option value="accident">叠加事故/施工缓行（额外 +30分）</option>
+          </select>
+        </div>
+        <div style="display:grid;gap:6px">
+          <label><input id="opt-numazu" type="checkbox" checked> 绕道沼津港吃午饭</label>
+          <label><input id="opt-first" type="checkbox" checked> 15点前到则先逛修善寺</label>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="kl">新宿东口接人</div><div id="k-sjk" class="kv">--:--</div><div class="ks">经外苑出口直达</div></div>
+        <div class="kpi"><div class="kl">东名绫濑瓶颈</div><div id="k-tomei" class="kv">--</div><div id="k-tomei-s" class="ks">--</div></div>
+        <div class="kpi"><div class="kl">修善寺日落前</div><div id="k-light" class="kv">--</div><div id="k-garden" class="ks">--</div></div>
+        <div class="kpi"><div class="kl">累计驾驶 / 沼津港</div><div id="k-drv" class="kv">--</div><div id="k-num" class="ks">--</div></div>
+      </div>
+
+      <div class="gantt-wrap">
+        <div class="gantt-axis" id="g-axis"></div>
+        <div class="gantt-track" id="g-track"></div>
+        <div class="legend">
+          <span><i class="dot" style="background:#2b6cb0"></i>驾驶</span>
+          <span><i class="dot" style="background:#b7791f"></i>接人/服务区</span>
+          <span><i class="dot" style="background:#c2542a"></i>用餐</span>
+          <span><i class="dot" style="background:#2f855a"></i>观光/旅馆</span>
+          <span><i class="dot" style="background:#b91c1c"></i>16:36 日落红线</span>
+        </div>
+      </div>
+
+      <ul class="tl" id="tl-list"></ul>
+    </div>
+  </section>
+
+  <!-- 2. HIGHWAY CONGESTION -->
+  <section id="traffic">
+    <div class="sec-head">
+      <div><div class="sec-k">TRAFFIC FORECAST</div><h2>11月23日 官方高速拥堵预测＆封路管制</h2></div>
+    </div>
+
+    <div class="alert err" style="margin-bottom:10px">
+      <b class="t">🚨 11/23 两大官方刚性管制（务必避开）</b>
+      <ul>
+        <li><b>首都高 11号台场线（芝浦JCT ⇔ 彩虹大桥 ⇔ 有明JCT）04:00–14:00 全线封路</b>：因「GRAND CYCLE TOKYO」自行车大会封路。从千叶进新宿<b>切勿走湾岸线＋彩虹大桥</b>，走<b>京叶道路 → 首都高7号小松川线</b>！</li>
+        <li><b>东名高速下行「大井松田IC 〜 足柄スマートIC」右线昼夜连续封闭</b>：翻新工程持续至 12/18，全部车辆合并走左线，爬坡段遇慢车易缓行，进足柄SA请提前靠左。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+        <b style="font-size:14px">东名高速 11/23 逐小时拥堵长度（蓝＝我们去程下行 ｜ 红＝对向返程上行）</b>
+        <span class="tag warn">11/21–23 不适用 ETC 休日割引</span>
+      </div>
+      <div class="cchart" id="c-chart"></div>
+      <div class="caxis" id="c-axis"></div>
+      <p style="margin:8px 0 0;font-size:12.5px;color:var(--soft)">
+        ✅ <b>核心利好</b>：首都高官方评定 11/23 全天<b>「拥堵较少」</b>；东名下行仅 <b>09:00–13:00</b> 在横浜青葉→綾瀬出现 <b>最大 10 km（+18分钟，11点峰值）</b>，比周六/周日（20km）轻一半！而最恐怖的 <b>30 km 返程大堵车</b> 在对向（上行），我们 11/23 反向出城、11/25 周三回程完美躲过！
+      </p>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="tscroll">
+        <table>
+          <thead>
+            <tr><th>路段 / 方向</th><th>预测时段</th><th>拥堵规模</th><th>实操策略</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>京叶道上行 → 首都高7号</b><br><span style="color:var(--soft);font-size:12px">滝不動 → 新宿东口</span></td>
+              <td class="mono">07:00–08:30</td>
+              <td><span class="tag ok">顺畅</span><br>花轮IC偶发+5分</td>
+              <td>避开11号台场线，走7号→C1→4号<b>外苑出口</b>。</td>
+            </tr>
+            <tr>
+              <td><b>东名高速（下行・去程）</b><br><span style="color:var(--soft);font-size:12px">横浜青葉IC → 綾瀬SIC</span></td>
+              <td class="mono">09:00–13:00<br>峰值 11:00</td>
+              <td><span class="tag warn">最大 10 km</span><br>延迟约 +18 分钟</td>
+              <td><b>08:15 前从新宿发车</b>可在9点前零堵通过。</td>
+            </tr>
+            <tr>
+              <td><b>东名施工段（下行）</b><br><span style="color:var(--soft);font-size:12px">大井松田IC → 足柄SIC</span></td>
+              <td class="mono">全天昼夜施工</td>
+              <td><span class="tag warn">右线封闭</span><br>合流走左线</td>
+              <td>保持车距勿抢道；在足柄SA休整最顺路。</td>
+            </tr>
+            <tr>
+              <td><b>沼津港 ＆ 静冈东部</b><br><span style="color:var(--soft);font-size:12px">沼津IC・鱼市场前</span></td>
+              <td class="mono">11:30–14:00</td>
+              <td><span class="tag err">重度排队</span><br>停车+等位约2h</td>
+              <td>叠加<b>沼津秋祭＋御殿场黑五</b>。<b>11:15未过沼津IC直接跳过！</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. SHINJUKU EAST EXIT PICKUP -->
+  <section id="pickup">
+    <div class="sec-head">
+      <div><div class="sec-k">MEETUP &amp; RE-ENTRY</div><h2>新宿站东口（照片位置）接人＆重返高速指南</h2></div>
+    </div>
+
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <div class="st">STEP 1 · 进新宿东口</div>
+          <p>走 4号新宿线<b>「外苑出口」下高速</b>，直接落在JR东侧，沿外苑西通り→新宿通り直行 2.2 km（约8分）即达东口（乐待・优衣库附近），不用绕西新宿。</p>
+        </div>
+        <div class="step">
+          <div class="st">STEP 2 · 东口快速上车</div>
+          <p>新宿通り步行者天国 <b>12:00 才开始</b>，上午可通车。司机到前10分钟联系朋友拿好雪杖＆箱子下楼，<b>3分钟内闪灯快装</b>；若装车需超5分钟，直接进<b>新宿駅東口駐車場（30分400日元）</b>。</p>
+        </div>
+        <div class="step">
+          <div class="st">STEP 3 · 重返高速往东名</div>
+          <p>东口最顺路：往东 2.3 km 进<b>「外苑入口（上り・ETC专用）」</b>→ 三宅坂JCT → C1内回り → 谷町JCT → <b>3号渋谷線（下り）</b>→ 东名！不钻山手隧道、不绕大桥螺旋。</p>
+        </div>
+      </div>
+
+      <div class="alert err" style="margin-top:12px">
+        <b class="t">⚠️ 新宿东口出发绝对不能踩的 4 个坑</b>
+        <ul>
+          <li><b>4号新宿线（下り）在西新宿JCT不能换乘C2！</b>切勿进「外苑入口（下り）」或「初台入口（下り）」，否则直接去中央道（八王子）。</li>
+          <li><b>备选路线</b>：如不想绕C1，可走「初台南入口（C2内回り）→山手隧道→大桥JCT」，或沿明治通り经涩谷走国道246进「池尻入口（3号下り，零JCT切换）」。</li>
+          <li><b>首都高入口全为 ETC 专用</b>：外苑・初台南・池尻均无现金通道，请确认 ETC 卡已插好。</li>
+          <li><b>伊豆收费站只收现金</b>：伊豆中央道（200日元）・修善寺道路（200日元）普通 ETC 要到 2027年3月才开通，务必备好 100 日元硬币！</li>
+        </ul>
+      </div>
+
+      <div class="btns">
+        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E6%96%B0%E5%AE%BF%E9%A7%85%E6%9D%B1%E5%8F%A3%E9%A7%90%E8%BB%8A%E5%A0%B4">📍 新宿东口停车场 ↗</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%BC%98%E6%B3%95%E3%81%AE%E6%B9%AF+%E9%95%B7%E5%B2%A1%E5%BA%97">📍 弘法の湯 长冈店 ↗</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%87%E3%81%86%E3%81%9F%E3%82%93%E5%AF%BF%E5%8F%B8+%E4%BC%8A%E8%B1%86%E9%95%B7%E5%B2%A1">📍 ひょうたん寿司 ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. RISKS -->
+  <section id="risks">
+    <div class="sec-head">
+      <div><div class="sec-k">RISK MANAGEMENT</div><h2>重点风险预知与兜底 B 方案</h2></div>
+    </div>
+    <div id="risk-wrap"></div>
+  </section>
+
+  <!-- 5. CHECKLIST -->
+  <section id="todo">
+    <div class="sec-head">
+      <div><div class="sec-k">CHECKLIST</div><h2>今晚 〜 明早 协同准备清单</h2></div>
+      <span id="chk-stat" class="tag ok">0 / 8</span>
+    </div>
+    <div class="card" id="chk-wrap"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    2026.11.23 东京・伊豆自驾行前速览 ｜ 数据参考 NEXCO中日本・首都高官方公告・气象预报<br>
+    出发前请同步查看 Google Maps / 首都高 mew-ti 实时路况
+  </div>
+</footer>
+
+<div id="toast" class="toast">已复制微信群确认文案，去粘贴吧！</div>
+
+<script>
+const CONGESTION = [
+  {h:'07时',d:0,u:0},{h:'08时',d:2,u:0},{h:'09时',d:6,u:0},{h:'10时',d:8,u:0},
+  {h:'11时',d:10,u:0},{h:'12时',d:8,u:0},{h:'13时',d:4,u:2},{h:'14时',d:0,u:5},
+  {h:'15时',d:0,u:15},{h:'16时',d:0,u:22},{h:'17时',d:0,u:28},{h:'18时',d:0,u:30}
+];
+
+const RISKS = [
+  {lvl:'err',tag:'高风险',cat:'首都高封路',t:'11号台场线（彩虹大桥）04:00–14:00 全线封闭',p:'坚持走京叶道→7号小松川线→C1→4号外苑出口，绝对不走湾岸线。'},
+  {lvl:'err',tag:'高风险',cat:'重返高速',t:'误入4号新宿线下行导致无法转C2直奔中央道',p:'导航设途经点「外苑入口（上り）」→C1内回り→3号下り；备选「池尻入口（3号下り）」。'},
+  {lvl:'err',tag:'高风险',cat:'东口装车',t:'4人行李＋雪杖＋登山包装不下 / 路边超时违停',p:'今晚对清雪杖长度与箱子数；超5分钟装车直接进「新宿駅東口駐車場」（400日元/30分）。'},
+  {lvl:'err',tag:'高风险',cat:'沼津港峰值',t:'12:00–14:00 祝日峰值＋沼津秋祭，停车等位耗2小时',p:'08:00发车11点前吃早午饭；硬止损线：11:15未过沼津IC直接跳过！'},
+  {lvl:'err',tag:'高风险',cat:'日落＆晚饭',t:'16:36天黑・16:00庭园闭园 ＋ 祝日夜4人无预约没饭吃',p:'15点前抵达先逛修善寺再入住；今晚订好步行9分钟的「ひょうたん寿司」。'},
+  {lvl:'warn',tag:'中风险',cat:'收费＆施工',t:'伊豆中央道/修善寺道路普通ETC不可用 ＋ 东名右线封闭',p:'中控台备好10–15枚100日元硬币，副驾负责递零钱；大井松田〜足柄提前靠左。'},
+  {lvl:'warn',tag:'中风险',cat:'天气＆疲劳',t:'11/24午后可能转雨影响看富士山 ＋ 司机上午高负荷',p:'11/23快晴0%，若13:30前到伊豆可顺路先冲达摩山拍富士山；足柄SA强制休整。'}
+];
+
+const TODOS = [
+  {id:'t1',who:'全员',tx:'拍板明早集合时间：08:00 新宿东口（吃沼津港） 或 09:00 新宿东口（跳过沼津港）'},
+  {id:'t2',who:'友人',tx:'把新宿东口酒店确切名字/定位、雪杖长度和总箱包数量发群里'},
+  {id:'t3',who:'全员',tx:'今晚电话预约晚饭：ひょうたん寿司（055-948-0733，LO 19:30）'},
+  {id:'t4',who:'司机',tx:'车内备好 1,000–2,000 日元硬币（100日元×10–15枚），用于伊豆200日元现金收费站'},
+  {id:'t5',who:'司机',tx:'确认 ETC 卡有效并插好（外苑/初台南/池尻均为ETC专用）、加满油、清空后备箱'},
+  {id:'t6',who:'明早',tx:'出发前看实时路况，锁定走京叶道→7号小松川线（避开11号台场线封路）'},
+  {id:'t7',who:'配合',tx:'车到新宿东口前10分钟联系，2位朋友提前拉行李到楼下，3分钟快速装车'},
+  {id:'t8',who:'止损',tx:'11:15 若尚未通过沼津IC，果断放弃沼津港直奔伊豆长冈/修善寺吃午饭'}
+];
+
+const fmt = m => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(Math.round(m%60)).padStart(2,'0')}`;
+
+function ayaseDelay(passMin, mode){
+  if(mode==='smooth') return 0;
+  let b = 0;
+  if(passMin>=540 && passMin<=780) b = Math.max(8, Math.round(18 - Math.abs(passMin-660)/120*10));
+  else if(passMin>=520 && passMin<540) b = 4;
+  return mode==='accident' ? b+30 : b;
+}
+
+function runSim(){
+  const dep = +document.getElementById('dep-slider').value;
+  const mode = document.getElementById('traffic-mode').value;
+  const useNum = document.getElementById('opt-numazu').checked;
+  const szFirst = document.getElementById('opt-first').checked;
+  document.getElementById('dep-out').textContent = fmt(dep);
+
+  const list = [];
+  let t = dep, drv = 0, km = 0;
+
+  list.push({s:t,d:70,tp:'d',lb:'滝不動→新宿',ti:'滝不動駅 → 新宿站东口（约39km）',nt:'京叶道→7号小松川线→C1→4号外苑出口（避开11号台场线封路）。'});
+  t+=70; drv+=70; km+=39;
+  const sjk = t;
+  document.getElementById('sjk-hint').textContent = fmt(sjk);
+
+  list.push({s:t,d:22,tp:'r',lb:'东口接人',ti:'新宿东口接2名友人＆装车 → 外苑入口（上り）',nt:'12点前无步行者天国；走「外苑入口（上り・ETC专用）」→C1→3号下り。'});
+  t+=22;
+
+  const ayaseEst = t+45;
+  const delay = ayaseDelay(ayaseEst, mode);
+  const hw = 72 + delay;
+  list.push({s:t,d:hw,tp:'d',lb:delay>=12?`东名(+${delay}分)`:'东名下行',ti:'首都高 → 东名高速下行 → 足柄SA（约92km）',nt:delay===0?`约${fmt(ayaseEst)}过绫濑零拥堵！注意大井松田〜足柄右线封闭。`:`约${fmt(ayaseEst)}过绫濑瓶颈预计+${delay}分；大井松田右线封闭请靠左。`});
+  t+=hw; drv+=hw; km+=92;
+
+  const rest = useNum?18:28;
+  list.push({s:t,d:rest,tp:'r',lb:'足柄SA',ti:'足柄SA 休整（洗手间・买咖啡）',nt:'避开爆满的海老名SA，顺便远眺富士山。'});
+  t+=rest;
+
+  let numTxt='跳过沼津港◎', numBad=false;
+  if(useNum){
+    list.push({s:t,d:35,tp:'d',lb:'往沼津港',ti:'足柄SA → 沼津IC → 沼津港（约34km）',nt:'11/23叠加沼津秋祭，11:30后易开始排队。'});
+    t+=35; drv+=35; km+=34;
+    let stay=70;
+    if(t>=700){stay=115;numTxt=`${fmt(t)}到(直撞峰值2h)`;numBad=true;}
+    else if(t>=670){stay=90;numTxt=`${fmt(t)}到(轻度排队)`;}
+    else{stay=70;numTxt=`${fmt(t)}到(峰值前顺畅◎)`;}
+    list.push({s:t,d:stay,tp:'f',lb:'沼津港午饭',ti:'沼津港海鲜午饭（含停车与等位）',nt:numBad?'❌ 已入12–14时重度排队期！建议11:15未过沼津IC直接跳过。':'趁大部队到达前吃完，体验极佳。'});
+    t+=stay;
+    list.push({s:t,d:30,tp:'d',lb:'往伊豆',ti:'沼津港 → 伊豆长冈区域（约13km）',nt:'伊豆中央道江间收费站现金200日元。'});
+    t+=30; drv+=30; km+=13;
+  }else{
+    list.push({s:t,d:38,tp:'d',lb:'直奔伊豆',ti:'足柄SA → 长泉沼津IC → 伊豆长冈（约38km）',nt:'走新东名＋伊豆纵贯道；伊豆中央道现金200日元。'});
+    t+=38; drv+=38; km+=38;
+    list.push({s:t,d:55,tp:'f',lb:'伊豆午饭',ti:'伊豆长冈 / 修善寺周边午饭',nt:'避开沼津港停车排队，节奏最从容。'});
+    t+=55;
+  }
+
+  let szStart=0;
+  if(szFirst && t<885){
+    list.push({s:t,d:15,tp:'d',lb:'往修善寺',ti:'先赴修善寺温泉街（约9km，现金200日元）',nt:'15点前先逛修善寺，充分利用白天光线！'});
+    t+=15; drv+=15; km+=9;
+    szStart=t;
+    list.push({s:t,d:75,tp:'s',lb:'修善寺散步',ti:'修善寺温泉街（独钴之汤・修禅寺庭园・竹林小径）',nt:szStart<=915?'✅ 赶上修禅寺庭园特别公开（〜16:00）＆明亮光线！':'⚠️ 优先进16:00闭园的修禅寺庭园。'});
+    t+=75;
+    list.push({s:t,d:15,tp:'d',lb:'回旅馆',ti:'修善寺 → 弘法の湯 长冈店（约9km）',nt:'抵达即结束全天开车任务！'});
+    t+=15; drv+=15; km+=9;
+    const ci=Math.max(t,900);
+    list.push({s:ci,d:60,tp:'s',lb:'入住泡汤',ti:'弘法の湯 长冈店 入住・泡温泉＆岩盘浴',nt:'室外免费停车34台（1房限1车）。'});
+    t=ci+60;
+  }else{
+    const ci=Math.max(t,900);
+    if(t<900) list.push({s:t,d:900-t,tp:'r',lb:'等入住',ti:'旅馆周边小憩（等待15:00入住）',nt:'勾选「先逛修善寺」可多赚1小时白天观光。'});
+    list.push({s:ci,d:45,tp:'s',lb:'办入住',ti:'弘法の湯 长冈店 入住・放行李',nt:'祝日15点前后车位略紧。'});
+    t=ci+45;
+    list.push({s:t,d:15,tp:'d',lb:'往修善寺',ti:'旅馆 → 修善寺温泉街（约9km）',nt:'修善寺道路现金200日元。'});
+    t+=15; drv+=15; km+=9;
+    szStart=t;
+    list.push({s:t,d:60,tp:'s',lb:'夜逛修善寺',ti:'修善寺温泉街（竹林小径点灯・足汤）',nt:szStart>=960?'❌ 已过16:00庭园闭园，16:36即天黑。':'⚠️ 距日落所剩无几。'});
+    t+=60;
+    list.push({s:t,d:15,tp:'d',lb:'夜驾回宿',ti:'修善寺 → 弘法の湯 长冈店（天黑行车）',nt:'停好车后再饮酒。'});
+    t+=15; drv+=15; km+=9;
+  }
+
+  const din=Math.max(t,1050);
+  list.push({s:din,d:80,tp:'f',lb:'预约晚饭',ti:'晚饭：ひょうたん寿司（步行9分・LO 19:30）',nt:'今晚务必电话订位！步行往返司机可安心喝一杯。'});
+
+  // KPIs
+  const light = Math.max(0, 996 - szStart);
+  document.getElementById('k-sjk').textContent = fmt(sjk);
+  const kt=document.getElementById('k-tomei');
+  kt.textContent = delay===0?'0 拥堵':`+${delay} 分`;
+  kt.style.color = delay===0?'var(--ok)':(delay<=20?'var(--warn)':'var(--err)');
+  document.getElementById('k-tomei-s').textContent = `约${fmt(ayaseEst)}过绫濑`;
+
+  const kl=document.getElementById('k-light');
+  kl.textContent = light>0?`${light} 分钟`:'已天黑';
+  kl.style.color = light>=60?'var(--ok)':(light>=30?'var(--warn)':'var(--err)');
+  document.getElementById('k-garden').textContent = szStart<=930?'赶得上庭园(〜16:00)':(szStart<960?'庭园略赶':'庭园已闭园');
+
+  document.getElementById('k-drv').textContent = `${Math.floor(drv/60)}h${String(drv%60).padStart(2,'0')}m / ${km}km`;
+  document.getElementById('k-num').textContent = numTxt;
+
+  const vp = document.getElementById('verdict-pill');
+  if(light>=60 && !numBad){vp.className='tag ok';vp.textContent='余裕充足 ◎';}
+  else if(light>=25 && !numBad){vp.className='tag warn';vp.textContent='略偏紧 △';}
+  else{vp.className='tag err';vp.textContent='偏紧・建议调整 ✕';}
+
+  // Gantt
+  const minS=360, span=870, pct=m=>Math.max(0,Math.min(100,(m-minS)/span*100));
+  const ga=document.getElementById('g-axis'); ga.innerHTML='';
+  [360,480,600,720,840,960,1080,1200].forEach(m=>{
+    const s=document.createElement('span');
+    s.style.cssText=`position:absolute;left:${pct(m)}%;transform:translateX(-50%)`;
+    s.textContent=fmt(m); ga.appendChild(s);
+  });
+  const col={d:'#2b6cb0',r:'#b7791f',f:'#c2542a',s:'#2f855a'};
+  const gt=document.getElementById('g-track'); gt.innerHTML='';
+  list.forEach(x=>{
+    const l=pct(x.s), w=Math.max(1.5,pct(x.s+x.d)-l);
+    const e=document.createElement('div'); e.className='gseg';
+    e.style.cssText=`left:${l}%;width:${w}%;background:${col[x.tp]}`;
+    e.textContent=w>7?x.lb:''; e.title=`${fmt(x.s)}-${fmt(x.s+x.d)} ${x.ti}`;
+    gt.appendChild(e);
+  });
+  const gl=document.createElement('div'); gl.className='gline'; gl.style.left=pct(996)+'%'; gt.appendChild(gl);
+
+  // Timeline list
+  const ul=document.getElementById('tl-list'); ul.innerHTML='';
+  list.forEach(x=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<div class="tm">${fmt(x.s)}–${fmt(x.s+x.d)}<i>${x.d}分钟</i></div><div><div class="ti">${x.ti}</div><div class="nt">${x.nt}</div></div>`;
+    ul.appendChild(li);
+  });
+}
+
+function drawChart(){
+  const c=document.getElementById('c-chart'), a=document.getElementById('c-axis');
+  CONGESTION.forEach((x,i)=>{
+    const col=document.createElement('div');
+    col.className='ccol'+(i===1?' best':'');
+    const dh=Math.max(x.d?12:3,Math.round(x.d/30*100));
+    const uh=Math.max(x.u?12:3,Math.round(x.u/30*100));
+    col.innerHTML=`<div class="cbar" style="height:${dh}%;background:${x.d?'#2b6cb0':'var(--line)'}">${x.d>=6?x.d:''}</div><div class="cbar" style="height:${uh}%;background:${x.u?'#b91c1c':'var(--line)'}">${x.u>=10?x.u:''}</div>`;
+    c.appendChild(col);
+    const l=document.createElement('div'); l.textContent=x.h.replace('时','');
+    if(i===1){l.style.color='var(--ok)';l.style.fontWeight='700';}
+    a.appendChild(l);
+  });
+}
+
+function drawRisks(){
+  const w=document.getElementById('risk-wrap');
+  RISKS.forEach(r=>{
+    const d=document.createElement('div'); d.className='risk';
+    d.innerHTML=`<div class="rh"><span class="tag ${r.lvl}">${r.tag}</span><span class="tag" style="background:var(--card2);color:var(--soft)">${r.cat}</span><span class="rt">${r.t}</span></div><div class="rb"><div><b>对策：</b>${r.p}</div></div>`;
+    w.appendChild(d);
+  });
+}
+
+const KEY='izu_wx_chk_v1';
+function drawTodos(){
+  let st={}; try{st=JSON.parse(localStorage.getItem(KEY)||'{}');}catch{}
+  const w=document.getElementById('chk-wrap'); w.innerHTML='';
+  let n=0;
+  TODOS.forEach(x=>{
+    const on=!!st[x.id]; if(on) n++;
+    const lb=document.createElement('label'); lb.className='chk'+(on?' done':'');
+    lb.innerHTML=`<input type="checkbox" ${on?'checked':''}><span><b class="mono" style="font-size:12px;color:var(--accent);margin-right:6px">[${x.who}]</b>${x.tx}</span>`;
+    lb.querySelector('input').addEventListener('change',e=>{
+      st[x.id]=e.target.checked;
+      try{localStorage.setItem(KEY,JSON.stringify(st));}catch{}
+      drawTodos();
+    });
+    w.appendChild(lb);
+  });
+  document.getElementById('chk-stat').textContent=`${n} / ${TODOS.length}`;
+}
+
+document.querySelectorAll('.pbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const p=b.dataset.preset;
+  if(p==='planB'){document.getElementById('dep-slider').value=405;document.getElementById('opt-numazu').checked=true;document.getElementById('opt-first').checked=true;}
+  if(p==='planC'){document.getElementById('dep-slider').value=465;document.getElementById('opt-numazu').checked=false;document.getElementById('opt-first').checked=true;}
+  if(p==='planA'){document.getElementById('dep-slider').value=465;document.getElementById('opt-numazu').checked=true;document.getElementById('opt-first').checked=false;}
+  runSim();
+}));
+
+['dep-slider','traffic-mode','opt-numazu','opt-first'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',runSim);
+  document.getElementById(id).addEventListener('change',runSim);
+});
+
+document.getElementById('copy-wx-btn').addEventListener('click',()=>{
+  const txt = `【11/23 周一・伊豆自驾行前确认】\n明天伊豆大晴天（15℃/5℃，日落16:36），高速拥堵查好了：\n- 东名下行 9:00-13:00 绫濑附近预计堵10km(+18分)，但比周六日轻一半\n- 沼津港明天叠加沼津秋祭，12点去会排长队\n\n今晚需要大家拍板 2 件事：\n1️⃣ 明早新宿东口集合时间（二选一）：\n  ・方案B（推荐）：08:00 集合 → 避开高速拥堵＋11点前沼津港早午饭 → 先逛明亮修善寺再入住\n  ・方案C（不早起）：09:00 集合 → 跳过沼津港，直接去伊豆吃午饭＋先逛修善寺\n2️⃣ 晚饭＆行李：\n  ・弘法の湯不含晚饭，今晚要不要直接订步行9分钟的「ひょうたん寿司」(055-948-0733)？\n  ・麻烦报下酒店具体名字＋今天买的雪杖长度＆箱子个数，明早车到前10分钟叫大家下楼，3分钟快装出发！`;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).catch(()=>{});}
+  const t=document.getElementById('toast'); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+});
+
+// Scroll spy for sticky nav
+const navLinks=[...document.querySelectorAll('nav a')];
+const secs=navLinks.map(a=>document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY+90;
+  let cur=0;
+  secs.forEach((s,i)=>{if(s && s.offsetTop<=y) cur=i;});
+  navLinks.forEach((a,i)=>a.classList.toggle('on',i===cur));
+},{passive:true});
+
+runSim(); drawChart(); drawRisks(); drawTodos();
+</script>
+</body>
+</html>
