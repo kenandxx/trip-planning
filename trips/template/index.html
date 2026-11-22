@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151412" media="(prefers-color-scheme: dark)">
+<title>➕ 通用日本自驾新行程模板｜占位模板</title>
+<style>
+:root{
+  --paper:#f5f0e7; --card:#fcf9f4; --card2:#f0e9dc; --ink:#1f1c18; --soft:#6b6358; --line:#dfd7c8;
+  --accent:#c2542a; --indigo:#2b4c59; --nav:#1a73e8; --ok:#256d49; --ok-bg:#e2f2e9; --warn:#a16207; --warn-bg:#f8ebd0;
+  --shadow:0 1px 2px rgba(55,40,18,.06),0 6px 18px rgba(55,40,18,.05);
+  --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#151412; --card:#1f1d1a; --card2:#282520; --ink:#ede7db; --soft:#a59d90; --line:#35312b;
+    --accent:#e57c52; --indigo:#8fb7c7; --nav:#4a90f2; --ok:#52b788; --ok-bg:#1b3326; --warn:#e6b655; --warn-bg:#382b12;
+    --shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--nav);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.hero{background:linear-gradient(135deg,#213843 0%,#355460 52%,#7e442c 100%);color:#fff;padding:24px 16px 20px}
+.hero .wrap{padding:0}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:rgba(255,255,255,.88);margin-bottom:10px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;font:600 11.5px/1.2 var(--mono)}
+.badges span{background:rgba(255,255,255,.16);padding:4px 9px;border-radius:99px}
+.hero h1{margin:0;font:600 22px/1.3 var(--serif)}
+.hero p{margin:7px 0 0;font-size:13px;opacity:.92}
+main{padding:18px 0 42px;display:grid;gap:14px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 10px;font:700 16.5px/1.35 var(--serif)}
+.kv{display:grid;gap:8px;font-size:13.5px}
+.row{background:var(--card2);border-radius:9px;padding:8px 11px}
+.row b{color:var(--indigo);display:block;font-size:12px;margin-bottom:2px}
+ul{margin:0;padding-left:18px;font-size:13.5px}
+li{margin:5px 0}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 13px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--card2);color:var(--ink)}
+.btn.pri{background:var(--nav);border-color:var(--nav);color:#fff}
+.btn.warm{background:var(--accent);border-color:var(--accent);color:#fff}
+pre{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font:12px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word;overflow-x:auto}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 34px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="back" href="../">← 返回全部行程总览（Trip Hub）</a>
+    <div class="badges">
+      <span>🧩 空白脚手架・复制即用</span>
+      <span>YYYY-MM-DD（复制本文件夹改名后填写）</span>
+      <span>目录：trips/template/</span>
+    </div>
+    <h1>➕ 通用日本自驾新行程模板</h1>
+    <p>任意目的地通用：复制 trips/template → trips/YYYY-MM-地名，填好 brief.md 即可一键生成全套攻略</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>1. 待填核心参数（已同步预置在 brief.md）</h2>
+    <div class="kv">
+      <div class="row"><b>出发地＆时间锚点</b>千叶滝不動駅（或改为你的实际出发地）</div>
+      <div class="row"><b>中途接人点</b>无 / 或填写中途接人酒店（精确地址＋目标抵达时间）</div>
+      <div class="row"><b>目的地＆核心景点</b>填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛）</div>
+      <div class="row"><b>住宿酒店</b>填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）</div>
+      <div class="row"><b>同行人数＆行李</b>共 X 人（注明大箱子/雪板/婴儿车等特殊行李）</div>
+      <div class="row"><b>风景＆餐饮偏好</b>填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好</div>
+    </div>
+    <div class="btns">
+      <a class="btn" href="brief.md" target="_blank" rel="noopener">📄 打开 brief.md 原文</a>
+      <a class="btn" href="../../skills/japan-self-drive-trip-planner/SKILL.md" target="_blank" rel="noopener">📘 查看 SKILL.md 规格</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. 正式规划时 AI 将自动核查的 4 大模块</h2>
+    <ul>
+        <li>核查出行日天气预报、日落时间、核心景点最终入场/闭园时间</li>
+        <li>核查 NEXCO / 首都高官方逐小时拥堵预测、封路施工、ETC专用入口与纯现金收费站</li>
+        <li>设计新手防选错一键 Google Maps 分段接力导航＋1 秒选线核对＋零山路保底线</li>
+        <li>筛选 3 家当日营业餐厅（≥9 张本地实拍图＋9 条真实评价）并渲染防缓存微信长图</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>3. 一键复制启动指令（填好括号里的细节发给 AI 即可生成完整页）</h2>
+    <div class="btns" style="margin-top:0">
+      <button class="btn pri" type="button" id="copy-ag">📋 复制 Antigravity 启动指令</button>
+      <button class="btn warm" type="button" id="copy-ext">🌐 复制 ChatGPT / Claude 通用指令</button>
+    </div>
+    <pre id="prompt-preview">/goal 按照 japan-self-drive-trip-planner 规格，根据 trips/template/brief.md 生成完整攻略页、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：
+- 日期：YYYY-MM-DD（复制本文件夹改名后填写）
+- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）
+- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）
+- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）
+- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好</pre>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">占位页：按 japan-self-drive-trip-planner 规格生成后将自动替换为完整交互导航页</div>
+</footer>
+<div class="toast" id="toast">已复制！</div>
+
+<script>
+const AG_PROMPT = '/goal 按照 japan-self-drive-trip-planner 规格，根据 trips/template/brief.md 生成完整攻略页、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好';
+const EXT_PROMPT = '请先完整阅读并严格遵循这份日本自驾攻略规范：\nhttps://raw.githubusercontent.com/kenandxx/trip-planning/main/skills/japan-self-drive-trip-planner/SKILL.md\n\n然后按规范为我规划以下行程（产出单文件交互网页 index.html、微信文案、长图设计）：\n- 行程目录：trips/template/\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好';
+function copyTxt(txt, msg){
+  document.getElementById('prompt-preview').textContent = txt;
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(()=>{});
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+document.getElementById('copy-ag').addEventListener('click', ()=>copyTxt(AG_PROMPT, '已复制 Antigravity 启动指令！'));
+document.getElementById('copy-ext').addEventListener('click', ()=>copyTxt(EXT_PROMPT, '已复制跨 AI 通用指令（含 SKILL.md 链接）！'));
+</script>
+</body>
+</html>
