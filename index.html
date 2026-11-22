@@ -325,19 +325,23 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
       </div>
     </div>
 
-    <!-- LEG 2A (SHARED: HOTEL STARPLAZA IKEBUKURO -> NISHI-IKEBUKURO C2 OR ZERO-TUNNEL IKEJIRI) -->
+    <!-- LEG 2A (SHARED: HOTEL STARPLAZA IKEBUKURO -> NISHI-IKEBUKURO C2 -> SA, OR ZERO-TUNNEL IKEJIRI) -->
     <div class="nav-card highlight">
       <div class="nav-top">
         <span class="nav-step blue">第 2A 段・池袋上高速神技</span>
         <div class="nav-title">08:45 酒店接2人 → 西池袋入口（首都高C2内回り・ETC专用）</div>
-        <span class="tag ok">约 6–8 分 / 1.6km</span>
+        <span class="tag ok">约 6–8 分上高速</span>
       </div>
-      <div class="nav-meta"><b>单向入口只通新宿・大桥JCT・东名方向！</b>距酒店仅约 5–7 分钟（沿要町通り→山手通り），比地面绕去池尻快 20 分钟！2026/11/23 已核实无施工封闭（紫色ETC专用入口）。</div>
-      <div class="route-check"><b>✅ 1秒选线核对 &amp; 大橋JCT 2句口诀：</b>进西池袋上山手隧道（8.4km）后一路直开（忽略西新宿/富ヶ谷）；① 过<b>富ヶ谷出口</b>看到炫亮 LED 牌<b>「大橋JCT・3号渋谷線・東名」</b>，<b>提前靠右分叉进螺旋匝道</b>（别直走去品川）；② 螺旋慢慢爬坡(40km/h)时<b>死守左侧「🔵 蓝色车道（東名・用賀）」</b>（绝不走右侧红道去都心），出螺旋即直通东名！</div>
-      <div class="nav-tip"><b>🛡️ 极度怕钻8.4km山手隧道/螺旋？</b>点右侧保底按钮直接走地面<b>山手通り</b>一路向南直达单向<b>「池尻入口（3号下り・ETC专用）」</b>（约30分，零隧道零立交，安全兜底！）</div>
+      <div class="nav-meta"><b>实操防坑：</b>切勿把地下隧道入口单独设成导航终点（进山手隧道 8.4km 无信号无法切导航，且坐标易贴到地面大和田桥错过入口）！在酒店停稳时<b>直接点下方主按钮导至下一站 SA</b>，系统会自动无缝引导经<b>要町通り→山手通り南行中央隔离带</b>钻入单向<b>「西池袋入口（C2内回り・ETC专用）」</b>（2026/11/23 已核实无施工封闭・<a href="https://www.shutoko.jp/driving/route/entrance-exit/nishiikebukuro/" target="_blank" rel="noopener" style="color:var(--nav);text-decoration:underline">首都高官方入口图↗</a>）。</div>
+      <div class="route-check"><b>✅ 1秒选线核对 &amp; 大橋JCT 2句口诀：</b>出发前扫一眼蓝线确认经 <b>「山手通り → 西池袋料金所（C2中央環状線）」</b>（<span class="no">❌ 若弹出「5号池袋線→C1」请换点C2那条</span>）；进山手隧道一路直开：① 过<b>富ヶ谷出口</b>见炫亮 LED 牌<b>「大橋JCT・3号渋谷線・東名」</b>提前靠右进螺旋匝道（别直走品川）；② 螺旋爬坡(40km/h)<b>死守左侧「🔵 蓝色车道（東名・用賀）」</b>（绝不走右侧红道去都心），出螺旋即直通东名！</div>
+      <div class="nav-tip"><b>🛡️ 极度怕钻8.4km山手隧道/螺旋？</b>点下方<b>「零隧道:地面导池尻」</b>（已锁 <code>avoid=highways</code> 强制全程走地面山手通り→国道246，约30分直达单向<b>「池尻入口・3号下り・ETC专用」</b>），到池尻入口前等红灯时再点第 2B 段上高速！</div>
       <div class="nav-actions">
-        <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E8%A5%BF%E6%B1%A0%E8%A2%8B%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F%E4%B8%AD%E5%A4%AE%E7%92%B0%E7%8A%B6%E7%B7%9A&travelmode=driving&dir_action=navigate">🧭 主推：一键导至 西池袋入口</a>
-        <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%B1%A0%E5%B0%BB%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F3%E5%8F%B7%E6%B8%8B%E8%B0%B7%E7%B7%9A&travelmode=driving&dir_action=navigate">🛡️ 零隧道:池尻</a>
+        <a id="leg2a-go" class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving&dir_action=navigate">🧭 直导海老名SA（经西池袋C2）</a>
+        <a id="leg2a-pre" class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E3%83%9B%E3%83%86%E3%83%AB%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%97%E3%83%A9%E3%82%B6%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-10-2&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览蓝线</a>
+      </div>
+      <div class="nav-actions tri" style="margin-top:7px">
+        <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=35.724001,139.694077">📍 查西池袋入口定位</a>
+        <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=35.649185,139.681774&travelmode=driving&avoid=highways&dir_action=navigate">🛡️ 零隧道:地面导池尻</a>
       </div>
     </div>
 
@@ -349,12 +353,12 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
           <div class="nav-title">C2山手隧道 → 大橋JCT(蓝道) → 东名下行 → EXPASA海老名 SA（下り）</div>
           <span class="tag warn">约 55–60 分</span>
         </div>
-        <div class="nav-meta">神奈川県海老名市大谷南5-2-1（528小车位超宽敞，位于厚木IC前一站，零绕路！）。</div>
+        <div class="nav-meta">神奈川県海老名市大谷南5-2-1（528小车位超宽敞，位于厚木IC前一站，零绕路！）。<b>若已在第 2A 段从酒店直导海老名SA，本段无需重按</b>；走池尻备选或中途重开时点此续导。</div>
         <div class="route-check"><b>✅ 1秒选线核对：</b>认准全程 <b>「C2中央環状線 → 大橋JCT → 3号渋谷線 → 東名高速」</b> 直达 ｜ <span class="no">❌ 就算绫濑微堵(+11分)也别下高速绕「国道246」</span>，老实走高速最省心！</div>
         <div class="nav-tip"><b>进站必吃：</b>① <b>ぽるとがる 哈密瓜面包</b> ② <b>小田原吉匠 炸竹荚鱼</b> ③ <b>えびえび焼き</b>！刚好休整 30 分钟。</div>
         <div class="nav-actions">
-          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A+%E7%A5%9E%E5%A5%88%E5%B7%9D%E7%9C%8C%E6%B5%B7%E8%80%81%E5%90%8D%E5%B8%82%E5%A4%A7%E8%B0%B7%E5%8D%975-2-1&travelmode=driving&dir_action=navigate">🧭 一键导至 海老名SA（下り）</a>
-          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E8%A5%BF%E6%B1%A0%E8%A2%8B%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F%E4%B8%AD%E5%A4%AE%E7%92%B0%E7%8A%B6%E7%B7%9A&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving&dir_action=navigate">🧭 一键导至 海老名SA（下り）</a>
+          <a id="leg2b-sky-pre" class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E3%83%9B%E3%83%86%E3%83%AB%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%97%E3%83%A9%E3%82%B6%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-10-2&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
         </div>
       </div>
 
@@ -409,11 +413,11 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
           <div class="nav-title">C2山手隧道 → 大橋JCT(蓝道) → 东名下行 → EXPASA足柄 SA（下り）</div>
           <span class="tag warn">约 80–90 分</span>
         </div>
-        <div class="nav-meta">静岡県駿東郡小山町桑木603-18（511小车位，西馆2楼富士山展望露台＋足柄牛名物）。</div>
+        <div class="nav-meta">静岡県駿東郡小山町桑木603-18（511小车位，西馆2楼富士山展望露台＋足柄牛名物）。<b>若已在第 2A 段直接点导足柄SA，本段无需重按</b>；走池尻备选或中途重开时点此续导。</div>
         <div class="route-check"><b>✅ 1秒选线核对：</b>认准全程 <b>「C2中央環状線 → 大橋JCT(蓝道) → 3号渋谷線 → 東名高速」</b> 直达 ｜ ⚠️ 大井松田IC〜足柄SIC 右线昼夜施工封闭，请提前靠左稳妥驶入足柄SA。</div>
         <div class="nav-actions">
-          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A+%E9%9D%99%E5%B2%A1%E7%9C%8C%E9%A7%BF%E6%9D%B1%E9%83%A1%E5%B0%8F%E5%B1%B1%E7%94%BA%E6%A1%91%E6%9C%A8603-18&travelmode=driving&dir_action=navigate">🧭 一键导至 足柄SA（下り）</a>
-          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E8%A5%BF%E6%B1%A0%E8%A2%8B%E5%85%A5%E5%8F%A3+%E9%A6%96%E9%83%BD%E9%AB%98%E9%80%9F%E4%B8%AD%E5%A4%AE%E7%92%B0%E7%8A%B6%E7%B7%9A&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A&travelmode=driving&dir_action=navigate">🧭 一键导至 足柄SA（下り）</a>
+          <a id="leg2b-dir-pre" class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E3%83%9B%E3%83%86%E3%83%AB%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%97%E3%83%A9%E3%82%B6%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-10-2&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A&travelmode=driving">👀 预览</a>
         </div>
       </div>
 
@@ -962,23 +966,41 @@ const TODOS = [
 
 const fmt = m => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(Math.round(m%60)).padStart(2,'0')}`;
 
-// Hotel input live updater (Defaults to confirmed Hotel Starplaza Ikebukuro)
+// Hotel input live updater & Leg 2A/2B sync (Defaults to confirmed Hotel Starplaza Ikebukuro)
+const DEFAULT_HOTEL_ENC = '%E3%83%9B%E3%83%86%E3%83%AB%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%97%E3%83%A9%E3%82%B6%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-10-2';
+const SA_DEST = {
+  skyline: {enc:'EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8B%E3%82%8A', label:'海老名SA'},
+  direct:  {enc:'EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8B%E3%82%8A', label:'足柄SA'}
+};
+let curNavMode = 'skyline';
 const hotelInput = document.getElementById('hotel-input');
 function updateHotelNav(){
   const val = hotelInput.value.trim();
   const enc = encodeURIComponent;
   const go = document.getElementById('leg1-go');
   const title = document.getElementById('leg1-title');
+  const originEnc = val ? enc(val + ' 東京') : DEFAULT_HOTEL_ENC;
   if(val){
-    const dest = enc(val + ' 東京');
-    go.href = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving&dir_action=navigate`;
+    go.href = `https://www.google.com/maps/dir/?api=1&destination=${originEnc}&travelmode=driving&dir_action=navigate`;
     go.textContent = `🧭 一键导至 ${val}`;
     title.textContent = `07:30 滝不動 → ${val}`;
   } else {
-    go.href = 'https://www.google.com/maps/dir/?api=1&destination=%E3%83%9B%E3%83%86%E3%83%AB%E3%82%B9%E3%82%BF%E3%83%BC%E3%83%97%E3%83%A9%E3%82%B6%E6%B1%A0%E8%A2%8B+%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-10-2&travelmode=driving&dir_action=navigate';
+    go.href = `https://www.google.com/maps/dir/?api=1&destination=${DEFAULT_HOTEL_ENC}&travelmode=driving&dir_action=navigate`;
     go.textContent = '🧭 一键导至 Hotel Starplaza 池袋';
     title.textContent = '07:30 滝不動 → Hotel Starplaza Ikebukuro（池袋西口）';
   }
+  const sa = SA_DEST[curNavMode];
+  const leg2aGo = document.getElementById('leg2a-go');
+  const leg2aPre = document.getElementById('leg2a-pre');
+  const leg2bSkyPre = document.getElementById('leg2b-sky-pre');
+  const leg2bDirPre = document.getElementById('leg2b-dir-pre');
+  if(leg2aGo){
+    leg2aGo.href = `https://www.google.com/maps/dir/?api=1&destination=${sa.enc}&travelmode=driving&dir_action=navigate`;
+    leg2aGo.textContent = `🧭 直导${sa.label}（经西池袋C2）`;
+  }
+  if(leg2aPre) leg2aPre.href = `https://www.google.com/maps/dir/?api=1&origin=${originEnc}&destination=${sa.enc}&travelmode=driving`;
+  if(leg2bSkyPre) leg2bSkyPre.href = `https://www.google.com/maps/dir/?api=1&origin=${originEnc}&destination=${SA_DEST.skyline.enc}&travelmode=driving`;
+  if(leg2bDirPre) leg2bDirPre.href = `https://www.google.com/maps/dir/?api=1&origin=${originEnc}&destination=${SA_DEST.direct.enc}&travelmode=driving`;
 }
 hotelInput.addEventListener('input', updateHotelNav);
 
@@ -986,9 +1008,10 @@ hotelInput.addEventListener('input', updateHotelNav);
 document.querySelectorAll('.mtab').forEach(btn => btn.addEventListener('click', () => {
   document.querySelectorAll('.mtab').forEach(x => x.classList.remove('on'));
   btn.classList.add('on');
-  const mode = btn.dataset.navmode;
-  document.getElementById('nav-skyline').classList.toggle('hidden', mode !== 'skyline');
-  document.getElementById('nav-direct').classList.toggle('hidden', mode !== 'direct');
+  curNavMode = btn.dataset.navmode;
+  document.getElementById('nav-skyline').classList.toggle('hidden', curNavMode !== 'skyline');
+  document.getElementById('nav-direct').classList.toggle('hidden', curNavMode !== 'direct');
+  updateHotelNav();
 }));
 
 function ayaseDelay(passMin, mode){
