@@ -43,7 +43,7 @@ jobs:
             const overflow=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
             await page.getByRole('button',{name:'雨天简化路线'}).click();
             await page.getByRole('button',{name:'复制微信群分享文案'}).click();
-            await page.locator('#start').fill('9.5');
+            await page.locator('#start').evaluate(el=>{el.value='9.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
             await page.locator('#traffic').selectOption('30');
             await page.locator('#checks input').first().check();
             const title=await page.title();
