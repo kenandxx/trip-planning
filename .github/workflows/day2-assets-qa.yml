@@ -41,9 +41,9 @@ jobs:
             page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
             await page.goto('http://127.0.0.1:4173/trips/2026-11-24-nishi-izu/',{waitUntil:'networkidle'});
             const overflow=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
-            await page.getByRole('button',{name:'雨天简化路线'}).click();
-            await page.getByRole('button',{name:'复制微信群分享文案'}).click();
-            await page.locator('#start').evaluate(el=>{el.value='9.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
+            await page.locator('#modeRain').click();
+            await page.locator('#copyText').click();
+            await page.locator('#startRange').evaluate(el=>{el.value='9.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
             await page.locator('#traffic').selectOption('30');
             await page.locator('#checks input').first().check();
             const title=await page.title();
