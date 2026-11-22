@@ -14,7 +14,8 @@
 
 | 状态 | 行程 | 目录 | 在线网址（GitHub Pages） |
 |---|---|---|---|
-| ✅ 已上线 | **2026-11-23 东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
+| ✅ 已上线 | **2026-11-23（Day 1）东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
+| ✅ 已上线 | **2026-11-24（Day 2）西伊豆绝景 → 黄金崎 → 堂ヶ岛天窗洞** | `trips/2026-11-24-nishi-izu/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/ |
 | 📝 占位 | **2027-01 冬季滑雪温泉自驾（白马 / 越后汤泽 / 苗场）** | `trips/2027-01-snow-trip/` | https://kenandxx.github.io/trip-planning/trips/2027-01-snow-trip/ |
 | 📝 占位 | **2027-03 富士五湖・河口湖绝景周末自驾** | `trips/2027-03-fuji-lakes/` | https://kenandxx.github.io/trip-planning/trips/2027-03-fuji-lakes/ |
 | 📝 占位 | **2027-05 轻井泽・草津高原温泉自驾** | `trips/2027-05-karuizawa-kusatsu/` | https://kenandxx.github.io/trip-planning/trips/2027-05-karuizawa-kusatsu/ |
@@ -26,14 +27,15 @@
 
 ```text
 trip-planning/
-├── index.html                                    # 2026-11-23 伊豆攻略（已发微信群，保持根目录不失效）
-├── img/                                          # 2026-11-23 伊豆本地实拍图
-├── og-cover.png                                  # 2026-11-23 微信分享封面
-├── izu_1123_wechat_poster_0900.png               # 2026-11-23 微信一图流高清长图（09:00接人版）
+├── index.html                                    # 2026-11-23 Day 1 伊豆攻略（已发微信群，保持根目录不失效）
+├── img/                                          # 2026-11-23 Day 1 伊豆本地实拍图
+├── og-cover.png                                  # 2026-11-23 Day 1 微信分享封面
+├── izu_1123_wechat_poster_0900.png               # 2026-11-23 Day 1 微信一图流高清长图（09:00接人版）
 ├── skills/japan-self-drive-trip-planner/SKILL.md # 跨 AI 通用规范（供复制 / Raw 链接调用）
 ├── .agents/skills/japan-self-drive-trip-planner/ # 同款规范（本地 Agent 工具自动识别）
 └── trips/
     ├── index.html                                # 旅行总览目录页（Trip Hub）
+    ├── 2026-11-24-nishi-izu/                     # 2026-11-24 Day 2 西伊豆绝景＆堂ヶ岛天窗洞（已上线）
     ├── template/                                 # 空白新行程模板（brief.md + index.html + img/）
     ├── 2027-01-snow-trip/                        # 冬季滑雪占位模板
     ├── 2027-03-fuji-lakes/                       # 富士五湖占位模板

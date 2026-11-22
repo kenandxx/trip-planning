@@ -1,0 +1,1248 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151412" media="(prefers-color-scheme: dark)">
+<title>11/24 Day2 西伊豆绝景一键导航＆避雨攻略｜达摩山・黄金崎・堂ヶ岛天窗洞</title>
+<meta name="description" content="2026年11月24日（周二・Day 2）08:00 弘法の湯长冈店准时发车抢上午干爽窗→だるま山高原富士山→免费西伊豆Skyline→黄金崎马头岩→堂ヶ岛洞窟游览船＆海鲜午饭→14:20暴雨峰值前归宿泡汤。含防选错一键Google Maps导航、雨天零山路沼津港保底线、3家周二营业餐厅9实拍＆9真实口碑。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/">
+<meta property="og:title" content="11/24 西伊豆绝景一键导航｜08:00抢晴干窗・堂ヶ岛天窗洞＆周二必吃3选1">
+<meta property="og:description" content="实查11/24西伊豆12时起雨＋西南风8-9m/s！按08:00出发抢早船、14:20暴雨前归宿设计，附雨天零山路沼津港深海馆＋丸天保底线＆第4周二休业全避坑！">
+<meta property="og:image" content="https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/og-cover.png?v=1124v1">
+<style>
+:root{
+  --paper:#f5f0e7; --card:#fcf9f4; --card2:#f0e9dc; --ink:#1f1c18; --soft:#6b6358; --line:#dfd7c8;
+  --accent:#c2542a; --accent-soft:#f5e1d6; --indigo:#2b4c59; --indigo-soft:#dde8ec;
+  --nav:#1a73e8; --nav-dark:#1558b0;
+  --ok:#256d49; --ok-bg:#e2f2e9; --warn:#a16207; --warn-bg:#f8ebd0; --err:#b91c1c; --err-bg:#fbe3e3;
+  --shadow:0 1px 2px rgba(55,40,18,.06),0 6px 18px rgba(55,40,18,.05);
+  --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#151412; --card:#1f1d1a; --card2:#282520; --ink:#ede7db; --soft:#a59d90; --line:#35312b;
+    --accent:#e57c52; --accent-soft:#3b271e; --indigo:#8fb7c7; --indigo-soft:#1f2e34;
+    --nav:#4a90f2; --nav-dark:#2f74d0;
+    --ok:#52b788; --ok-bg:#1b3326; --warn:#e6b655; --warn-bg:#382b12; --err:#f07171; --err-bg:#3a1d1d;
+    --shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+.wx-thumb{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#183546 0%,#295569 52%,#8b4b2b 100%);color:#fff;padding:20px 16px 18px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,175,.25),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding:0}
+.crumb{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px;font-size:12px}
+.crumb a{color:rgba(255,255,255,.88);background:rgba(0,0,0,.22);padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.16)}
+.kicker{font:600 11.5px/1.2 var(--mono);letter-spacing:.04em;opacity:.95;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.kicker span{background:rgba(255,255,255,.16);padding:4px 9px;border-radius:99px}
+.kicker span.warn-k{background:rgba(245,158,11,.34);color:#fef3c7}
+.kicker span.ok{background:rgba(82,183,136,.32);color:#e0faec}
+.hero h1{margin:0;font:600 22.5px/1.28 var(--serif);letter-spacing:.02em}
+.hero .sub{margin:7px 0 0;font-size:13px;opacity:.93;line-height:1.52}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.hstat{background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:7px 9px}
+.hstat .l{font-size:11px;opacity:.82}
+.hstat .v{font:700 13px/1.3 var(--mono);margin-top:2px}
+
+/* Sticky nav */
+nav{position:sticky;top:0;z-index:30;background:var(--paper);background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:13px;font-weight:600;color:var(--soft);padding:6px 11px;border-radius:99px;white-space:nowrap}
+nav a.on{background:var(--ink);color:var(--paper)}
+
+main{padding:16px 0 42px}
+section{margin-bottom:26px;scroll-margin-top:58px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.sec-k{font:700 11px/1 var(--mono);letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+h2{margin:3px 0 0;font:600 19px/1.3 var(--serif)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.card+.card{margin-top:10px}
+
+/* Tags & Alerts */
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.tag.err{background:var(--err-bg);color:var(--err)}
+.tag.blue{background:var(--indigo-soft);color:var(--indigo)}
+.alert{border-radius:12px;padding:11px 13px;font-size:13px;border:1px solid;line-height:1.55}
+.alert.err{background:var(--err-bg);border-color:color-mix(in srgb,var(--err) 35%,transparent)}
+.alert.err b.t{color:var(--err)}
+.alert.ok{background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.alert.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.alert ul{margin:6px 0 0;padding-left:18px}
+.alert li{margin:4px 0}
+
+/* Route Mode Switcher */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mtab{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;transition:.15s}
+.mtab.on{border-color:var(--nav);background:color-mix(in srgb,var(--nav) 8%,var(--card))}
+.mtab .mt{font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:space-between;gap:4px}
+.mtab .md{font-size:11.5px;color:var(--soft);margin-top:3px;line-height:1.4}
+
+/* Novice Navigation Console */
+.hotel-bar{display:flex;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;margin-bottom:10px;flex-wrap:wrap}
+.hotel-bar label{font-size:12px;font-weight:700;color:var(--indigo);white-space:nowrap}
+.hotel-bar input{flex:1;min-width:170px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13.5px}
+.nav-card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.nav-card.highlight{border-color:var(--nav);background:color-mix(in srgb,var(--nav) 5%,var(--card))}
+.nav-card.scenic{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 5%,var(--card))}
+.nav-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 8px;margin-bottom:6px}
+.nav-step{display:inline-flex;align-items:center;justify-content:center;font:700 11.5px/1 var(--mono);padding:4px 8px;border-radius:6px;background:var(--ink);color:var(--paper);flex-shrink:0}
+.nav-step.blue{background:var(--nav);color:#fff}
+.nav-step.green{background:var(--ok);color:#fff}
+.nav-step.orange{background:var(--accent);color:#fff}
+.nav-title{font-weight:700;font-size:15px;line-height:1.35;flex:1 1 100%;order:3}
+.nav-meta{font-size:12px;color:var(--soft);margin:2px 0 8px;line-height:1.5}
+.nav-tip{font-size:12px;background:var(--card2);border-radius:8px;padding:7px 10px;margin-bottom:8px;color:var(--ink);line-height:1.5}
+.nav-tip b{color:var(--accent)}
+.route-check{font-size:12px;line-height:1.5;padding:7px 10px;border-radius:8px;margin-bottom:9px;background:var(--ok-bg);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);color:var(--ink)}
+.route-check b{color:var(--ok)}
+.route-check .no{color:var(--err);font-weight:700}
+.nav-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.nav-actions.tri{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:5px;padding:10.5px 12px;border-radius:10px;font-size:13.5px;font-weight:700;background:var(--nav);color:#fff;text-align:center;box-shadow:0 2px 6px rgba(26,115,232,.25)}
+.gbtn:active{background:var(--nav-dark)}
+.gbtn.walk{background:var(--ok)}
+.gbtn.warm{background:var(--accent)}
+.pview{display:flex;align-items:center;justify-content:center;padding:10.5px 11px;border-radius:10px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:var(--card2);color:var(--ink);white-space:nowrap}
+.nav-actions.tri .pview{white-space:normal;text-align:center;line-height:1.3;padding:9px 8px;font-size:12px}
+details.more-nav{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:8px}
+details.more-nav summary{font-weight:700;font-size:13.5px;cursor:pointer;color:var(--indigo)}
+.mini-nav-list{display:grid;gap:8px;margin-top:10px}
+.mini-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:9px;background:var(--card2);font-size:13px}
+.mini-nav a{flex-shrink:0;padding:6px 11px;border-radius:8px;background:var(--nav);color:#fff;font-size:12px;font-weight:700}
+
+/* Photo Grids & Lightbox */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.pitem{position:relative;border-radius:9px;overflow:hidden;background:var(--card2);aspect-ratio:4/3;cursor:zoom-in;border:1px solid var(--line)}
+.pitem img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.pitem:active img{transform:scale(1.03)}
+.pitem .pcap{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;background:linear-gradient(transparent,rgba(0,0,0,.76));color:#fff;font-size:10.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Scenic & Roadside cards */
+.sky-points{display:grid;gap:8px;margin-top:10px}
+.skyp{background:var(--card2);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.55}
+.skyp b{color:var(--indigo)}
+.sa-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+@media(min-width:620px){.sa-grid{grid-template-columns:1fr 1fr}}
+.sa-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow)}
+.sa-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.sa-head h3{margin:0;font:700 15.5px/1.3 var(--serif)}
+.sa-img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;margin:6px 0 9px;cursor:zoom-in;border:1px solid var(--line)}
+.sa-list{margin:0;padding:0;list-style:none;font-size:12.5px}
+.sa-list li{padding:6px 0;border-bottom:1px dashed var(--line);line-height:1.5}
+.sa-list li:last-child{border-bottom:0}
+.sa-list b{color:var(--accent)}
+
+/* Restaurant Cards */
+.rest-card{background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.rest-card.top-pick{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.rest-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.rest-name{margin:2px 0 0;font:700 17px/1.3 var(--serif)}
+.rest-rating{display:inline-flex;align-items:center;gap:4px;font:700 12.5px/1 var(--mono);background:var(--warn-bg);color:var(--warn);padding:4px 8px;border-radius:99px}
+.rest-meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--soft);margin:8px 0 6px;padding:8px 10px;background:var(--card2);border-radius:9px}
+.rest-meta span b{color:var(--ink)}
+.rest-desc{margin:6px 0;font-size:13px;line-height:1.55}
+.rev-box{margin-top:10px;display:grid;gap:7px}
+.rev{background:var(--card2);border-left:3px solid var(--indigo);border-radius:0 9px 9px 0;padding:8px 10px;font-size:12.5px;line-height:1.52}
+.rev .rh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--soft);margin-bottom:4px}
+.rev .rh b{color:var(--ink)}
+.rev .rh span{white-space:nowrap;flex-shrink:0;background:var(--card);padding:1px 7px;border-radius:99px;font-size:10.5px;border:1px solid var(--line);color:var(--indigo);font-weight:600}
+.rest-btns{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.rest-btns a{display:inline-flex;align-items:center;gap:4px;padding:8px 11px;border-radius:9px;font-size:12.5px;font-weight:700}
+.rb-nav{background:var(--nav);color:#fff}
+.rb-walk{background:var(--ok);color:#fff}
+.rb-map{background:var(--card2);color:var(--ink);border:1px solid var(--line)}
+.rb-tel{background:var(--indigo);color:#fff}
+
+/* Presets & Simulator */
+.presets{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
+@media(min-width:600px){.presets{grid-template-columns:repeat(3,1fr)}}
+.pbtn{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s}
+.pbtn.on{border-color:var(--accent);background:var(--accent-soft)}
+.pbtn .top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px}
+.pbtn .name{font-weight:700;font-size:13.5px}
+.pbtn .desc{font-size:12px;color:var(--soft);line-height:1.45}
+.ctrl{display:grid;grid-template-columns:1fr;gap:10px;padding:12px;background:var(--card2);border-radius:11px;margin-bottom:12px;font-size:13px}
+@media(min-width:600px){.ctrl{grid-template-columns:1.15fr 1fr 1fr;align-items:center}}
+.ctrl label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.ctrl input[type=range]{width:100%;accent-color:var(--accent);margin-top:4px}
+.ctrl select{width:100%;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:12.5px}
+.ctrl-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}
+.mono{font-family:var(--mono)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card2);border-radius:10px;padding:9px 10px}
+.kpi .kl{font-size:11.5px;color:var(--soft)}
+.kpi .kv{font:700 14.5px/1.3 var(--mono);margin-top:2px}
+.kpi .ks{font-size:11.5px;color:var(--soft);margin-top:2px}
+.gantt-wrap{margin:10px 0 12px}
+.gantt-axis{position:relative;height:18px;font:11px var(--mono);color:var(--soft);margin-bottom:4px}
+.gantt-track{position:relative;height:42px;border-radius:9px;background:var(--card2);overflow:hidden}
+.gseg{position:absolute;top:4px;bottom:4px;border-radius:6px;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gline{position:absolute;top:0;bottom:0;width:2px;background:var(--err);z-index:5}
+.gline.rain{background:#d97706;width:2px;border-left:1px dashed #fff;opacity:.92}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--soft);margin-top:7px}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.tl li:last-child{border-bottom:0}
+.tl .tm{font:600 12.5px/1.5 var(--mono);color:var(--accent)}
+.tl .tm i{display:block;font-style:normal;font-size:11px;color:var(--soft);font-weight:400}
+.tl .ti{font-weight:600;font-size:14px}
+.tl .nt{font-size:12.5px;color:var(--soft);margin-top:2px}
+
+/* Weather & Risk chart */
+.cchart{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:142px;padding:12px 4px 0;border-bottom:1px solid var(--line)}
+.ccol{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:100%;border-radius:6px 6px 0 0;padding:0 1px}
+.ccol.best{background:var(--ok-bg)}
+.cbar{width:46%;border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;font:700 9px var(--mono);color:#fff;padding-top:2px}
+.caxis{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;text-align:center;font:11px var(--mono);color:var(--soft);margin-top:4px}
+
+/* Buttons, Risks, Checklist */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:9px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.risk{border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--card);margin-bottom:8px}
+.risk .rh{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px}
+.risk .rt{font-weight:700;font-size:13.5px}
+.risk .rb{font-size:12.5px;color:var(--soft);display:grid;gap:4px}
+.risk .rb b{color:var(--ink)}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:9px;background:var(--card2);margin-bottom:6px;cursor:pointer;font-size:13.5px}
+.chk input{margin-top:3px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.chk.done span{text-decoration:line-through;color:var(--soft)}
+
+/* Lightbox modal */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:18px}
+.lb.show{display:flex}
+.lb img{max-width:96vw;max-height:78vh;border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.6)}
+.lb-cap{color:#f5f0e7;font-size:13.5px;margin-top:12px;text-align:center;max-width:640px}
+.lb-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:99px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;border-top:1px solid var(--line)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<img class="wx-thumb" src="og-cover.png" alt="11/24 西伊豆绝景一键导航">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="crumb">
+      <a href="../../">← Day 1 (11/23 伊豆Skyline)</a>
+      <a href="../">📚 旅行总览目录</a>
+      <a href="izu_1124_wechat_poster_v1.png" target="_blank" rel="noopener">🖼️ 微信一图流长图</a>
+    </div>
+    <div class="kicker">
+      <span>2026.11.24 周二・Day 2（第4周二平日）</span>
+      <span class="warn-k">08–11时干爽・12时起雨＋SW风8-9m</span>
+      <span class="ok">弘法の湯 连住轻装出发</span>
+    </div>
+    <h1>西伊豆绝景 → 堂ヶ岛天窗洞 自驾总览</h1>
+    <p class="sub">07:00 旅馆2F早餐 → 08:00 准时发车抢上午干爽窗 → だるま山高原 → 免费西伊豆Skyline → 黄金崎马头岩 → 堂ヶ岛洞窟游船＆海鲜午饭 → 14:20 暴雨峰值前归宿泡汤（附雨天零山路沼津港保底线）</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="l">西伊豆天气 / 风</div><div class="v">12时雨・SW9m</div></div>
+      <div class="hstat"><div class="l">日落 / 建议归宿</div><div class="v">16:36 / 14:20</div></div>
+      <div class="hstat"><div class="l">周二实查餐厅</div><div class="v">3家・9实拍</div></div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#gonav" class="on">🧭 一键导航</a>
+    <a href="#scenic">🌊 西伊豆＆名物</a>
+    <a href="#dining">🍽️ 午餐3选1</a>
+    <a href="#sim">⏱️ 时间轴</a>
+    <a href="#traffic">🌧️ 气象＆避坑</a>
+    <a href="#todo">✅ 出发清单</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 1. ONE-TAP GOOGLE MAPS NAVIGATION CONSOLE -->
+  <section id="gonav">
+    <div class="sec-head">
+      <div><div class="sec-k">ONE-TAP GOOGLE MAPS</div><h2>新手一键导航控制台（按顺序点即可）</h2></div>
+      <button class="btn pri" id="copy-wx-btn" type="button">📋 复制微信群文案</button>
+    </div>
+
+    <div class="alert ok" style="margin-bottom:10px">
+      <b>🧭 Day 2 黄金节奏＆防选错 3 条铁律：</b>
+      <ul>
+        <li><b>08:00 早出发抢「08:00–11:30 干爽无雨窗口」</b>：官方逐小时预报 11/24 <b>12:00 起小雨且西南风增至 8–9 m/s</b>（易触发堂ヶ岛午后游船停航），<b>14:00–15:00 达最大雨量（3–6 mm/h）</b>！早发车＝先玩干爽绝景＋坐头波洞窟船＋11:23进室内吃海鲜＋14:20 暴雨峰值前泡进温泉！</li>
+        <li><b>每段严格核对绿色「1秒选线核对」</b>：西伊豆最大的坑是 Google Maps 爱抄<b>「県道59号 仁科峠 / 県道17号海岸窄道」</b>！全线锁死宽敞双车道<b>「県道18号 → 免费西伊豆Skyline(県道127号) → 国道136号(船原隧道)」</b>，全程安全停车点接力分段！</li>
+        <li><b>微信内打不开 App？</b>点右上角<b>「···」→「在默认浏览器（Safari / Chrome）中打开」</b>，再点下方蓝色按钮即可直唤语音导航；副驾建议免费装 <b>Yahoo!カーナビ</b>（开启<code>広い道優先</code>宽道优先）做双保险。</li>
+      </ul>
+    </div>
+
+    <!-- Confirmed Base Origin Bar (Optional Override) -->
+    <div class="hotel-bar">
+      <label for="origin-input">♨️ 已锁定连住起点：</label>
+      <input id="origin-input" type="text" placeholder="默认：弘法の湯 長岡店（伊豆の国市長岡1110，改点可输）">
+    </div>
+
+    <!-- Mode Switcher -->
+    <div class="mode-tabs">
+      <button class="mtab on" data-navmode="westizu" type="button">
+        <div class="mt"><span>🌊 主推：西伊豆绝景早冲</span><span class="tag ok">推荐</span></div>
+        <div class="md">08:00 发车 → 达摩山 → 免费西伊豆Skyline → 黄金崎 → 堂ヶ岛早船＋海鲜 → R136宽道归宿</div>
+      </button>
+      <button class="mtab" data-navmode="rainbackup" type="button">
+        <div class="mt"><span>🌧️ 零山路：沼津港避雨线</span><span class="tag blue">雨天秒切</span></div>
+        <div class="md">若早起已下雨/浓雾/停航秒切！沼津港深海水族馆＋丸天(周二免排)＋室内草莓工坊</div>
+      </button>
+    </div>
+
+    <!-- MODE A: WEST IZU SCENIC EARLY DASH -->
+    <div id="nav-westizu">
+      <!-- LEG 1 -->
+      <div class="nav-card highlight">
+        <div class="nav-top">
+          <span class="nav-step blue">第 1 段・抢上午干爽窗</span>
+          <div class="nav-title" id="leg1-title">08:00 弘法の湯 长冈店 → だるま山高原展望台（富士山＆骏河湾）</div>
+          <span class="tag ok">约 30 分 / 18km</span>
+        </div>
+        <div class="nav-meta"><b>静岡県伊豆市大沢1018-1</b>（免费停车 50 台）。旅馆 2F「食事処 空海」<b>07:00 开餐</b>，吃完 08:00 轻装出发（行李留房间）！<b>⚠️ 周二实查提醒：</b>だるま山高原レストハウス<b>建筑内部周二定休</b>，但<b>50 台免费停车场＆室外全景展望台照常全天开放</b>！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准蓝线走<b>「修善寺道路（现金/ETCX 200円，普通ETC不可刷！）→ 修善寺温泉口 → 県道18号（修善寺戸田線）」</b>宽敞双车道上山 ｜ <span class="no">❌ 绝不钻无标线农道小路</span>。</div>
+        <div class="nav-tip"><b>🍁 11/24 当日限定彩蛋（0 绕路！）：</b>静冈县红叶排名<b>第 1 位</b>的<b>「修善寺自然公園 もみじ林」</b>（1,000棵枫树正见顷・入园免费・停车300円）就在県道18号正路上（距旅馆 16 分）！早上云低看不到富士山或想看红叶可顺停 20 分钟。</div>
+        <div class="nav-actions">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=34.97573,138.85103&travelmode=driving&dir_action=navigate">🗻 一键导至 だるま山高原展望台</a>
+          <a id="leg1-pre" class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=35.03003,138.93376&destination=34.97573,138.85103&travelmode=driving">👀 预览蓝线</a>
+        </div>
+        <div class="nav-actions tri" style="margin-top:7px">
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BF%AE%E5%96%84%E5%AF%BA%E8%87%AA%E7%84%B6%E5%85%AC%E5%9C%92+%E3%82%82%E3%81%BF%E3%81%98%E6%9E%97&travelmode=driving&dir_action=navigate">🍁 顺停:修善寺もみじ林</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://dogashimamarine.jp/">⛵ 查今日堂ヶ岛开航</a>
+        </div>
+      </div>
+
+      <!-- LEG 2 -->
+      <div class="nav-card scenic">
+        <div class="nav-top">
+          <span class="nav-step green">第 2 段・免费西伊豆天际线</span>
+          <div class="nav-title">08:50 だるま山 → 西伊豆スカイライン(免费) → 国道136号 → 黄金崎公園</div>
+          <span class="tag ok">约 50 分 / 36km</span>
+        </div>
+        <div class="nav-meta"><b>静岡県賀茂郡西伊豆町宇久須3566-7</b>（免费停车 120 台・24h开放・奇岩「馬ロック」＋西伊豆断崖）。<b>⚠️ 周二实查提醒：</b>园内咖啡屋「こがねすと」<b>周二定休</b>，公园、马头岩展望台与室外公厕照常开放！</div>
+        <div class="route-check"><b>✅ 1秒选线核对 &amp; 3 个必看防错口诀：</b>① 过达摩山到<b>戸田峠</b>左转进免费<b>「県道127号（西伊豆スカイライン）」</b>（<span class="no">❌ 别直下県道18号戸田急发卡弯</span>）；② 10.8km 山脊尽头<b>船原峠（土肥峠）</b>右转下<b>「国道136号（土肥方向）」</b>（<span class="no">❌ 绝不直走県道411号/59号窄山道！</span>）；③ 沿 R136 看到「黄金崎クリスタルパーク」先别拐，再往前 <b>600m</b> 右转直进<b>黄金崎公園停车场</b>（已用精确坐标锁死防误入！）。</div>
+        <div class="nav-tip"><b>🌫️ 山脊起浓雾怎么办？</b>西伊豆Skyline海拔约 900m，若在达摩山已见浓雾锁山，直接点下方<b>「避雾:导土肥金山(R136)」</b>掉头回修善寺走宽敞<b>国道136号船原隧道</b>直下土肥，安全又顺畅！长下坡挂<b>低档/B档</b>发动机制动控速。</div>
+        <div class="nav-actions">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=34.84164,138.76154&travelmode=driving&dir_action=navigate">🐴 一键导至 黄金崎公園（精确车场）</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=34.97573,138.85103&destination=34.84164,138.76154&waypoints=%E8%A5%BF%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3+%E6%88%B8%E7%94%B0%E9%A7%90%E8%BB%8A%E5%A0%B4%7C%E6%81%8B%E4%BA%BA%E5%B2%AC+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%B0%8F%E4%B8%8B%E7%94%B03135-7&travelmode=driving">👀 预览蓝线</a>
+        </div>
+        <div class="nav-actions tri" style="margin-top:7px">
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%81%8B%E4%BA%BA%E5%B2%AC+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%B0%8F%E4%B8%8B%E7%94%B03135-7&travelmode=driving&dir_action=navigate">🔔 顺停:恋人岬(免费位)</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E5%9C%9F%E8%82%A5%E9%87%91%E5%B1%B1+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%9C%9F%E8%82%A52726&travelmode=driving&dir_action=navigate">🌫️ 避雾:土肥金山(室内)</a>
+        </div>
+      </div>
+
+      <!-- LEG 3 -->
+      <div class="nav-card scenic">
+        <div class="nav-top">
+          <span class="nav-step green">第 3 段・一次停好零挪车</span>
+          <div class="nav-title">10:10 黄金崎公園 → 堂ヶ島マリン免费500台停车场（洞窟船＋午饭）</div>
+          <span class="tag ok">约 13 分 / 8.5km</span>
+        </div>
+        <div class="nav-meta"><b>静岡県賀茂郡西伊豆町仁科2060</b>（与 Sunset Plaza 共用<b>免费 500 车位</b>）。<b>10:23 停好车立刻抢头波「洞くつめぐり遊覧船」</b>（10:00开航・每15-20分一班・航程20分・1,500円），走免费天窓洞游步道，<b>11:23 步行 1–2 分钟直接进室内吃西伊豆海鲜午饭</b>，刚好躲过 12:00 落雨！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>全程沿海唯一双车道<b>「国道136号」</b>直达，闭眼点开始！（⚠️ 11/24 白天 10:59 干潮潮位仍达 <b>88cm</b>，无法步行去三四郎岛，不必在海边干等！）</div>
+        <div class="nav-actions">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E5%A0%82%E3%83%B6%E5%B3%B6%E3%83%9E%E3%83%AA%E3%83%B3+%E9%9D%99%E5%B2%A1%E7%9C%8C%E8%B3%80%E8%8C%82%E9%83%A1%E8%A5%BF%E4%BC%8A%E8%B1%86%E7%94%BA%E4%BB%81%E7%A7%912060&travelmode=driving&dir_action=navigate">⛵ 一键导至 堂ヶ島マリン（免费500位）</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=34.78271,138.76609">📍 精准定位</a>
+        </div>
+      </div>
+
+      <!-- LEG 4 -->
+      <div class="nav-card highlight">
+        <div class="nav-top">
+          <span class="nav-step orange">第 4 段・宽道避雨返程</span>
+          <div class="nav-title">12:28 堂ヶ島 → 道の駅 伊豆のへそ（室内草莓工坊・绝不走県道59号！）</div>
+          <span class="tag warn">约 60 分 / 46km</span>
+        </div>
+        <div class="nav-meta"><b>静岡県伊豆の国市田京195-2</b>（免费68车位・09:00–17:00 年中無休）。吃完午饭 12:28 趁小雨刚起即刻返程，赶在 <b>14:00–15:00 最大雨量（3–6mm/h）</b>之前完全驶离西伊豆山区，13:28 钻进距旅馆仅 7 分钟的室内<b>「いちごBonBonBERRY」</b>吃草莓甜品＋买伴手礼！</div>
+        <div class="route-check"><b>✅ 1秒选线核对（全天最重要防坑！）：</b>出发前必须核对蓝线走<b>「国道136号（宇久須→土肥→船原トンネル）→ 天城北道路（免费）→ 修善寺道路（现金200円）」</b>！<span class="no">❌ 若弹出走「県道59号（仁科峠 / 宇久須→汤ヶ岛）」哪怕便宜或少5分钟也绝对拒绝！</span>那是单车交汇窄山道，下雨天极危险！</div>
+        <div class="nav-actions">
+          <a class="gbtn warm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E4%BC%8A%E8%B1%86%E3%81%AE%E3%81%B8%E3%81%9D+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E3%81%AE%E5%9B%BD%E5%B8%82%E7%94%B0%E4%BA%AC195-2&travelmode=driving&dir_action=navigate">🍓 导至 道の駅伊豆のへそ（核对R136）</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=%E5%A0%82%E3%83%B6%E5%B3%B6%E3%83%9E%E3%83%AA%E3%83%B3&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E4%BC%8A%E8%B1%86%E3%81%AE%E3%81%B8%E3%81%9D&waypoints=%E5%9C%9F%E8%82%A5%E9%87%91%E5%B1%B1+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%9C%9F%E8%82%A52726&travelmode=driving">👀 锁死R136预览</a>
+        </div>
+      </div>
+
+      <!-- LEG 5 -->
+      <div class="nav-card">
+        <div class="nav-top">
+          <span class="nav-step">第 5 段・暴雨前安抵</span>
+          <div class="nav-title">14:13 道の駅 伊豆のへそ → 14:20 弘法の湯 长冈店（泡温泉＆岩盘浴躺平）</div>
+          <span class="tag ok">约 7 分 / 3.5km</span>
+        </div>
+        <div class="nav-meta">比 <b>15:00 伊豆之国 6mm/h 大雨峰值</b> 提前 40 分钟回到旅馆停好车，比 <b>16:36 日落</b> 提前 2 小时 16 分钟结束全部驾驶！外面下大雨、馆内泡北投石岩盘浴＋天然挂流温泉最爽！</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>短途平路 7 分钟，闭眼选最快蓝线直回旅馆门口。</div>
+        <div class="nav-actions">
+          <a class="gbtn walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=35.03003,138.93376&travelmode=driving&dir_action=navigate">♨️ 一键导回 弘法の湯 长冈店</a>
+          <a class="pview" href="#dining">看晚餐衔接</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE B: RAIN / WIND / ZERO-MOUNTAIN-ROAD BACKUP -->
+    <div id="nav-rainbackup" class="hidden">
+      <div class="alert warn" style="margin-bottom:10px">
+        <b>🌧️ 何时一键切换本保底线？</b>明早 07:30 吃早餐时：① 窗外已开始下雨或浓雾锁山；② 刷 <a href="https://dogashimamarine.jp/" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:700">堂ヶ岛游览船官网↗</a> 发现因西南风大浪全线停航；③ 全员想多睡 1.5 小时且不想开山路！<b>全程平路宽道零山路、100% 室内避雨，还能补打卡昨天 11/23 跳过的沼津港（周二平日零排队！）。</b>
+      </div>
+
+      <div class="nav-card highlight">
+        <div class="nav-top">
+          <span class="nav-step blue">保底第 1 段・有顶避雨车场</span>
+          <div class="nav-title">09:25 弘法の湯 → 09:57 沼津港「ぬまづみなとパーキング」（452车位立体）</div>
+          <span class="tag ok">约 32 分 / 19km</span>
+        </div>
+        <div class="nav-meta"><b>静岡県沼津市千本港町117</b>（10:00–22:00 营业・立体有顶不淋雨・限高 2.1m・首小时300円/后续200円；刚好踩点 10:00 入场，提前到可停对面 24h「ダイノブセンター駐車場」）。<b>⚠️ 避坑：11/24 是第 4 个周二，「沼津みなと新鮮館」定休！切勿导新鲜馆！</b></div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准全平路<b>「伊豆中央道（现金200円）→ 伊豆縦貫道（免费）→ 国道414号」</b>直达沼津港，零山路！</div>
+        <div class="nav-actions">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E3%81%AC%E3%81%BE%E3%81%A5%E3%81%BF%E3%81%AA%E3%81%A8%E3%83%91%E3%83%BC%E3%82%AD%E3%83%B3%E3%82%B0+%E9%9D%99%E5%B2%A1%E7%9C%8C%E6%B2%BC%E6%B4%A5%E5%B8%82%E5%8D%83%E6%9C%AC%E6%B8%AF%E7%94%BA117&travelmode=driving&dir_action=navigate">🅿️ 一键导至 沼津港立体停车场</a>
+          <a class="pview" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BC%8A%E8%B1%86%E3%83%91%E3%83%8E%E3%83%A9%E3%83%9E%E3%83%91%E3%83%BC%E3%82%AF+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E3%81%AE%E5%9B%BD%E5%B8%82%E9%95%B7%E5%B2%A1260-1&travelmode=driving&dir_action=navigate">🚡 早晴彩蛋:碧テラス(4分)</a>
+        </div>
+      </div>
+
+      <div class="nav-card scenic">
+        <div class="nav-top">
+          <span class="nav-step green">保底第 2 段・室内逛吃零淋雨</span>
+          <div class="nav-title">10:00 沼津港深海水族馆（室内）→ 11:15 魚河岸 丸天 みなと店（周二免排）</div>
+          <span class="tag ok">全程步行 2 分钟</span>
+        </div>
+        <div class="nav-meta"><b>沼津港深海水族館</b>（年中無休 10:00–18:00）全室内看冷冻真品腔棘鱼＆骏河湾深海生物；逛完步行 1 分钟直进 <b>11:00 开门的魚河岸丸天 みなと店</b>（周四休→周二营业），补吃昨天错过的 20cm 海鲜かき揚げ塔＆豪华丸天丼！</div>
+        <div class="route-check"><b>✅ 1秒核对：</b>两地相距仅 30 米，停好立体车场后完全不用再动车！</div>
+        <div class="nav-actions tri">
+          <a class="gbtn walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E6%B2%BC%E6%B4%A5%E6%B8%AF%E6%B7%B1%E6%B5%B7%E6%B0%B4%E6%97%8F%E9%A4%A8+%E9%9D%99%E5%B2%A1%E7%9C%8C%E6%B2%BC%E6%B4%A5%E5%B8%82%E5%8D%83%E6%9C%AC%E6%B8%AF%E7%94%BA83&travelmode=walking&dir_action=navigate">🚶 步行至 深海水族馆</a>
+          <a class="gbtn warm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%AD%9A%E6%B2%B3%E5%B2%B8%E4%B8%B8%E5%A4%A9+%E3%81%BF%E3%81%AA%E3%81%A8%E5%BA%97+%E9%9D%99%E5%B2%A1%E7%9C%8C%E6%B2%BC%E6%B4%A5%E5%B8%82%E5%8D%83%E6%9C%AC%E6%B8%AF%E7%94%BA100-1&travelmode=walking&dir_action=navigate">🚶 步行至 魚河岸丸天</a>
+        </div>
+      </div>
+
+      <div class="nav-card">
+        <div class="nav-top">
+          <span class="nav-step orange">保底第 3 段・草莓甜品回旅馆</span>
+          <div class="nav-title">12:30 沼津港 → 12:55 道の駅伊豆のへそ（草莓工坊）→ 13:52 回弘法の湯</div>
+          <span class="tag ok">约 32 分 / 19.5km</span>
+        </div>
+        <div class="nav-meta">沿伊豆纵贯道→伊豆中央道（现金200円）全平路返回，12:55 先去室内<b>いちごBonBonBERRY</b>吃红颜草莓甜品＋挑伴手礼，13:52 赶在暴雨前回旅馆泡汤！（若雨势不大也可中途顺停 10 分钟外世界遗产<b>「韮山反射炉」</b>）</div>
+        <div class="route-check"><b>✅ 1秒选线核对：</b>认准<b>「国道414号 → 伊豆縦貫道 → 伊豆中央道」</b>全平路直达。</div>
+        <div class="nav-actions tri">
+          <a class="gbtn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E4%BC%8A%E8%B1%86%E3%81%AE%E3%81%B8%E3%81%9D+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E3%81%AE%E5%9B%BD%E5%B8%82%E7%94%B0%E4%BA%AC195-2&travelmode=driving&dir_action=navigate">🍓 导至 道の駅伊豆のへそ</a>
+          <a class="gbtn walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=35.03003,138.93376&travelmode=driving&dir_action=navigate">♨️ 导回 弘法の湯 长冈店</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO-PILOT LOCKED WAYPOINTS -->
+    <details class="more-nav">
+      <summary>🔒 副驾专用：带安全停车经由点「单线锁死版」＆ 防选错神器（展开）</summary>
+      <div class="alert warn" style="margin-top:10px;font-size:12px">
+        <b>⚠️ 为什么只用真实免费停车场做经由点？</b><br>
+        手机版 Google Maps 到达每个经由点会暂停弹窗等待点「继续」，因此下方 2 条「锁死版」<b>只选用沿途真实免费观景停车场/大型设施</b>做经由点，100% 强制锁死宽敞双车道、杜绝误入県道59号仁科峠或県道17号窄道！
+      </div>
+      <div class="mini-nav-list">
+        <div class="mini-nav">
+          <div><b>🔒 锁死去程山脊＋海岸线：だるま山 → 堂ヶ島（经 戸田駐車場｜恋人岬｜黄金崎）</b><br><span style="font-size:11.5px;color:var(--soft)">100% 锁死免费西伊豆Skyline＋国道136号，杜绝戸田急弯与仁科峠！</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;text-align:center">
+            <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E5%A0%82%E3%83%B6%E5%B3%B6%E3%83%9E%E3%83%AA%E3%83%B3+%E9%9D%99%E5%B2%A1%E7%9C%8C%E8%B3%80%E8%8C%82%E9%83%A1%E8%A5%BF%E4%BC%8A%E8%B1%86%E7%94%BA%E4%BB%81%E7%A7%912060&waypoints=%E8%A5%BF%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3+%E6%88%B8%E7%94%B0%E9%A7%90%E8%BB%8A%E5%A0%B4%7C%E6%81%8B%E4%BA%BA%E5%B2%AC+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%B0%8F%E4%B8%8B%E7%94%B03135-7%7C34.84164,138.76154&travelmode=driving&dir_action=navigate">锁死导航</a>
+            <a style="background:var(--indigo)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=34.97573,138.85103&destination=%E5%A0%82%E3%83%B6%E5%B3%B6%E3%83%9E%E3%83%AA%E3%83%B3&waypoints=%E8%A5%BF%E4%BC%8A%E8%B1%86%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%A9%E3%82%A4%E3%83%B3+%E6%88%B8%E7%94%B0%E9%A7%90%E8%BB%8A%E5%A0%B4%7C%E6%81%8B%E4%BA%BA%E5%B2%AC+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%B0%8F%E4%B8%8B%E7%94%B03135-7%7C34.84164,138.76154&travelmode=driving">👀 预览蓝线</a>
+          </div>
+        </div>
+        <div class="mini-nav">
+          <div><b>🔒 锁死返程宽道：堂ヶ島 → 土肥金山(R136) → 道の駅伊豆のへそ</b><br><span style="font-size:11.5px;color:var(--soft)">100% 锁死国道136号船原隧道＋天城北道路，彻底杜绝県道59号窄道！</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E4%BC%8A%E8%B1%86%E3%81%AE%E3%81%B8%E3%81%9D&waypoints=%E5%9C%9F%E8%82%A5%E9%87%91%E5%B1%B1+%E9%9D%99%E5%B2%A1%E7%9C%8C%E4%BC%8A%E8%B1%86%E5%B8%82%E5%9C%9F%E8%82%A52726&travelmode=driving&dir_action=navigate">锁死导航</a>
+        </div>
+      </div>
+      <div class="alert ok" style="margin-top:10px;font-size:12px">
+        <b>🇯🇵 西伊豆山区强烈建议副驾配合「Yahoo!カーナビ」：</b>免费支持 CarPlay / Android Auto，在设置里打开<b>「広い道優先（宽道优先）」</b>，天然避开伊豆各种单车道「険道」，和 Google Maps 双重校验最安心！
+      </div>
+    </details>
+
+    <!-- DAY 3 HANEDA PREVIEW -->
+    <details class="more-nav">
+      <summary>✈️ 衔接 Day 3（11/25 周三退房 → 羽田T3 JL089 16:45 一键导航）</summary>
+      <div class="mini-nav-list">
+        <div class="mini-nav">
+          <div><b>EXPASA足柄（上り・返程顺路买伴手礼＆看晴天富士山）</b><br><span style="font-size:11.5px;color:var(--soft)">11/25 周三预报转晴(15℃/8℃)，10:00 退房出发经新东名→东名上行</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E8%B6%B3%E6%9F%84+%E4%B8%8A%E3%82%8A&travelmode=driving&dir_action=navigate">一键导航</a>
+        </div>
+        <div class="mini-nav">
+          <div><b>EXPASA海老名（上り・最后一站午饭/名物补给）</b><br><span style="font-size:11.5px;color:var(--soft)">注意方向选「上り（往东京方向）」</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=EXPASA%E6%B5%B7%E8%80%81%E5%90%8D+%E4%B8%8A%E3%82%8A&travelmode=driving&dir_action=navigate">一键导航</a>
+        </div>
+        <div class="mini-nav">
+          <div><b>羽田空港 第3ターミナル（JL089 16:45 国际航班）</b><br><span style="font-size:11.5px;color:var(--soft)">旅馆 10:00 退房出发约 2h10m，稳保 13:00 前抵机场还车/送机</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E7%BE%BD%E7%94%B0%E7%A9%BA%E6%B8%AF%E7%AC%AC3%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB&travelmode=driving&dir_action=navigate">一键导航</a>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 2. WEST IZU SCENIC EVALUATION & ROADSIDE SPECIALTIES -->
+  <section id="scenic">
+    <div class="sec-head">
+      <div><div class="sec-k">SCENIC ROUTE &amp; ROADSIDE STOPS</div><h2>西伊豆绝景评估 ＆ 沿途道の駅 / 避雨名物</h2></div>
+      <span class="tag warn">核心战略：早冲抢干爽・午后躲暴雨</span>
+    </div>
+
+    <div class="card">
+      <div class="alert ok" style="margin-bottom:10px">
+        <b>✅ 实查 11/24 气象＆潮汐后的 3 个关键决策：</b>
+        <ul>
+          <li><b>08:00 准时发车＝独享 3.5 小时干爽绝景窗口</b>：tenki.jp 实查西伊豆 <b>08:00–11:00 降水 0mm（多云 14–18℃）</b>，<b>12:00 起转小雨＋西南风飙至 8–9 m/s</b>，<b>14:00–15:00 迎最大降雨（西伊豆 3mm/h・伊豆之国 5–6mm/h）</b>！早发车完美错开暴雨与风浪！</li>
+          <li><b>免费绝景「西伊豆スカイライン」比昨天更空旷</b>：県道127号（戸田峠〜船原峠 10.8km）<b>完全免费</b>、双向两车道视野无遮挡，串联达摩山富士山＋骏河湾；若早间山脊起雾，1 秒退回走<b>国道136号船原隧道</b>即可。</li>
+          <li><b>三四郎岛「海中步道（トンボロ）」11/24 白天不露底，别干等！</b>实查仁科港 2026/11/24 大潮潮汐：白天干潮 <b>10:59 潮位仍高达 88cm</b>（需 ≤30cm 才可步行渡海，真正 4cm 露底在深夜 23:30）。所以无需为了退潮调顺序，专心坐<b>10:00 首波天窗洞蓝洞游览船</b>最值！</li>
+        </ul>
+      </div>
+
+      <div class="pgrid">
+        <div class="pitem" data-cap="だるま山高原＆免费西伊豆スカイライン（県道127号）远眺雪顶富士山与骏河湾实景（图源：伊豆市观光协会）">
+          <img src="img/daruma-fuji.jpg" alt="西伊豆スカイライン 达摩山 富士山" loading="lazy">
+          <div class="pcap">🗻 达摩山＆西伊豆Skyline</div>
+        </div>
+        <div class="pitem" data-cap="黄金崎公园奇岩「馬ロック（马头岩）」与黄金断崖海岸（图源：西伊豆町观光协会）">
+          <img src="img/koganezaki-horse.jpg" alt="黄金崎公园 馬ロック" loading="lazy">
+          <div class="pcap">🐴 黄金崎・奇岩馬ロック</div>
+        </div>
+        <div class="pitem" data-cap="堂ヶ島「洞くつめぐり遊覧船」驶入天然纪念物天窓洞「青の洞くつ」实拍（10:00开航・20分・1,500円）">
+          <img src="img/dogashima-cave.jpg" alt="堂ヶ島 天窓洞 洞窟游览船" loading="lazy">
+          <div class="pcap">⛵ 堂ヶ岛天窗洞・青の洞窟</div>
+        </div>
+      </div>
+
+      <div class="sky-points">
+        <div class="skyp"><b>① だるま山高原展望台（免费50车位）＋ 顺路红叶彩蛋：</b>曾入选 1939 年纽约世博会展出的传奇富士山机位！周二 Rest House 建筑休息，但<b>免费停车与室外展望台全天可用</b>。若上山路上想赏红叶，県道18号正路上的<b>「修善寺自然公園 もみじ林」</b>此刻正是静冈红叶榜第 1 位盛期（入园免费・停车300円）。</div>
+        <div class="skyp"><b>② 黄金崎公園「馬ロック」（免费120车位）：</b>海蚀形成的逼真马头奇岩，步道平缓好走。<b>⚠️ 防错提醒：</b>国道136号南下看到「黄金崎クリスタルパーク」先别拐，再往前开 <b>600m</b> 右转才是黄金崎公园！园内「こがねすと」周二休，公厕照常开放。</div>
+        <div class="skyp"><b>③ 堂ヶ島・天窓洞（免费500车位）：</b>「洞くつめぐり遊覧船」<b>10:00–16:00 每 15–20 分钟随时发船</b>（大人 1,500円・20分钟），趁 12:00 西南风升至 8–9m/s 前坐头波船最稳！下船顺走 10 分钟免费「天窓洞游步道」从山顶俯瞰天然天井。若因海浪停航，可改去 20 分钟返程顺路的<b>全室内「土肥金山」</b>（9:00–17:00 年中无休・1,200円看250kg金块＆矿道）。</div>
+        <div class="skyp"><b>④ 返程宽道铁律 ＆ 现金收费站：</b>返程 100% 锁死<b>「国道136号（土肥→船原隧道）→ 天城北道路（免费）→ 修善寺道路（200円）」</b>，下山长坡挂<b>低档/B档</b>发动机制动。<b>⚠️ 实查静冈道路公社公告：</b>修善寺道路/伊豆中央道要到 <b>2027年3月下旬才启用普通 ETC</b>，今年 11/24 仍须走<b>「一般」通道付现金 200 円（或 ETCX）</b>！</div>
+      </div>
+    </div>
+
+    <div class="sa-grid">
+      <div class="sa-card">
+        <div class="sa-head">
+          <div>
+            <h3>🍓 道の駅 伊豆のへそ（草莓工坊）</h3>
+            <div style="font-size:11.5px;color:var(--soft)">返程必经・距旅馆7分・68免费车位・100%室内</div>
+          </div>
+          <span class="tag ok">年中無休 9–17时</span>
+        </div>
+        <img class="sa-img" src="img/izunoheso-ichigo.jpg" alt="道の駅伊豆のへそ いちごBonBonBERRY 伊豆の国factory" data-cap="道の駅 伊豆のへそ「いちごBonBonBERRY 伊豆の国factory」：100%室内草莓甜品工坊＋农产直卖所，雨天午后完美据点" loading="lazy">
+        <ul class="sa-list">
+          <li><b>① いちごBonBonBERRY 现做红颜草莓甜品</b>：伊豆之国是静冈核心草莓产地，必吃招牌<b>草莓软冰淇淋 / 草莓大福串 / 草莓蒙布朗</b>！</li>
+          <li><b>② 超好买伴手礼专区</b>：富士山造型草莓年轮蛋糕、草莓果酱、限定草莓曲奇，提前给明天回国装手信。</li>
+          <li><b>③ 伊豆・村の駅 农产直卖所</b>：新鲜伊豆蜜柑、干香菇、山葵渍，还有魔性好玩的<b>「香菇抓娃娃机」</b>！</li>
+        </ul>
+      </div>
+
+      <div class="sa-card">
+        <div class="sa-head">
+          <div>
+            <h3>🐙 沼津港深海水族館（雨天保底）</h3>
+            <div style="font-size:11.5px;color:var(--soft)">模式B核心・距旅馆32分・10:00–18:00・全室内</div>
+          </div>
+          <span class="tag blue">年中無休・避雨</span>
+        </div>
+        <img class="sa-img" src="img/numazu-deepsea.jpg" alt="沼津港深海水族館 骏河湾深海奇观" data-cap="沼津港深海水族館（シーラカンス・ミュージアム）：全日本唯一深海主题水族馆，全室内避雨＋步行1分钟吃丸天（图源：沼津观光官网）" loading="lazy">
+        <ul class="sa-list">
+          <li><b>① 3.5亿年前活化石「冷冻腔棘鱼」真品</b>：全球罕见的 2 具完整冷冻腔棘鱼标本＋3 具剥制标本，镇馆必看！</li>
+          <li><b>② 骏河湾 2,500m 深海生态展区</b>：大王具足虫、甘氏巨螯蟹、梦幻发光水母走廊，雨天超好拍。</li>
+          <li><b>③ 步行 1 分钟无缝吃海鲜＋深海布丁</b>：紧邻<b>魚河岸丸天 みなと店</b>与年中无休的<b>港八十三番地</b>（⚠️ 记住：旁边的沼津みなと新鮮館 11/24 第4周二定休！）。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 3 CURATED TUESDAY-OPEN RESTAURANTS (9 REAL PHOTOS & 9 REAL REVIEWS) -->
+  <section id="dining">
+    <div class="sec-head">
+      <div><div class="sec-k">LUNCH 3 PICKS · 9 PHOTOS · 9 REVIEWS</div><h2>11/24 周二实查营业｜海鲜午餐 3 家精选</h2></div>
+      <span class="tag ok">点击任意图片放大</span>
+    </div>
+
+    <div class="alert err" style="margin-bottom:12px">
+      <b class="t">🚨 11/24（第 4 个周二）西伊豆＆沼津「休业地雷」已全数排查过滤！</b>
+      <ul>
+        <li><b>以下名店 11/24 周二不开门/已闭店，切勿扑空：</b>❌ <b>沖あがり食堂</b>（每周二休＋11–2月仅周末开）｜ ❌ <b>はんばた市場</b>（每月第4周二休）｜ ❌ <b>沼津みなと新鮮館</b>（第2/4周二休）｜ ❌ <b>魚季亭</b>（已永久停业）｜ ❌ <b>玉しげ(土肥)</b>（月火休）｜ ⚠️ <b>磯割烹 佳倉</b>（周一祝日翌日可能振替休）。</li>
+        <li><b>下方 3 家均已逐一核实周二正常营业：</b>走<b>西伊豆主线</b>选 <b>① 堂ヶ島食堂</b> 或 <b>② 瀬浜寿司</b>（均在码头步行 1–2 分零挪车）；切<b>雨天保底线</b>选 <b>③ 魚河岸丸天 みなと店</b>（补吃昨日跳过的沼津港，周二平日零排队！）。</li>
+      </ul>
+    </div>
+
+    <!-- RESTAURANT 1 -->
+    <article class="rest-card top-pick">
+      <div class="rest-top">
+        <div>
+          <span class="tag ok">推荐 ① ・ 西伊豆主线首选・步行1分看海</span>
+          <span class="tag blue">木曜休 → 11/24周二营业</span>
+          <h3 class="rest-name">漁師カフェ 堂ヶ島食堂（豪快渔师盖饭＆石花菜无限吃）</h3>
+        </div>
+        <span class="rest-rating">★ 4.1（751 条评价）</span>
+      </div>
+
+      <div class="rest-meta">
+        <span>📍 <b>位置：</b>堂ヶ岛游览船码头正对面（步行1分・专用免费16车位）</span>
+        <span>🕒 <b>营业：</b>11:00–16:00（LO 15:30・周四休・不接受预约）</span>
+        <span>💴 <b>人均：</b>约 1,600–2,500 日元（<b>⚠️ 仅收现金！</b>）</span>
+        <span>📞 <b>电话：</b>0558-52-0134</span>
+      </div>
+
+      <p class="rest-desc">4travel 堂ヶ岛温泉美食满意度<b>第 1 位</b>！2F 整面海景大窗正对三四郎岛，装修如清爽海边咖啡馆。招牌<b>「俺のぶっかけ丼」</b>将当日地鱼厚切丁、粘滑裙带菜与生蛋黄拌入热米饭鲜甜暴击；还有肉厚惊艳的<b>「堂ヶ島アジフライ（炸竹荚鱼定食）」</b>与西伊豆传统<b>「塩カツオ茶漬け/うどん」</b>。点任意正餐即<b>免费无限畅享店主亲采天草自制的「ところてん（石花菜凉粉）」</b>（配醋酱油或黑蜜当饭后甜点超绝）！</p>
+
+      <div class="pgrid">
+        <div class="pitem" data-cap="漁師カフェ 堂ヶ島食堂：人气No.1招牌「俺のぶっかけ丼」当日地鱼丁＋裙带菜＋金黄蛋黄与蛤蜊味噌汤（图源：西伊豆町观光协会）">
+          <img src="img/dogashima-shokudo-1.jpg" alt="堂ヶ島食堂 招牌俺のぶっかけ丼" loading="lazy">
+          <div class="pcap">招牌「俺のぶっかけ丼」</div>
+        </div>
+        <div class="pitem" data-cap="漁師カフェ 堂ヶ島食堂：点正餐免费无限畅享的店主亲采天草手工「ところてん（石花菜凉粉）」，配醋酱油＆黑蜜双味（官方图）">
+          <img src="img/dogashima-shokudo-2.jpg" alt="堂ヶ島食堂 免费无限吃石花菜凉粉" loading="lazy">
+          <div class="pcap">免费无限吃自制ところてん</div>
+        </div>
+        <div class="pitem" data-cap="漁師カフェ 堂ヶ島食堂：2楼整面落地海景窗座位，下完雨也能边喝热汤边俯瞰堂ヶ岛海湾（官方图）">
+          <img src="img/dogashima-shokudo-3.jpg" alt="堂ヶ島食堂 2F海景窗座" loading="lazy">
+          <div class="pcap">2F 落地海景咖啡风座位</div>
+        </div>
+      </div>
+
+      <div class="rev-box">
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 1 ｜ kasakayu6149（4travel・★5.0・游船后实访）</b><span>海景＆免费凉粉满分</span></div>
+          坐完洞窟游览船直接走过来吃午饭！店内像时髦海边咖啡馆，等餐时免费畅吃店主亲采天草做的石花菜凉粉（醋酱油开胃、黑蜜当甜点超赞）。点了人气No.1「俺のぶっかけ丼」和No.2「海鲜渔师丼」，鱼块厚实鲜甜，女生点小份就非常饱，海苔味噌汤也很绝！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 2 ｜ sizuku（4travel・★4.0・12月实访）</b><span>炸竹荚鱼厚到震惊</span></div>
+          正对堂ヶ岛大海的鲜鱼料理店，边看海边用餐体验极佳。原本冲着西伊豆特产「盐鲣鱼乌冬面」来的，结果家人点的堂ヶ岛炸竹荚鱼端上来又大又厚、酥脆多汁，全家惊艳！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 3 ｜ emi_u（4travel・★3.5・11月实访）</b><span>仅收现金＆错峰提示</span></div>
+          就在游览船码头正对面国道136号旁，店内明亮整洁、海景位多。提醒<b>结账仅支持现金</b>！12点刚过等约10分钟入座，13点后排队会变长，趁11:30前早到最轻松！
+        </div>
+      </div>
+
+      <div class="rest-btns">
+        <a class="rb-walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E5%A0%82%E3%83%B6%E5%B3%B6%E9%A3%9F%E5%A0%82+%E9%9D%99%E5%B2%A1%E7%9C%8C%E8%B3%80%E8%8C%82%E9%83%A1%E8%A5%BF%E4%BC%8A%E8%B1%86%E7%94%BA%E4%BB%81%E7%A7%912045-3&travelmode=walking&dir_action=navigate">🚶 码头步行 1 分导航</a>
+        <a class="rb-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%A0%82%E3%83%B6%E5%B3%B6%E9%A3%9F%E5%A0%82+%E9%9D%99%E5%B2%A1%E7%9C%8C%E8%B3%80%E8%8C%82%E9%83%A1%E8%A5%BF%E4%BC%8A%E8%B1%86%E7%94%BA%E4%BB%81%E7%A7%912045-3">📍 Google Maps</a>
+        <a class="rb-tel" href="tel:0558-52-0134">📞 0558-52-0134 查询</a>
+      </div>
+    </article>
+
+    <!-- RESTAURANT 2 -->
+    <article class="rest-card">
+      <div class="rest-top">
+        <div>
+          <span class="tag ok">推荐 ② ・ 堂ヶ岛 4.3★高分老铺・步行2分</span>
+          <span class="tag blue">金曜休 → 11/24周二营业</span>
+          <h3 class="rest-name">瀬浜寿司 堂ヶ島（限定30食海鲜丼＆炙烤金目鲷）</h3>
+        </div>
+        <span class="rest-rating">★ 4.3（298 条评价）</span>
+      </div>
+
+      <div class="rest-meta">
+        <span>📍 <b>位置：</b>堂ヶ岛7-11旁（游览船停车场步行2分・专用5车位）</span>
+        <span>🕒 <b>营业：</b>11:00–20:00（周五休/不定休・建议早间电询）</span>
+        <span>💴 <b>人均：</b>约 1,700–3,000 日元（<b>⚠️ 仅收现金・全席禁烟</b>）</span>
+        <span>📞 <b>电话：</b>0558-52-0124</span>
+      </div>
+
+      <p class="rest-desc">4travel 堂ヶ岛美食第 2 名、Google <b>4.3★</b>的在地家族温馨寿司老铺！每日严选约 10 种骏河湾现捕地鱼，在景区中心保持难得的良心价。招牌<b>每日限定 20–30 份「海鮮丼（附鲜鱼骨汤）」</b>、<b>「地魚にぎり堂ヶ島（8贯・炙烤金目鲷＋脆鲍鱼）」</b>，以及比下田口味更柔和甘甜的<b>「金目鯛の煮つけ定食」</b>！大将夫妻热情健谈，还是西伊豆活地图向导。</p>
+
+      <div class="pgrid">
+        <div class="pitem" data-cap="瀬浜寿司 堂ヶ島：招牌「地魚にぎり堂ヶ島」骏河湾现握地鱼寿司，含炙烤金目鲷、活竹荚鱼与脆嫩鲍鱼（食客实拍）">
+          <img src="img/sebama-1.jpg" alt="瀬浜寿司 骏河湾地鱼握寿司" loading="lazy">
+          <div class="pcap">地鱼握寿司（炙烤金目鲷）</div>
+        </div>
+        <div class="pitem" data-cap="瀬浜寿司 堂ヶ島：每日限量 20–30 份超值「海鮮丼」满铺骏河湾鲜鱼、甜虾、鲑鱼籽并附鲜鱼骨味噌汤（NAVITIME实拍）">
+          <img src="img/sebama-2.jpg" alt="瀬浜寿司 每日限定豪华海鲜丼" loading="lazy">
+          <div class="pcap">每日限定30食 豪快海鲜丼</div>
+        </div>
+        <div class="pitem" data-cap="瀬浜寿司 堂ヶ島：备受回头客盛赞的甘甜秘制酱汁「金目鯛の煮つけ（红烧金目鲷）」（4travel食客实拍）">
+          <img src="img/sebama-3.jpg" alt="瀬浜寿司 金目鲷煮付" loading="lazy">
+          <div class="pcap">秘制甘甜酱汁 金目鲷煮付</div>
+        </div>
+      </div>
+
+      <div class="rev-box">
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 1 ｜ 肉団子（4travel・2026/07 多次回访・★4.5）</b><span>金目鲷煮付回头客</span></div>
+          专门为了吃金目鲷煮付跑来堂ヶ岛！比下田偏咸辣的酱汁更柔和甘甜，白身鱼肉却油脂丰盈到惊人，连煮汁都舍不得剩！全席禁烟很舒服、支付仅现金，大将对西伊豆观光攻略了如指掌！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 2 ｜ えっちゃん（4travel・12月实访・★4.5）</b><span>炙烤金目鲷＆鲍鱼绝品</span></div>
+          就在 7-11 便利店旁边超好找的家族老店！点了地鱼握寿司 8 贯（2,300円），炙烤金目鲷油香扑鼻、鲍鱼爽脆弹牙，在景区能轻松吃到这水准非常推荐！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 3 ｜ あっぷたうん（4travel・★4.0・午餐实访）</b><span>限定海鲜丼超值</span></div>
+          点了人气 Top3 的每日限定海鲜丼（约1,700円），鲜度与份量远超价格！由于全靠大将一人现切现做，高峰时出餐略需耐心，正好 11:23 刚开门错峰进店最从容！
+        </div>
+      </div>
+
+      <div class="rest-btns">
+        <a class="rb-walk" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E7%80%AC%E6%B5%9C%E5%AF%BF%E5%8F%B8+%E9%9D%99%E5%B2%A1%E7%9C%8C%E8%B3%80%E8%8C%82%E9%83%A1%E8%A5%BF%E4%BC%8A%E8%B1%86%E7%94%BA%E4%BB%81%E7%A7%912909-10&travelmode=walking&dir_action=navigate">🚶 码头步行 2 分导航</a>
+        <a class="rb-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E7%80%AC%E6%B5%9C%E5%AF%BF%E5%8F%B8+%E5%A0%82%E3%83%B6%E5%B3%B6">📍 Google Maps</a>
+        <a class="rb-tel" href="tel:0558-52-0124">📞 0558-52-0124 确认营业</a>
+      </div>
+    </article>
+
+    <!-- RESTAURANT 3 -->
+    <article class="rest-card">
+      <div class="rest-top">
+        <div>
+          <span class="tag warn">推荐 ③ ・ 雨天保底王牌・补打卡昨日沼津港</span>
+          <span class="tag blue">木曜休 → 11/24周二平日免排</span>
+          <h3 class="rest-name">魚河岸 丸天 みなと店（沼津港地标・20cm天妇罗塔）</h3>
+        </div>
+        <span class="rest-rating">★ 4.0（2,964 条评价）</span>
+      </div>
+
+      <div class="rest-meta">
+        <span>📍 <b>位置：</b>沼津港深海水族馆步行1分（ぬまづみなとP 452立体车位）</span>
+        <span>🕒 <b>营业：</b>平日 11:00–20:00（LO 19:30・周四休・114席超宽敞）</span>
+        <span>💴 <b>人均：</b>约 1,650–2,700 日元（支持刷卡・大份可分享）</span>
+        <span>📞 <b>电话：</b>055-954-1028</span>
+      </div>
+
+      <p class="rest-desc">昨天 11/23 因祝日＋秋祭排队 2 小时忍痛跳过的<b>沼津港海鲜王牌</b>，今天 11/24 周二平日几乎<b>零排队</b>！昭和41年创业老字号，拥有申请专利的<b>20cm 高塔「海鮮かき揚げ丼（¥1,650 附鲜鱼骨汤）」</b>（建议4人点1份分食体验震撼！）、满铺生樱花虾＋生银鱼的<b>「丸天丼（¥2,475）」</b>、30cm 大条<b>「金目鯛の煮付け（¥2,200起）」</b>与<b>「近海刺身盛り定食（¥2,420）」</b>！</p>
+
+      <div class="pgrid">
+        <div class="pitem" data-cap="魚河岸 丸天 みなと店：获专利认证的招牌 20cm 高塔「海鮮かき揚げ丼（¥1,650 附鲜鱼骨汤）」，建议4人点1份分享！（官方图）">
+          <img src="img/maruten-1.jpg" alt="魚河岸丸天 招牌海鲜かき揚げ丼塔" loading="lazy">
+          <div class="pcap">专利20cm 海鲜天妇罗塔</div>
+        </div>
+        <div class="pitem" data-cap="魚河岸 丸天 みなと店：招牌「丸天丼（¥2,475 附鲜鱼骨汤）」满载沼津港鲜鱼、大虾、生银鱼与樱花虾（官方图）">
+          <img src="img/maruten-2.jpg" alt="魚河岸丸天 招牌丸天丼" loading="lazy">
+          <div class="pcap">招牌 魚河岸丸天丼</div>
+        </div>
+        <div class="pitem" data-cap="魚河岸 丸天 みなと店：超30cm整条豪快「金目煮魚（¥2,200起）」，加330円即可升级米饭＋鱼骨汤定食（官方图）">
+          <img src="img/maruten-3.jpg" alt="魚河岸丸天 整条金目鲷煮鱼" loading="lazy">
+          <div class="pcap">30cm 整条金目鲷煮付</div>
+        </div>
+      </div>
+
+      <div class="rev-box">
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 1 ｜ After9（4travel・12月实访・★4.0）</b><span>30cm金目鲷超震撼</span></div>
+          点了丸天握寿司（含沼津特产生樱花虾军舰）和金目鲷煮付（2,200円＋定食套），端上来体长超 30cm 震撼全场！略带甜口的渔师风煮汁超级下饭，强烈推荐必点！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 2 ｜ ゆきうさぎ（4travel・★4.0・午餐实访）</b><span>鲜鱼骨汤服务贴心</span></div>
+          沼津港饮食街最醒目的老牌名店，气氛超有渔港活力！吃了静冈限定的骏河湾三色丼（樱花虾＋熟银鱼＋生银鱼），店员见我们喝完鲜鱼骨汤还主动免费帮忙续碗！
+        </div>
+        <div class="rev">
+          <div class="rh"><b>💬 食客评价 3 ｜ ゆきゆき（4travel・★3.5・平日实访）</b><span>平日免排＆分食秘籍</span></div>
+          周中平日去完全不用排队就入座了！招牌天妇罗塔份量惊人（吃不完可向店员要打包盒），<b>4 人同行最佳点法是 1 份天妇罗塔＋其余点海鲜丼/刺身定食大家分着吃</b>，爽度翻倍还不腻！
+        </div>
+      </div>
+
+      <div class="rest-btns">
+        <a class="rb-nav" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E9%AD%9A%E6%B2%B3%E5%B2%B8%E4%B8%B8%E5%A4%A9+%E3%81%BF%E3%81%AA%E3%81%A8%E5%BA%97+%E9%9D%99%E5%B2%A1%E7%9C%8C%E6%B2%BC%E6%B4%A5%E5%B8%82%E5%8D%83%E6%9C%AC%E6%B8%AF%E7%94%BA100-1&travelmode=driving&dir_action=navigate">🚗 一键驾车导航</a>
+        <a class="rb-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E9%AD%9A%E6%B2%B8%E5%B2%B8%E4%B8%B8%E5%A4%A9+%E3%81%BF%E3%81%AA%E3%81%A8%E5%BA%97">📍 Google Maps</a>
+        <a class="rb-tel" href="tel:055-954-1028">📞 055-954-1028 查询</a>
+      </div>
+    </article>
+
+    <!-- NIGHT 2 DINNER CONTINUITY CARD -->
+    <div class="card" style="border-color:var(--indigo);background:color-mix(in srgb,var(--indigo) 5%,var(--card))">
+      <div class="nav-top">
+        <span class="nav-step blue">🌙 今晚 11/24 晚餐无缝衔接（旅馆不含晚）</span>
+        <span class="tag ok">Day 1 三家周二全营业！</span>
+      </div>
+      <p style="margin:4px 0 8px;font-size:12.5px;color:var(--soft)">14:20 回弘法の湯泡完汤，18:00 晚间从 Day 1 没吃到的另外 2 家直接接力（<b>均已核实 11/24 周二正常营业</b>，而且周二平日完全不像昨天祝日那么挤！）：</p>
+      <div class="mini-nav-list" style="margin-top:0">
+        <div class="mini-nav">
+          <div><b>① さわやか 函南店（强烈推荐放今晚！周二雨夜人最少）</b><br><span style="font-size:11.5px;color:var(--soft)">周四休 → 周二营业 10:30–22:00 (LO 21:00) ・ 车程12分全平路・泡汤时手机取号</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+            <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E7%82%AD%E7%84%BC%E3%81%8D%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%E3%81%95%E3%82%8F%E3%82%84%E3%81%8B+%E5%87%BD%E5%8D%97%E5%BA%97&travelmode=driving&dir_action=navigate">🚗 驾车导航</a>
+            <a style="background:var(--accent)" target="_blank" rel="noopener" href="https://www.genkotsu-hb.com/shop/detail/236">📱 手机取号</a>
+          </div>
+        </div>
+        <div class="mini-nav">
+          <div><b>② ひょうたん寿司 伊豆長岡本店（步行9分・雨停可小酌）</b><br><span style="font-size:11.5px;color:var(--soft)">周四休 → 周二营业 16:30–20:00 (LO 19:30) ・ 18时后伊豆之国雨转微弱・055-948-0733</span></div>
+          <a style="background:var(--ok)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E3%81%B2%E3%82%87%E3%81%86%E3%81%9F%E3%82%93%E5%AF%BF%E5%8F%B8+%E4%BC%8A%E8%B1%86%E9%95%B7%E5%B2%A1%E6%9C%AC%E5%BA%97&travelmode=walking&dir_action=navigate">🚶 步行导航</a>
+        </div>
+        <div class="mini-nav">
+          <div><b>③ あまご茶屋 修善寺温泉店（4.5★红姬鳟鱼＆现磨山葵）</b><br><span style="font-size:11.5px;color:var(--soft)">周三休 → 周二营业 11:00–19:00 (LO 18:30) ・ 车程15分・0558-73-2388</span></div>
+          <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=%E3%81%82%E3%81%BE%E3%81%94%E8%8C%B6%E5%B1%8B+%E4%BF%AE%E5%96%84%E5%AF%BA%E6%B8%A9%E6%B3%89%E5%BA%97&travelmode=driving&dir_action=navigate">🚗 驾车导航</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. INTERACTIVE SCHEDULE SIMULATOR -->
+  <section id="sim">
+    <div class="sec-head">
+      <div><div class="sec-k">TIMELINE · BEAT THE NOON RAIN &amp; WIND</div><h2>11/24 交互式行程时间轴模拟器</h2></div>
+      <span id="verdict-pill" class="tag ok">干爽抢船・暴雨前归宿 ◎</span>
+    </div>
+
+    <div class="presets">
+      <button class="pbtn on" data-preset="planW" type="button">
+        <div class="top"><span class="name">方案 W：08:00 西伊豆早冲</span><span class="tag ok">最推荐 ◎</span></div>
+        <div class="desc">08:00 发车 → 达摩山＋黄金崎全干爽 → 10:23 抢堂ヶ岛头波船 → 11:23 室内海鲜 → 14:20 暴雨前归宿</div>
+      </button>
+      <button class="pbtn" data-preset="planR" type="button">
+        <div class="top"><span class="name">方案 R：沼津港零山路避雨</span><span class="tag ok">最省心 ◎</span></div>
+        <div class="desc">09:25 懒觉出发 → 10:00 室内深海水族馆 → 11:15 丸天周二免排 → 12:55 草莓工坊 → 13:52 归宿</div>
+      </button>
+      <button class="pbtn" data-preset="planL" type="button">
+        <div class="top"><span class="name">方案 L：10:00 晚出发西伊豆</span><span class="tag err">撞雨＆停航 ✕</span></div>
+        <div class="desc">10:00 发车 → 12:23 到堂ヶ岛正撞起雨＋SW 8-9m风易停航 → 14:13 冒最大暴雨开山路返程逼近天黑</div>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="ctrl">
+        <div>
+          <div class="ctrl-row"><span>弘法の湯出发时间（建议08:00）</span><b id="dep-out" class="mono">08:00</b></div>
+          <input id="dep-slider" type="range" min="450" max="630" step="5" value="480">
+          <div class="ctrl-row" style="font-size:11px;color:var(--soft)"><span>07:30</span><span>旅馆2F 07:00起早餐</span><span>10:30</span></div>
+        </div>
+        <div>
+          <select id="route-mode">
+            <option value="westizu" selected>🌊 西伊豆绝景（达摩山＋免费Skyline＋堂ヶ岛）</option>
+            <option value="westizu_tunnel">🌫️ 雾天西伊豆（走R136船原隧道直奔黄金崎/堂ヶ岛）</option>
+            <option value="rain_numazu">🌧️ 雨天/零山路保底（沼津港深海馆＋丸天）</option>
+          </select>
+        </div>
+        <div style="display:grid;gap:6px">
+          <select id="weather-mode">
+            <option value="forecast" selected>tenki.jp预报（12时起雨・SW风8-9m）</option>
+            <option value="clear">天气转好（全天干爽・风浪平稳）</option>
+            <option value="early_rain">雨云提前2h（10时起雨・洞窟船停航）</option>
+          </select>
+          <label><input id="opt-ichigo" type="checkbox" checked> 返程顺逛道の駅伊豆のへそ草莓工坊</label>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="kl">核心游览 / 游船窗</div><div id="k-boat" class="kv">--</div><div id="k-boat-s" class="ks">--</div></div>
+        <div class="kpi"><div class="kl">离开山区 / 返程雨势</div><div id="k-rain" class="kv">--</div><div id="k-rain-s" class="ks">--</div></div>
+        <div class="kpi"><div class="kl">距 16:36 日落安全余量</div><div id="k-light" class="kv">--</div><div id="k-back-s" class="ks">--</div></div>
+        <div class="kpi"><div class="kl">全天驾驶 / 路况难度</div><div id="k-drv" class="kv">--</div><div id="k-lvl" class="ks">--</div></div>
+      </div>
+
+      <div class="gantt-wrap">
+        <div class="gantt-axis" id="g-axis"></div>
+        <div class="gantt-track" id="g-track"></div>
+        <div class="legend">
+          <span><i class="dot" style="background:#2b6cb0"></i>驾驶</span>
+          <span><i class="dot" style="background:#2f855a"></i>观景/游船/室内馆</span>
+          <span><i class="dot" style="background:#c2542a"></i>海鲜用餐</span>
+          <span><i class="dot" style="background:#b7791f"></i>草莓工坊/温泉</span>
+          <span><i class="dot" style="background:#d97706"></i>12:00起雨线</span>
+          <span><i class="dot" style="background:#b91c1c"></i>16:36日落红线</span>
+        </div>
+      </div>
+
+      <ul class="tl" id="tl-list"></ul>
+    </div>
+  </section>
+
+  <!-- 5. WEATHER, TRAFFIC & RISK MATRIX -->
+  <section id="traffic">
+    <div class="sec-head">
+      <div><div class="sec-k">WEATHER · ROAD STATUS · RISK MATRIX</div><h2>11/24 官方逐小时气象・道路规制＆避坑矩阵</h2></div>
+    </div>
+
+    <div class="alert err" style="margin-bottom:10px">
+      <b class="t">🚨 11/24 官方实查两大重点（气象刚性＋道路通行良好）</b>
+      <ul>
+        <li><b>西伊豆＆伊豆之国官方逐小时气象（tenki.jp 11/22 实查）：</b>08:00–11:00 <b>降水 0mm</b>（多云 14–18℃）；<b>12:00 起转小雨且西南风升至 8m/s</b>；<b>14:00–15:00 达峰值（西伊豆 3mm/h＋西南风 9m/s，伊豆之国 5–6mm/h 100% 降水）</b>；18:00 后雨势迅速减弱转阴！</li>
+        <li><b>静岡県道路通行規制（11/22 04:03 更新）＆ NEXCO 平日路况：</b>三连休次日周二<b>东名/伊豆全线无拥堵预测</b>；修善寺道路・県道18号・西伊豆Skyline・国道136号（土肥〜堂ヶ岛）<b>全线无施工封路</b>（R136 松崎町雲見单侧交互限行在堂ヶ岛更南侧不受影响；熱海ビーチライン 13:30–14:30 点检在东海岸不受影响）。</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+        <b style="font-size:14px">西伊豆町 11/24 逐小时实查：蓝＝降水概率(%) ｜ 橙红＝西南风速(m/s)</b>
+        <span class="tag ok">绿底 08–11时＝黄金干爽窗口</span>
+      </div>
+      <div class="cchart" id="c-chart"></div>
+      <div class="caxis" id="c-axis"></div>
+      <p style="margin:8px 0 0;font-size:12.5px;color:var(--soft)">
+        💡 <b>为什么必须盯着「西南风速」？</b>堂ヶ岛洞窟口正对西/西南向骏河湾，西南风一旦飙过 <b>7–8 m/s</b> 极易卷起长涌浪导致午后停航！图表一眼看出 <b>08:00–11:00 是全天风最弱、降水 0mm 的黄金窗口</b>，12:00 以后降水概率跳升至 <b>70%→90%</b>、风速达 <b>8–9 m/s</b>！
+      </p>
+    </div>
+
+    <div id="risk-wrap"></div>
+  </section>
+
+  <!-- 6. CHECKLIST -->
+  <section id="todo">
+    <div class="sec-head">
+      <div><div class="sec-k">CHECKLIST</div><h2>11/23 晚 〜 11/24 早 协同准备清单（可勾选）</h2></div>
+      <span id="chk-stat" class="tag ok">0 / 8</span>
+    </div>
+    <div class="card" id="chk-wrap"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    2026.11.24 Day 2 西伊豆绝景＆避雨自驾攻略 ｜ 数据实查自 tenki.jp・静岡県道路通行規制・西伊豆町观光协会・堂ヶ島マリン及各餐厅官网<br>
+    行驶中请勿操作手机，切换下一段导航与查开航状态全部交给副驾操作
+  </div>
+</footer>
+
+<div class="lb" id="lightbox">
+  <button class="lb-close" id="lb-close" type="button">✕ 关闭</button>
+  <img id="lb-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="放大预览">
+  <div class="lb-cap" id="lb-cap"></div>
+</div>
+<div id="toast" class="toast">已复制微信群确认文案，去粘贴吧！</div>
+
+<script>
+// Official tenki.jp hourly forecast for Nishiizu-cho on Tue 2026-11-24 (07:00-18:00)
+const WEATHER_HOURLY = [
+  {h:'07时',p:40,w:3},{h:'08时',p:30,w:3},{h:'09时',p:40,w:5},{h:'10时',p:30,w:6},
+  {h:'11时',p:40,w:7},{h:'12时',p:70,w:8},{h:'13时',p:80,w:8},{h:'14时',p:90,w:9},
+  {h:'15时',p:90,w:9},{h:'16时',p:80,w:7},{h:'17时',p:70,w:7},{h:'18时',p:40,w:4}
+];
+
+const RISKS = [
+  {lvl:'err',tag:'高风险',cat:'12时起雨＆停航',t:'11/24 12:00起转雨＋西南风增至 8–9m/s，易触发堂ヶ岛午后洞窟船停航与 15:00 山区暴雨',p:'坚持 08:00 吃完早饭准时出发，抢 10:23 头波游船；07:30 早餐时副驾先刷 dogashimamarine.jp 确认开航，若早起已下雨或全线停航，1 秒切换「方案 R（沼津港深海水族馆＋丸天＋草莓工坊）」零山路全室内！'},
+  {lvl:'err',tag:'高风险',cat:'第4周二休业潮',t:'11/24 撞上「每周二休＋每月第4周二休＋11/23祝日翌日振替休」三重休业潮',p:'绝不去：沖あがり食堂(周二休)、はんばた市場(第4周二休)、沼津みなと新鮮館(第2/4周二休)、魚季亭(已永久停业)、玉しげ(月火休)、佳倉(周一祝日翌日可能休)！だるま山Rest House建筑＆黄金崎こがねすと周二也休（仅室外展望台/公厕/免费停车场开放）。锁定本文已核实营业的 3 家餐厅！'},
+  {lvl:'err',tag:'高风险',cat:'山路窄道陷阱',t:'返程 Google Maps 易抄近道拐入「県道59号 仁科峠」或去程误下「県道18号戸田急弯/県道17号海岸窄道」',p:'去程在戸田峠左转走免费宽敞的「県道127号 西伊豆Skyline」，南端船原峠右转下「国道136号」；返程 100% 锁死「国道136号（土肥→船原隧道）→ 天城北道路(免费) → 修善寺道路」，哪怕导航说県道59号少 5 分钟也坚决不走！'},
+  {lvl:'warn',tag:'中风险',cat:'纯现金收费＆餐费',t:'修善寺道路/伊豆中央道普通ETC刷不了 ＋ 堂ヶ島食堂/瀬浜寿司仅收现金',p:'两道路要到 2027年3月下旬才启用ETC！备足 1,000円以上零钱硬币走「一般」通道（单程200円）；吃堂ヶ岛食堂或瀬浜寿司备足 10,000–12,000 日元现金（4人午饭＋游船 6,000円）。'},
+  {lvl:'warn',tag:'中风险',cat:'黄金崎错拐＆退潮',t:'沿 R136 提前 600m 误入黄金崎水晶公园停车场 ＋ 误以为白天能走海中步道去三四郎岛',p:'第2段一键导航已锁死黄金崎公园精确坐标（看到水晶公园再往前600m右转）；实查 11/24 白天干潮 10:59 潮位 88cm（无法步行登岛，4cm 在深夜23:30），不必在海边干等！'},
+  {lvl:'warn',tag:'中风险',cat:'山脊团雾＆长下坡',t:'西伊豆Skyline 海拔 900m 阴天可能起团雾 ＋ 船原峠→土肥连续长下坡',p:'若在达摩山已见大雾遮山，立刻放弃山脊退回修善寺走「国道136号船原隧道」；长下坡务必挂低档/B档发动机制动控速，雨天拉大车距。'}
+];
+
+const TODOS = [
+  {id:'d2t1',who:'今晚',tx:'23日晚拍板明天主力方案：只要明早 07:30 天没下且游船正常，冲【方案W 08:00西伊豆绝景早冲】；若早雨/停航秒切【方案R 沼津港深海馆＋丸天】'},
+  {id:'d2t2',who:'明早',tx:'07:00 准时去弘法の湯 2F「食事処 空海」吃早餐（大件行李继续留在连住房内，轻装出发！）'},
+  {id:'d2t3',who:'副驾',tx:'07:30 刷堂ヶ岛游览船官网（dogashimamarine.jp）或 10:00 前致电 0558-52-0013 确认当日海况是否正常开航'},
+  {id:'d2t4',who:'司机',tx:'备足现金：修善寺道路/伊豆中央道 200円×2（普通ETC不可用）＋ 游船 1,500円×4 ＋ 堂ヶ岛食堂/瀬浜寿司仅收现金（全员建议共带 1.5 万日元现金）'},
+  {id:'d2t5',who:'全员',tx:'带折叠伞＋防风防泼水外套（西伊豆上午 16–18℃ 但午后西南风 8–9m/s 体感偏凉，下船/上车防雨用）'},
+  {id:'d2t6',who:'防坑',tx:'牢记 11/24 第4周二休业清单：不去沖あがり食堂 / はんばた市場 / 沼津みなと新鮮館 / 魚季亭；达摩山＆黄金崎仅用室外展望台与免费停车'},
+  {id:'d2t7',who:'返程',tx:'堂ヶ岛最晚 12:28–13:00 出发返程，1 秒核对蓝线走「国道136号→土肥→船原隧道」，坚决拒走「県道59号仁科峠」！'},
+  {id:'d2t8',who:'晚餐',tx:'14:20 回旅馆泡温泉＆岩盘浴时，用手机给今晚晚餐排号（推荐 18:00 去周二平日几乎不排队的「さわやか 函南店」或步行9分「ひょうたん寿司」）'}
+];
+
+const fmt = m => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(Math.round(m%60)).padStart(2,'0')}`;
+
+// Origin input live updater
+const DEFAULT_ORIGIN = '35.03003,138.93376';
+const originInput = document.getElementById('origin-input');
+function updateOriginNav(){
+  const val = originInput.value.trim();
+  const originParam = val ? encodeURIComponent(val + ' 静岡') : DEFAULT_ORIGIN;
+  const leg1Pre = document.getElementById('leg1-pre');
+  const leg1Title = document.getElementById('leg1-title');
+  if(leg1Pre) leg1Pre.href = `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=34.97573,138.85103&travelmode=driving`;
+  if(leg1Title) leg1Title.textContent = val ? `08:00 ${val} → だるま山高原展望台（富士山＆骏河湾）` : '08:00 弘法の湯 长冈店 → だるま山高原展望台（富士山＆骏河湾）';
+}
+originInput.addEventListener('input', updateOriginNav);
+
+// Nav mode switcher
+document.querySelectorAll('.mtab').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.mtab').forEach(x => x.classList.remove('on'));
+  btn.classList.add('on');
+  const mode = btn.dataset.navmode;
+  document.getElementById('nav-westizu').classList.toggle('hidden', mode !== 'westizu');
+  document.getElementById('nav-rainbackup').classList.toggle('hidden', mode !== 'rainbackup');
+}));
+
+function runSim(){
+  const dep = +document.getElementById('dep-slider').value; // Default 480 = 08:00
+  const rmode = document.getElementById('route-mode').value;
+  const wmode = document.getElementById('weather-mode').value;
+  const addIchigo = document.getElementById('opt-ichigo').checked;
+  document.getElementById('dep-out').textContent = fmt(dep);
+
+  const rainStart = wmode === 'clear' ? 1440 : (wmode === 'early_rain' ? 600 : 720); // 12:00 = 720, 10:00 = 600
+  const heavyStart = wmode === 'clear' ? 1440 : (wmode === 'early_rain' ? 720 : 840); // 14:00 = 840
+
+  const list = [];
+  let t = dep, drv = 0, km = 0;
+  let boatTime = 0, leaveMtnTime = 0, returnHotelTime = 0;
+  let boatOk = true, heavyMtnRain = false, isMountain = true;
+
+  if(rmode === 'westizu' || rmode === 'westizu_tunnel'){
+    if(rmode === 'westizu'){
+      list.push({s:t,d:30,tp:'d',lb:'往达摩山',ti:'第1段：弘法の湯 → だるま山高原展望台（经修善寺道路＋県道18号，约18km）',nt:'修善寺道路现金200円（普通ETC不可）；可选顺路停静冈第1红叶「修善寺もみじ林」。'});
+      t+=30; drv+=30; km+=18;
+
+      const dry1 = t < rainStart;
+      list.push({s:t,d:20,tp:'s',lb:'达摩山观景',ti:'だるま山高原展望台 远眺富士山＆骏河湾（免费50车位）',nt:dry1?'✅ 干爽无雨窗口！周二 Rest House 建筑休息，直接使用室外全景展望台。':'⚠️ 此时已开始转雨/云厚，如能见度低可直接跳过下山。'});
+      t+=20;
+
+      list.push({s:t,d:50,tp:'d',lb:'西伊豆Skyline',ti:'第2段：だるま山 → 免费西伊豆スカイライン(県道127号) → 船原峠右转R136 → 黄金崎（约36km）',nt:'戸田峠左转进10.8km山脊绝景，船原峠右转下国道136号（绝不进県道59号！）；遇雾改走船原隧道。'});
+      t+=50; drv+=50; km+=36;
+    } else {
+      list.push({s:t,d:65,tp:'d',lb:'R136船原隧道',ti:'雾天直达：弘法の湯 → 修善寺道路(200円) → 国道136号船原隧道 → 黄金崎公園（约43km）',nt:'避开900m山脊浓雾区，全程宽敞双车道国道136号经土肥＆恋人岬直抵黄金崎！'});
+      t+=65; drv+=65; km+=43;
+    }
+
+    const dry2 = t < rainStart;
+    list.push({s:t,d:30,tp:'s',lb:'黄金崎马头岩',ti:'黄金崎公園（奇岩「馬ロック」＆黄金断崖・免费120车位）',nt:dry2?'✅ 干爽拍奇岩断崖！认准过水晶公园再开600m右转；园内こがねすと周二休，公厕可用。':'⚠️ 已飘雨，打伞短停拍照或直接继续开13分去堂ヶ岛。'});
+    t+=30;
+
+    list.push({s:t,d:13,tp:'d',lb:'往堂ヶ岛',ti:'第3段：黄金崎公園 → 堂ヶ島マリン免费500台停车场（国道136号，约8.5km）',nt:'一次停好，游览船＋游步道＋海鲜午饭全程步行零挪车！'});
+    t+=13; drv+=13; km+=9;
+
+    boatTime = Math.max(t, 600); // Boats open 10:00
+    if(t < 600){
+      list.push({s:t,d:600-t,tp:'s',lb:'逛天窓洞步道',ti:'先逛免费「天窓洞游步道」等候 10:00 洞窟游览船开航',nt:'10:00 头波船开航！11/24 白天干潮 88cm 无法步行登三四郎岛，直接等头波船最爽。'});
+      t = 600;
+    }
+
+    if(wmode === 'early_rain' || boatTime >= 705){
+      boatOk = false;
+      list.push({s:t,d:45,tp:'s',lb:'天窓洞/防停航',ti:'堂ヶ島 天窓洞游步道（⚠️ 此时撞上降雨/SW风8-9m，游览船停航风险高！）',nt:'若游览船停航，逛完天窓洞展望台后可返程顺停室内「土肥金山」（9–17时无休）！'});
+      t+=45;
+    } else {
+      list.push({s:t,d:60,tp:'s',lb:'洞窟游览船',ti:'堂ヶ島「洞くつめぐり遊覧船」（20分・1,500円）＋ 天窓洞游步道',nt:'✅ 抢在 12:00 起雨与 8–9m/s 西南大风之前坐完头波蓝洞船！'});
+      t+=60;
+    }
+
+    const lunchS = Math.max(t, 660); // Opens 11:00
+    if(t < 660){
+      list.push({s:t,d:660-t,tp:'s',lb:'海湾拍照',ti:'堂ヶ岛海湾散步＆买手信等候 11:00 餐厅开门',nt:'11:00 一开门即抢头批海景窗座，零排队！'});
+      t = 660;
+    }
+    list.push({s:lunchS,d:65,tp:'f',lb:'西伊豆海鲜午饭',ti:'堂ヶ岛海鲜午饭：① 漁師カフェ堂ヶ島食堂 或 ② 瀬浜寿司（步行1–2分・仅现金）',nt:'✅ 刚好躲进室内避开 12:00 开始飘落的小雨！绝不扑空周二休的沖あがり食堂与第4周二休のはんばた市場！'});
+    t = lunchS + 65;
+
+    const backStart = t;
+    const backDur = addIchigo ? 60 : 65;
+    const backKm = addIchigo ? 46 : 49;
+    leaveMtnTime = backStart + backDur;
+    heavyMtnRain = (leaveMtnTime > heavyStart + 15) || (backStart >= heavyStart);
+
+    list.push({s:t,d:backDur,tp:'d',lb:heavyMtnRain?'雨中R136返程':'R136宽道返程',ti:`第4段：堂ヶ島 → 国道136号(土肥→船原隧道) → 天城北道路 → ${addIchigo?'道の駅伊豆のへそ':'弘法の湯'}（约${backKm}km）`,nt:heavyMtnRain?'⚠️ 已撞 14:00–15:00 最大降雨峰值（3–6mm/h），山区雨大请注意降速，坚决勿走県道59号！':'✅ 赶在 14:00–15:00 暴雨峰值之前驶离西伊豆山区，全程宽敞双车道＋修善寺道路现金200円！'});
+    t+=backDur; drv+=backDur; km+=backKm;
+
+    if(addIchigo){
+      list.push({s:t,d:45,tp:'r',lb:'室内草莓工坊',ti:'道の駅 伊豆のへそ「いちごBonBonBERRY 伊豆の国factory」（全室内避雨）',nt:'距旅馆仅 7 分钟！外面降雨正好在室内吃现做红颜草莓甜品＋挑伊豆伴手礼（09:00–17:00 年中无休）。'});
+      t+=45;
+      list.push({s:t,d:7,tp:'d',lb:'回旅馆',ti:'第5段：道の駅 伊豆のへそ → 弘法の湯 长冈店（约3.5km）',nt:'平路 7 分钟轻松停回旅馆免费车位！'});
+      t+=7; drv+=7; km+=4;
+    }
+    returnHotelTime = t;
+  } else {
+    isMountain = false;
+    boatOk = true;
+    const toNumazu = 32;
+    list.push({s:t,d:toNumazu,tp:'d',lb:'平路往沼津港',ti:'保底第1段：弘法の湯 → 沼津港「ぬまづみなとパーキング」（全平路19km）',nt:'伊豆中央道(现金200円)→伊豆纵贯道(免费)→R414，零山路！立体车场有顶不淋雨（10:00开；早到停对面ダイノブセンター）。'});
+    t+=toNumazu; drv+=toNumazu; km+=19;
+
+    if(t < 600){
+      list.push({s:t,d:600-t,tp:'s',lb:'港边散步',ti:'沼津港防潮水门「びゅうお」周边散步等候 10:00 开馆',nt:'⚠️ 提醒：沼津みなと新鮮館 11/24 第4周二定休，直接等深海水族馆开门。'});
+      t = 600;
+    }
+    boatTime = t;
+    list.push({s:t,d:75,tp:'s',lb:'深海水族馆',ti:'沼津港深海水族館（100% 室内避雨・看真品冷冻腔棘鱼）',nt:'年中无休 10:00–18:00！全室内不受 11/24 风雨影响。'});
+    t+=75;
+
+    const lunchS = Math.max(t, 660);
+    list.push({s:lunchS,d:75,tp:'f',lb:'丸天海鲜午饭',ti:'魚河岸 丸天 みなと店（步行1分・周二平日零排队！）',nt:'✅ 完美补上 11/23 跳过的沼津港！推荐4人拼 1 份 20cm 海鲜天妇罗塔＋丸天丼＋30cm金目鲷煮付！'});
+    t = lunchS + 75;
+
+    const backDur = addIchigo ? 25 : 32;
+    const backKm = addIchigo ? 16 : 19;
+    leaveMtnTime = t + backDur;
+    list.push({s:t,d:backDur,tp:'d',lb:'平路南返',ti:`保底第3段：沼津港 → 伊豆纵贯道 → 伊豆中央道(现金200円) → ${addIchigo?'道の駅伊豆のへそ':'弘法の湯'}（约${backKm}km）`,nt:'全程双向宽敞平路零山路，下雨也超稳！'});
+    t+=backDur; drv+=backDur; km+=backKm;
+
+    if(addIchigo){
+      list.push({s:t,d:50,tp:'r',lb:'室内草莓工坊',ti:'道の駅 伊豆のへそ「いちごBonBonBERRY 伊豆の国factory」（全室内避雨）',nt:'品尝红颜草莓芭菲/大福串＋采购伊豆特产伴手礼！'});
+      t+=50;
+      list.push({s:t,d:7,tp:'d',lb:'回旅馆',ti:'道の駅 伊豆のへそ → 弘法の湯 长冈店（约3.5km）',nt:'7 分钟轻松安抵旅馆！'});
+      t+=7; drv+=7; km+=4;
+    }
+    returnHotelTime = t;
+  }
+
+  const onsenDur = Math.max(90, 1080 - returnHotelTime);
+  list.push({s:returnHotelTime,d:onsenDur,tp:'r',lb:'旅馆泡汤躺平',ti:'弘法の湯 长冈店 泡天然温泉＆北投石岩盘浴',nt:'听着窗外 15:00 大雨在馆内暖呼呼养生，提前用手机给今晚晚餐排号！'});
+  const dinS = Math.max(returnHotelTime + 90, 1080);
+  list.push({s:dinS,d:80,tp:'f',lb:'周二晚餐衔接',ti:'11/24 晚餐：さわやか 函南店（平日超好排） / ひょうたん寿司 / あまご茶屋',nt:'Day 1 精选 3 家周二均正常营业！18:00 后伊豆之国雨势明显减弱。'});
+
+  // KPIs
+  const kb = document.getElementById('k-boat'), kbs = document.getElementById('k-boat-s');
+  if(!isMountain){
+    kb.textContent = `${fmt(boatTime)} 进室内馆`;
+    kb.style.color = 'var(--ok)';
+    kbs.textContent = '100% 室内避雨无停航风险';
+  } else {
+    kb.textContent = boatOk ? `${fmt(boatTime)} 抢头波船` : `${fmt(boatTime)} 易停航`;
+    kb.style.color = boatOk ? 'var(--ok)' : 'var(--err)';
+    kbs.textContent = boatOk ? '赶在12点SW大风前坐船◎' : '撞起雨/SW风8-9m，建议早发或切R';
+  }
+
+  const kr = document.getElementById('k-rain'), krs = document.getElementById('k-rain-s');
+  if(!isMountain){
+    kr.textContent = `${fmt(leaveMtnTime)} 平路返`;
+    kr.style.color = 'var(--ok)';
+    krs.textContent = '全程零山路・不怕大雨';
+  } else {
+    kr.textContent = `${fmt(leaveMtnTime)} 离山区`;
+    kr.style.color = heavyMtnRain ? 'var(--err)' : (leaveMtnTime > rainStart ? 'var(--warn)' : 'var(--ok)');
+    krs.textContent = heavyMtnRain ? '撞14–15时暴雨峰值(3–6mm/h)✕' : '赶在14–15时暴雨峰值前离山◎';
+  }
+
+  const lightMargin = Math.max(0, 996 - returnHotelTime); // 16:36 = 996
+  const kl = document.getElementById('k-light'), kbs2 = document.getElementById('k-back-s');
+  kl.textContent = lightMargin > 0 ? `提前 ${lightMargin} 分` : '已天黑夜驾';
+  kl.style.color = lightMargin >= 90 ? 'var(--ok)' : (lightMargin >= 30 ? 'var(--warn)' : 'var(--err)');
+  kbs2.textContent = `${fmt(returnHotelTime)} 回到弘法の湯`;
+
+  document.getElementById('k-drv').textContent = `${Math.floor(drv/60)}h${String(drv%60).padStart(2,'0')}m / ${km}km`;
+  document.getElementById('k-lvl').textContent = !isMountain ? '零山路・新手100%轻松◎' : (rmode==='westizu_tunnel' ? 'R136宽道・绕雾最稳◎' : '宽敞双车道・忌走県道59号');
+
+  const vp = document.getElementById('verdict-pill');
+  if(!isMountain){ vp.className='tag ok'; vp.textContent='零山路全室内・稳妥 ◎'; }
+  else if(boatOk && !heavyMtnRain && lightMargin >= 60){ vp.className='tag ok'; vp.textContent='干爽抢船・暴雨前归宿 ◎'; }
+  else if(!heavyMtnRain && lightMargin >= 30){ vp.className='tag warn'; vp.textContent='略赶・建议早发或备选R △'; }
+  else { vp.className='tag err'; vp.textContent='撞暴雨＆停航高危・改早发或方案R ✕'; }
+
+  // Gantt chart (07:00 = 420 to 20:00 = 1200, span 780)
+  const minS = 420, span = 780, pct = m => Math.max(0, Math.min(100, (m - minS) / span * 100));
+  const ga = document.getElementById('g-axis'); ga.innerHTML = '';
+  [480, 600, 720, 840, 960, 1080, 1140].forEach(m => {
+    const s = document.createElement('span');
+    s.style.cssText = `position:absolute;left:${pct(m)}%;transform:translateX(-50%)`;
+    s.textContent = fmt(m);
+    ga.appendChild(s);
+  });
+  const col = {d:'#2b6cb0', r:'#b7791f', f:'#c2542a', s:'#2f855a'};
+  const gt = document.getElementById('g-track'); gt.innerHTML = '';
+  list.forEach(x => {
+    const l = pct(x.s), w = Math.max(1.5, pct(x.s + x.d) - l);
+    const e = document.createElement('div'); e.className = 'gseg';
+    e.style.cssText = `left:${l}%;width:${w}%;background:${col[x.tp]}`;
+    e.textContent = w > 7.5 ? x.lb : '';
+    e.title = `${fmt(x.s)}-${fmt(x.s+x.d)} ${x.ti}`;
+    gt.appendChild(e);
+  });
+  if(rainStart < 1200){
+    const rl = document.createElement('div'); rl.className = 'gline rain'; rl.style.left = pct(rainStart) + '%'; rl.title = `预计 ${fmt(rainStart)} 起雨`; gt.appendChild(rl);
+  }
+  const gl = document.createElement('div'); gl.className = 'gline'; gl.style.left = pct(996) + '%'; gl.title = '16:36 日落天黑'; gt.appendChild(gl);
+
+  const ul = document.getElementById('tl-list'); ul.innerHTML = '';
+  list.forEach(x => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="tm">${fmt(x.s)}–${fmt(x.s+x.d)}<i>${x.d}分钟</i></div><div><div class="ti">${x.ti}</div><div class="nt">${x.nt}</div></div>`;
+    ul.appendChild(li);
+  });
+}
+
+function drawChart(){
+  const c = document.getElementById('c-chart'), a = document.getElementById('c-axis');
+  WEATHER_HOURLY.forEach((x, i) => {
+    const col = document.createElement('div');
+    col.className = 'ccol' + ((i >= 1 && i <= 4) ? ' best' : '');
+    const ph = Math.max(14, Math.round(x.p));
+    const wh = Math.max(14, Math.round(x.w / 10 * 100));
+    const wColor = x.w >= 8 ? '#b91c1c' : '#d97706';
+    col.innerHTML = `<div class="cbar" style="height:${ph}%;background:#2b6cb0">${x.p}</div><div class="cbar" style="height:${wh}%;background:${wColor}">${x.w}m</div>`;
+    c.appendChild(col);
+    const l = document.createElement('div'); l.textContent = x.h.replace('时', '');
+    if(i >= 1 && i <= 4){ l.style.color = 'var(--ok)'; l.style.fontWeight = '700'; }
+    a.appendChild(l);
+  });
+}
+
+function drawRisks(){
+  const w = document.getElementById('risk-wrap');
+  RISKS.forEach(r => {
+    const d = document.createElement('div'); d.className = 'risk';
+    d.innerHTML = `<div class="rh"><span class="tag ${r.lvl}">${r.tag}</span><span class="tag" style="background:var(--card2);color:var(--soft)">${r.cat}</span><span class="rt">${r.t}</span></div><div class="rb"><div><b>对策：</b>${r.p}</div></div>`;
+    w.appendChild(d);
+  });
+}
+
+const KEY = 'izu_1124_nishiizu_chk_v1';
+function drawTodos(){
+  let st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
+  const w = document.getElementById('chk-wrap'); w.innerHTML = '';
+  let n = 0;
+  TODOS.forEach(x => {
+    const on = !!st[x.id]; if(on) n++;
+    const lb = document.createElement('label'); lb.className = 'chk' + (on ? ' done' : '');
+    lb.innerHTML = `<input type="checkbox" ${on ? 'checked' : ''}><span><b class="mono" style="font-size:12px;color:var(--accent);margin-right:6px">[${x.who}]</b>${x.tx}</span>`;
+    lb.querySelector('input').addEventListener('change', e => {
+      st[x.id] = e.target.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {}
+      drawTodos();
+    });
+    w.appendChild(lb);
+  });
+  document.getElementById('chk-stat').textContent = `${n} / ${TODOS.length}`;
+}
+
+document.querySelectorAll('.pbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.pbtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  const p = b.dataset.preset;
+  if(p === 'planW'){
+    document.getElementById('dep-slider').value = 480;
+    document.getElementById('route-mode').value = 'westizu';
+    document.getElementById('weather-mode').value = 'forecast';
+    document.getElementById('opt-ichigo').checked = true;
+  } else if(p === 'planR'){
+    document.getElementById('dep-slider').value = 565;
+    document.getElementById('route-mode').value = 'rain_numazu';
+    document.getElementById('weather-mode').value = 'forecast';
+    document.getElementById('opt-ichigo').checked = true;
+  } else if(p === 'planL'){
+    document.getElementById('dep-slider').value = 600;
+    document.getElementById('route-mode').value = 'westizu';
+    document.getElementById('weather-mode').value = 'forecast';
+    document.getElementById('opt-ichigo').checked = true;
+  }
+  runSim();
+}));
+
+['dep-slider','route-mode','weather-mode','opt-ichigo'].forEach(id => {
+  document.getElementById(id).addEventListener('input', runSim);
+  document.getElementById(id).addEventListener('change', runSim);
+});
+
+// Lightbox
+const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
+function openLb(src, cap){ lbImg.src = src; lbCap.textContent = cap || ''; lb.classList.add('show'); }
+document.querySelectorAll('.pitem').forEach(el => el.addEventListener('click', () => openLb(el.querySelector('img').src, el.dataset.cap)));
+document.querySelectorAll('.sa-img').forEach(el => el.addEventListener('click', () => openLb(el.src, el.dataset.cap)));
+document.getElementById('lb-close').addEventListener('click', () => lb.classList.remove('show'));
+lb.addEventListener('click', e => { if(e.target === lb) lb.classList.remove('show'); });
+
+// Copy WeChat group text
+document.getElementById('copy-wx-btn').addEventListener('click', () => {
+  const txt = `【11/24 周二・Day 2 西伊豆绝景＆避雨自驾攻略（一键导航＋9实拍）】\n实查西伊豆 11/24 逐小时天气：08:00–11:30 干爽无雨（14–18℃），12:00 起转小雨＋西南风增至 8–9m/s（午后易触发游船停航），14:00–15:00 暴雨峰值！页面含防选错一键 Google Maps 导航＋雨天零山路保底线👇\nhttps://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/\n\n🌊 主推【方案 W：08:00 早冲抢干爽窗口】（行李留旅馆轻装出游）：\n・07:00 弘法の湯 2F「食事処 空海」吃早餐（副驾 07:30 刷堂ヶ岛游船官网确认开航）\n・08:00 准时发车 → 08:30 だるま山高原展望台（室外展望台＋50免费车位开放；顺路可看静冈第1红叶修善寺もみじ林）\n・08:50 免费「西伊豆スカイライン(県道127号)」→ 船原峠右转 R136 → 09:40 黄金崎公园拍「馬ロック」马头岩（免费120位，别提前600m拐水晶公园！）\n・10:23 一次停好堂ヶ岛免费 500 车位 → 抢 12 点起风前坐头波「洞くつめぐり遊覧船」(1,500円/20分)＋逛天窓洞游步道\n・11:23 步行 1–2 分钟进室内吃海鲜午饭（刚好躲12点落雨！）\n・12:28 锁死宽敞「国道136号→船原隧道→天城北道路」返程（绝不走県道59号窄道！）→ 13:28 逛室内「道の駅伊豆のへそ」草莓工坊 → 14:20 暴雨峰值前安抵旅馆泡温泉＆岩盘浴！\n\n🌧️ 若明早 07:30 已下雨或游船停航，1 秒切【方案 R 零山路全室内保底】：\n09:25 发车 → 10:00 沼津港深海水族馆(全室内) → 11:15 魚河岸丸天みなと店(补打卡昨日跳过的沼津港，周二平日零排队！) → 12:55 草莓工坊 → 13:52 回旅馆泡汤\n\n🍽️ 11/24 第4周二已排雷（沖あがり食堂/はんばた市場/沼津新鮮館全休！），午餐 3 选 1：\n① 漁師カフェ 堂ヶ島食堂（4.1★・海景2F・俺のぶっかけ丼＋免费石花菜无限吃・仅现金）\n② 瀬浜寿司 堂ヶ島（4.3★・限定30食海鲜丼＆炙烤金目鲷＆金目鲷煮付・仅现金）\n③ 魚河岸 丸天 みなと店（4.0★・雨天保底线・专利20cm天妇罗塔＆丸天丼）\n🌙 今晚晚餐衔接：さわやか函南店（周二雨夜人最少！）/ ひょうたん寿司 / あまご茶屋均正常营业！`;
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt).catch(() => {}); }
+  const t = document.getElementById('toast'); t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+});
+
+const navLinks = [...document.querySelectorAll('nav a')];
+const secs = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll', () => {
+  const y = window.scrollY + 90;
+  let cur = 0;
+  secs.forEach((s, i) => { if(s && s.offsetTop <= y) cur = i; });
+  navLinks.forEach((a, i) => a.classList.toggle('on', i === cur));
+}, {passive: true});
+
+runSim(); drawChart(); drawRisks(); drawTodos();
+</script>
+</body>
+</html>
