@@ -15,6 +15,7 @@
 | 状态 | 行程 | 目录 | 在线网址（GitHub Pages） |
 |---|---|---|---|
 | ✅ 已上线 | **2026-11-23 东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
+| ✅ 已上线 | **2026-11-24 伊豆 Day 2：抢晴碧テラス → 沼津深海 → 函南避雨** | `trips/2026-11-24-izu-day2/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-izu-day2/ |
 | 📝 占位 | **2027-01 冬季滑雪温泉自驾（白马 / 越后汤泽 / 苗场）** | `trips/2027-01-snow-trip/` | https://kenandxx.github.io/trip-planning/trips/2027-01-snow-trip/ |
 | 📝 占位 | **2027-03 富士五湖・河口湖绝景周末自驾** | `trips/2027-03-fuji-lakes/` | https://kenandxx.github.io/trip-planning/trips/2027-03-fuji-lakes/ |
 | 📝 占位 | **2027-05 轻井泽・草津高原温泉自驾** | `trips/2027-05-karuizawa-kusatsu/` | https://kenandxx.github.io/trip-planning/trips/2027-05-karuizawa-kusatsu/ |
@@ -34,6 +35,7 @@ trip-planning/
 ├── .agents/skills/japan-self-drive-trip-planner/ # 同款规范（本地 Agent 工具自动识别）
 └── trips/
     ├── index.html                                # 旅行总览目录页（Trip Hub）
+    ├── 2026-11-24-izu-day2/                      # 2026-11-24 伊豆 Day 2 全天候攻略＆高清长图
     ├── template/                                 # 空白新行程模板（brief.md + index.html + img/）
     ├── 2027-01-snow-trip/                        # 冬季滑雪占位模板
     ├── 2027-03-fuji-lakes/                       # 富士五湖占位模板
