@@ -1,0 +1,68 @@
+name: Day 2 assets and mobile QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trips/2026-11-24-nishi-izu/**'
+      - '.github/workflows/day2-assets-qa.yml'
+permissions:
+  contents: write
+jobs:
+  assets-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install SVG renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+      - name: Render PNG share assets
+        run: |
+          rsvg-convert -w 1200 -h 630 trips/2026-11-24-nishi-izu/og-cover.svg > trips/2026-11-24-nishi-izu/og-cover.png
+          rsvg-convert -w 1100 -h 2750 trips/2026-11-24-nishi-izu/poster_v3.svg > trips/2026-11-24-nishi-izu/poster_v3.png
+          file trips/2026-11-24-nishi-izu/og-cover.png trips/2026-11-24-nishi-izu/poster_v3.png
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run 390x844 mobile QA
+        run: |
+          python3 -m http.server 4173 --directory . >/tmp/day2-server.log 2>&1 &
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const errors=[];
+            page.on('pageerror',e=>errors.push(String(e)));
+            page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+            await page.goto('http://127.0.0.1:4173/trips/2026-11-24-nishi-izu/',{waitUntil:'networkidle'});
+            const overflow=await page.evaluate(()=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
+            await page.locator('#modeRain').click();
+            await page.locator('#copyText').click();
+            await page.locator('#startRange').evaluate(el=>{el.value='9.5';el.dispatchEvent(new Event('input',{bubbles:true}))});
+            await page.locator('#traffic').selectOption('30');
+            await page.locator('#checks input').first().check();
+            const title=await page.title();
+            await page.screenshot({path:'/tmp/day2-mobile.png',fullPage:true});
+            console.log(JSON.stringify({title,overflow,errors},null,2));
+            if(overflow.scroll>overflow.width)throw new Error('Horizontal overflow detected');
+            if(errors.length)throw new Error('Browser errors detected: '+errors.join('; '));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload mobile QA screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day2-mobile-390x844
+          path: /tmp/day2-mobile.png
+      - name: Commit generated PNGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trips/2026-11-24-nishi-izu/og-cover.png trips/2026-11-24-nishi-izu/poster_v3.png
+          if git diff --cached --quiet; then echo "PNG assets already current"; else git commit -m "Generate Day 2 PNG share assets"; git push origin main; fi

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="2500" viewBox="0 0 440 1000">
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#203b39"/><stop offset=".48" stop-color="#5b7358"/><stop offset="1" stop-color="#ead8bd"/></linearGradient><linearGradient id="gold" x2="1"><stop stop-color="#f4d8a5"/><stop offset="1" stop-color="#eaa16b"/></linearGradient></defs>
+<rect width="440" height="1000" fill="#f5efe5"/><rect width="440" height="300" fill="url(#bg)"/>
+<g opacity=".8" fill="#d65d37"><path d="M0 60 Q70 0 120 70 Q65 130 0 60"/><path d="M300 30 Q370 -10 440 45 Q385 110 300 30"/><path d="M340 190 Q390 135 440 190 Q390 250 340 190"/><path d="M30 210 Q80 150 145 220 Q90 270 30 210"/></g>
+<text x="28" y="38" fill="#f7e8d2" font-size="10" letter-spacing="2" font-family="sans-serif">IZU SELF-DRIVE · DAY 02 · 2026.11.24</text>
+<text x="28" y="108" fill="#fff8ec" font-size="34" font-weight="700" font-family="sans-serif">修善寺红叶慢游</text><text x="28" y="151" fill="#fff8ec" font-size="18" font-family="sans-serif">枫林・虹之乡・温泉街</text><text x="28" y="190" fill="#f7e8d2" font-size="12" font-family="sans-serif">弘法の湯 长冈店出发｜周二</text>
+<rect x="22" y="225" width="396" height="55" rx="12" fill="#ffffff20" stroke="#ffffff50"/><text x="38" y="248" fill="#fff" font-size="12" font-family="sans-serif">降雨概率 70–80%（11/22预报）</text><text x="38" y="267" fill="#fff" font-size="11" font-family="sans-serif">日落 16:34 · 浄蓮の滝视天气可选</text>
+<text x="26" y="335" fill="#ad5637" font-size="11" letter-spacing="2" font-family="sans-serif">THE DAY PLAN</text>
+<g font-family="sans-serif" fill="#29231d"><text x="28" y="375" font-size="18" font-weight="700">09:30　修善寺自然公園 もみじ林</text><text x="28" y="414" font-size="18" font-weight="700">10:00　修善寺 虹の郷</text><text x="28" y="453" font-size="18" font-weight="700">12:00　修善寺温泉街午餐</text><text x="28" y="492" font-size="17" font-weight="700">下午　修禅寺方丈庭园・竹林の小径</text><text x="28" y="531" font-size="17" font-weight="700">之后　浄蓮の滝（可选）／筥湯</text></g>
+<path d="M38 385 V520" stroke="#b85c3b" stroke-width="2" stroke-dasharray="3 5"/>
+<rect x="22" y="565" width="396" height="125" rx="14" fill="#fffaf2" stroke="#dfd4c5"/>
+<text x="40" y="598" fill="#a95032" font-size="12" font-family="sans-serif" font-weight="700">SPECIAL OPENING</text>
+<text x="40" y="628" fill="#29231d" font-size="16" font-family="sans-serif" font-weight="700">修禅寺 方丈庭园「東海第一園」</text>
+<text x="40" y="654" fill="#665d53" font-size="13" font-family="sans-serif">11/20–11/30　9:00–16:00</text><text x="40" y="675" fill="#665d53" font-size="13" font-family="sans-serif">庭园维护协力金 200 日元</text>
+<rect x="22" y="710" width="396" height="140" rx="14" fill="#f2e2d5" stroke="#dfc5b1"/>
+<text x="40" y="744" fill="#9d4630" font-size="15" font-weight="700" font-family="sans-serif">雨天安全提示</text>
+<text x="40" y="775" fill="#563a2d" font-size="13" font-family="sans-serif">• 浄蓮の滝阶梯湿滑，明显降雨时取消</text>
+<text x="40" y="802" fill="#563a2d" font-size="13" font-family="sans-serif">• 温泉街外围停车，竹林周边步行</text>
+<text x="40" y="829" fill="#563a2d" font-size="13" font-family="sans-serif">• 每段停车后再启动下一段导航</text>
+<text x="28" y="900" fill="#a95032" font-size="11" letter-spacing="2" font-family="sans-serif">OPEN THE FULL GUIDE</text>
+<text x="28" y="930" fill="#29231d" font-size="14" font-family="sans-serif">kenandxx.github.io/trip-planning/</text>
+<text x="28" y="970" fill="#756b60" font-size="10" font-family="sans-serif">计划以当日天气、店铺公告与现场交通为准</text></svg>
