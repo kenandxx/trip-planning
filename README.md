@@ -16,6 +16,7 @@
 |---|---|---|---|
 | ✅ 已上线 | **2026-11-23（Day 1）东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
 | ✅ 已上线（主推） | **2026-11-24（Day 2 新版）沼津深海避雨 / 虹之乡＆净莲瀑布（跳过修禅寺＆碧テラス）** | `trips/2026-11-24-izu-day2/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-izu-day2/ |
+| ✅ 已上线（最新） | **2026-11-25（Day 3 返程）伊豆 → 海萤＆木更津 / 横浜中华街 → 滝不動＆新鎌ヶ谷零换乘直达成田** | `trips/2026-11-25-izu-return/` | https://kenandxx.github.io/trip-planning/trips/2026-11-25-izu-return/ |
 | 📁 旧版归档 | **2026-11-24（Day 2 备查旧版・含修善寺）** | `trips/2026-11-24-nishi-izu/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/ |
 | 📝 占位 | **2027-01 冬季滑雪温泉自驾（白马 / 越后汤泽 / 苗场）** | `trips/2027-01-snow-trip/` | https://kenandxx.github.io/trip-planning/trips/2027-01-snow-trip/ |
 | 📝 占位 | **2027-03 富士五湖・河口湖绝景周末自驾** | `trips/2027-03-fuji-lakes/` | https://kenandxx.github.io/trip-planning/trips/2027-03-fuji-lakes/ |
@@ -36,7 +37,8 @@ trip-planning/
 ├── .agents/skills/japan-self-drive-trip-planner/ # 同款规范（本地 Agent 工具自动识别）
 └── trips/
     ├── index.html                                # 旅行总览目录页（Trip Hub）
-    ├── 2026-11-24-izu-day2/                      # 2026-11-24 Day 2 新版全天候攻略（跳过修禅寺・主推）
+    ├── 2026-11-24-izu-day2/                      # 2026-11-24 Day 2 新版全天候攻略（跳过修禅寺＆碧テラス）
+    ├── 2026-11-25-izu-return/                    # 2026-11-25 Day 3 返程观光＋滝不動＆新鎌ヶ谷直达成田攻略
     ├── 2026-11-24-nishi-izu/                     # 2026-11-24 Day 2 历史备选归档
     ├── template/                                 # 空白新行程模板（brief.md + index.html + img/）
     ├── 2027-01-snow-trip/                        # 冬季滑雪占位模板
