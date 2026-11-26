@@ -158,6 +158,7 @@
       gpsLastFixAt: null, // ms timestamp of the last position received from watchPosition
       gpsLastError: null, // last non-fatal error message (timeout / unavailable) while still watching
       observedPace: savedState.observedPace || null,
+      live: Object.assign({ status: {}, stayMode: 'full', hereMode: 'full', appliedAt: null }, savedState.live || {}),
       lastAlertSig: ''
     };
 
@@ -205,7 +206,8 @@
         emergencyMode: state.emergencyMode,
         activePlanId: state.activePlanId,
         anchor: state.anchor,
-        observedPace: state.observedPace
+        observedPace: state.observedPace,
+        live: state.live
       });
     }
 
@@ -1097,6 +1099,15 @@
         }
       });
 
+      // Arrived at any stop we still want to visit (order doesn't matter: plans change on the road)
+      if (nearest && minDist <= (nearest.radiusKm || (config.mode === 'transit' ? 0.06 : 0.65)) && state.anchor.nodeId !== nearest.id &&
+          !['origin', 'destination', 'after'].includes(nearest.role) && liveStatus(nearest) === 'want') {
+        state.gpsInfo = { lat: lat.toFixed(4), lng: lng.toFixed(4), speedKmh, accuracy: Math.round(accuracy || 0),
+          nearestName: `${nearest.shortName || nearest.name} (${minDist.toFixed(1)}km)`, remKm: null, liveDeltaMin: null, slowRoadWarn: false };
+        recordCheckin(nearest.id, 'arr', nowLocalMin(), 'GPS 自动识别到站');
+        return;
+      }
+
       // Next upcoming node in current timeline
       const nextItem = sim.timeline.find(x => x.status === 'upcoming') || sim.timeline[0];
       let remKm = null;
@@ -1107,7 +1118,7 @@
       if (nextItem && nextItem.node.lat != null) {
         remKm = Math.round(haversineKm(lat, lng, nextItem.node.lat, nextItem.node.lng) * 10) / 10;
         // Geofence auto check-in if within radiusKm
-        const rad = nextItem.node.radiusKm || 0.65;
+        const rad = nextItem.node.radiusKm || (config.mode === 'transit' ? 0.06 : 0.65);
         if (remKm <= rad && state.anchor.nodeId !== nextItem.node.id) {
           state.gpsInfo = {
             lat: lat.toFixed(4),
@@ -1153,6 +1164,16 @@
     function recordCheckin(nodeId, eventType, timeMin, reason) {
       unlockAudio();
       const prevAnchor = state.anchor;
+      const isStop = id => {
+        const n = config.nodes.find(x => x.id === id);
+        return n && !['origin', 'destination', 'after'].includes(n.role);
+      };
+      if (prevAnchor && prevAnchor.event === 'arr' && prevAnchor.nodeId !== nodeId && isStop(prevAnchor.nodeId)) {
+        state.live.status[prevAnchor.nodeId] = 'done';
+      }
+      if (eventType === 'dep' && isStop(nodeId)) state.live.status[nodeId] = 'done';
+      if (eventType === 'arr' && isStop(nodeId) && state.live.status[nodeId] !== 'done') state.live.status[nodeId] = 'want';
+      if (eventType === 'arr') state.live.hereMode = 'full';
       state.anchor = {
         nodeId,
         event: eventType,
@@ -1430,112 +1451,319 @@
       }
     }
 
-    // "此刻导航" card: one place that answers
-    //   which plan am I on / where am I / ahead or late / what do I do now / is there a backup?
-    function buildNowCard(sim, delayMin, proposals) {
+    // ===== Live reverse planner ("此刻导航") =====
+    // Assumes nothing went to plan: starts from where we are NOW (GPS, or the last check-in place),
+    // works back from the final deadline, and searches every combination of the remaining stops.
+    const STOP_ROLES_EXCLUDED = ['origin', 'destination', 'after'];
+    const stopNodes = () => config.nodes.filter(n => !STOP_ROLES_EXCLUDED.includes(n.role));
+    const destNode = () =>
+      config.nodes.find(n => n.id === ((config.deadlineSpec && config.deadlineSpec.destNodeId) || 'dest')) ||
+      config.nodes.filter(n => n.role === 'destination').pop() ||
+      config.nodes[config.nodes.length - 1];
+
+    function liveStatus(n) {
+      const st = state.live.status[n.id];
+      if (st) return st;
+      return n.role === 'meal' || state.enabledNodes[n.id] ? 'want' : 'skip';
+    }
+
+    function estimateLegMin(km) {
+      const pace = state.paceFactor || 1;
+      let m;
+      if (config.mode === 'transit') m = km <= 1.5 ? (km * 1.25 / 4.8) * 60 : 8 + (km * 1.3 / 25) * 60;
+      else m = 3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60;
+      return Math.max(1, Math.round(m * pace));
+    }
+
+    // Minutes from a to b. a/b are nodes or { lat, lng } points.
+    function legMin(a, b) {
+      if (a.id && b.id) {
+        if (a.id === b.id) return 0;
+        const map = config.directDriveMap || {};
+        const base = map[`${a.id}->${b.id}`] != null ? map[`${a.id}->${b.id}`] : map[`${b.id}->${a.id}`];
+        if (base != null) return Math.max(1, Math.round(base * (state.paceFactor || 1)));
+      }
+      if (a.lat == null || b.lat == null) return 15;
+      return estimateLegMin(haversineKm(a.lat, a.lng, b.lat, b.lng));
+    }
+
+    function deadlineFor(destArr) {
+      const d = config.deadlineSpec || {};
+      if (d.trains && d.trains.length) {
+        const buf = d.transferBufferMin || 10;
+        const last = d.trains[d.trains.length - 1];
+        const train = d.trains.find(tr => tr.dep >= destArr + buf) || null;
+        return { hard: last.dep - buf, target: d.targetArrMin || last.dep - buf, train, hardLabel: `赶 ${fmtTime(last.dep)} 末班` };
+      }
+      const hard = d.hardArrMin || 1080;
+      return { hard, target: d.targetArrMin || hard, train: null, hardLabel: `${fmtTime(hard)} 最晚红线` };
+    }
+
+    // Where are we, and are we in the middle of a stop?
+    function liveStart(now) {
+      const a = state.anchor;
+      const aNode = config.nodes.find(n => n.id === a.nodeId) || config.nodes[0];
+      const aTime = a.timeMin + (a.extraDelayMin || 0);
+      const gps = isGpsFresh() ? { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng } : null;
+      const nearAnchor = !gps || aNode.lat == null || haversineKm(gps.lat, gps.lng, aNode.lat, aNode.lng) <= (aNode.radiusKm || 0.35);
+      const inStop =
+        a.event === 'arr' && !STOP_ROLES_EXCLUDED.includes(aNode.role) && liveStatus(aNode) !== 'done' && liveStatus(aNode) !== 'skip' && nearAnchor;
+      return {
+        here: inStop ? aNode : null,
+        hereArr: inStop ? aTime : null,
+        pos: inStop ? aNode : gps || aNode,
+        source: gps ? 'gps' : 'checkin',
+        aNode,
+        aTime,
+        aEvent: a.event
+      };
+    }
+
+    function simulateLive(start, now, stops, stayMode, hereMode) {
+      const legs = [];
+      let t = now;
+      let pos = start.pos;
+      if (start.here) {
+        const n = start.here;
+        const want = hereMode === 'now' ? 0 : hereMode === 'min' ? n.minStayMin || n.stayMin || 0 : n.stayMin || 0;
+        const leave = Math.max(now, start.hereArr + want);
+        legs.push({ node: n, arr: start.hereArr, dep: leave, here: true });
+        t = leave;
+      }
+      stops.forEach(n => {
+        const arr = t + legMin(pos, n);
+        const stay = stayMode === 'min' ? n.minStayMin || n.stayMin || 0 : n.stayMin || 0;
+        legs.push({ node: n, arr, dep: arr + stay, stay });
+        t = arr + stay;
+        pos = n;
+      });
+      const dest = destNode();
+      const destArr = t + legMin(pos, dest);
+      const dl = deadlineFor(destArr);
+      return { legs, lastDep: t, lastNode: pos, destArr, slack: dl.hard - destArr, dl, stops, stayMode, hereMode };
+    }
+
+    function routeScore(r) {
+      let s = 0;
+      r.stops.forEach(n => {
+        s += n.role === 'meal' || n.role === 'core' ? 10 : 3;
+        if (r.stayMode === 'full') s += 1;
+      });
+      // The stop we're in counts like a visit; walking out before its minimum stay throws it away.
+      const h = r.legs[0] && r.legs[0].here ? r.legs[0] : null;
+      if (h) {
+        const minStay = h.node.minStayMin || h.node.stayMin || 0;
+        if (r.hereMode === 'full') s += 11;
+        else if (r.hereMode === 'min') s += 10;
+        else if (h.dep - h.arr >= minStay) s += 10;
+      }
+      if (r.destArr <= r.dl.target) s += 0.5;
+      return s;
+    }
+
+    function computeLive() {
       const now = nowLocalMin();
-      const nm = n => escapeHtml(n.shortName || n.name);
-      const tl = sim.timeline || [];
-      const here = tl.find(x => x.status === 'at' || x.status === 'current');
-      const last = tl.find(x => x.status === 'departed');
-      const next = tl.find(x => x.status === 'upcoming');
+      const start = liveStart(now);
+      const want = stopNodes().filter(n => liveStatus(n) === 'want' && (!start.here || n.id !== start.here.id));
+      const plannedStay = state.live.stayMode || 'full';
+      const plannedHere = start.here ? state.live.hereMode || 'full' : null;
+      const planned = simulateLive(start, now, want, plannedStay, plannedHere);
 
-      // Live overrun: the plan says we should already have left / arrived, but no check-in says so.
-      let overrun = 0;
-      let overrunWhy = '';
-      if (here && now > here.dep) {
-        overrun = now - here.dep;
-        overrunWhy = `计划 ${fmtTime(here.dep)} 离开「${nm(here.node)}」`;
-      } else if (!here && next && now > next.arr) {
-        overrun = now - next.arr;
-        overrunWhy = `计划 ${fmtTime(next.arr)} 到「${nm(next.node)}」`;
+      const cands = [];
+      const n = want.length;
+      for (let mask = 0; mask < 1 << n; mask++) {
+        const sub = want.filter((_, i) => mask & (1 << i));
+        ['full', 'min'].forEach(sm => {
+          (start.here ? ['full', 'min', 'now'] : [null]).forEach(hm => cands.push(simulateLive(start, now, sub, sm, hm)));
+        });
       }
-      const eff = Math.max(delayMin, overrun);
-      const lvl = sim.riskLevel === 'err' || eff >= 25 ? 'err' : sim.riskLevel === 'warn' || eff >= 10 ? 'warn' : 'ok';
-      const progressTxt = eff >= 3 ? `晚 ${eff} 分钟` : eff <= -3 ? `提前 ${-eff} 分钟` : '准点';
+      const pick = list => list.slice().sort((x, y) => routeScore(y) - routeScore(x) || y.slack - x.slack)[0];
+      const safe = cands.filter(r => r.slack >= LIVE_SAFE_MIN);
+      const ok = cands.filter(r => r.slack >= 0);
+      const bestSafe = safe.length ? pick(safe) : null;
+      const bestTight = ok.length ? pick(ok) : null;
+      const best = bestSafe || bestTight || cands.slice().sort((x, y) => y.slack - x.slack)[0];
+      // Offer the tight option too when it buys more than the safe one
+      const tight = bestTight && bestSafe && routeScore(bestTight) > routeScore(bestSafe) ? bestTight : null;
 
-      // Which plan
-      const activeProp = state.activePlanId !== 'current' ? proposals.find(p => p.id === state.activePlanId) : null;
-      const planName = activeProp ? activeProp.name : config.basePlanName || '原定计划';
+      // Money-for-time fallback (e.g. taxi): keep the planned stops, go direct from the last one.
+      let fallback = null;
+      const em = config.deadlineSpec && config.deadlineSpec.emergencyDirect;
+      if (em && planned.slack < 0) {
+        const fromId = planned.lastNode && planned.lastNode.id;
+        const drv = Math.round(((em.driveFrom && (em.driveFrom[fromId] || Object.values(em.driveFrom)[0])) || 45) * (em.fixedPace || 1));
+        const arr = planned.lastDep + drv;
+        const lim = em.safeAirportArrMin || (config.deadlineSpec.hardArrMin || 1320);
+        fallback = { name: em.cardName || em.title || '直达兜底', badge: em.shortBadge || '直达兜底', arr, slack: lim - arr, navUrl: em.navUrl };
+      }
+      return { now, start, want, planned, best, tight, fallback, bestIsPlanned: sameRoute(best, planned) };
+    }
 
-      // Where am I
+    function sameRoute(a, b) {
+      return (
+        a && b && a.stayMode === b.stayMode && a.hereMode === b.hereMode &&
+        a.stops.map(s => s.id).join() === b.stops.map(s => s.id).join()
+      );
+    }
+
+    function describeRoute(r) {
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const parts = r.legs.map(l =>
+        l.here
+          ? `${nm(l.node)}${r.hereMode === 'now' ? '（马上走）' : `（待到 ${fmtTime(l.dep)}）`}`
+          : `${nm(l.node)}${r.stayMode === 'min' ? `（缩短到 ${l.stay} 分）` : ''}`
+      );
+      const dest = destNode();
+      if (!r.stops.length && !r.legs.some(l => l.here)) parts.push('不去店了，直接去');
+      parts.push(`${nm(dest)} <b>${fmtTime(r.destArr)}</b>`);
+      const train = r.dl.train ? ` → ${escapeHtml(r.dl.train.finalBadge || r.dl.train.name)}` : '';
+      return parts.join(' → ') + train;
+    }
+
+    function applyLiveRoute(r) {
+      const keep = new Set(r.stops.map(s => s.id));
+      stopNodes().forEach(n => {
+        if (liveStatus(n) === 'want' && !keep.has(n.id) && !(r.legs[0] && r.legs[0].here && r.legs[0].node.id === n.id)) {
+          state.live.status[n.id] = 'skip';
+        }
+      });
+      state.live.stayMode = r.stayMode;
+      state.live.hereMode = r.hereMode || 'full';
+      state.live.appliedAt = nowLocalMin();
+      saveState();
+      playChime('ok');
+      showPageToast(`✅ 已启动重算方案：${fmtTime(r.destArr)} 到终点，余裕 ${r.slack} 分`);
+      render();
+    }
+
+    function cycleStopStatus(id) {
+      const n = config.nodes.find(x => x.id === id);
+      if (!n) return;
+      const start = liveStart(nowLocalMin());
+      if (start.here && start.here.id === id) {
+        // here → done (we just left)
+        state.live.status[id] = 'done';
+        recordCheckin(id, 'dep', nowLocalMin(), '手动标记离开');
+        return;
+      }
+      const st = liveStatus(n);
+      if (st === 'want') {
+        recordCheckin(id, 'arr', nowLocalMin(), '手动标记：我在这');
+        return;
+      }
+      state.live.status[id] = st === 'done' ? 'skip' : 'want';
+      saveState();
+      render();
+    }
+
+    let lastNowCard = null;
+    const LIVE_SAFE_MIN = 5; // recommended plans keep at least this much buffer when possible
+
+    function buildNowCard() {
+      const L = computeLive();
+      const { now, start, planned, best, tight, fallback } = L;
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const slack = planned.slack;
+      const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
+      const big = slack >= 0 ? `余裕 ${slack} 分钟` : `落后 ${-slack} 分钟`;
+      const dl = planned.dl;
+      const dest = destNode();
+
+      // Where
       let whereTxt;
-      if (isGpsFresh()) {
-        whereTxt = here
-          ? `GPS：在「${nm(here.node)}」附近${next && state.gpsInfo.remKm != null ? `，距下一站「${nm(next.node)}」约 ${state.gpsInfo.remKm} km` : ''}`
-          : next && state.gpsInfo.remKm != null
-          ? `GPS：距「${nm(next.node)}」约 ${state.gpsInfo.remKm} km`
-          : `GPS：在 ${escapeHtml(state.gpsInfo.nearestName)} 附近`;
-      } else {
-        const a = config.nodes.find(n => n.id === state.anchor.nodeId);
-        const aTime = fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0));
-        whereTxt = `按最后打卡推算：${aTime} ${state.anchor.event === 'arr' ? '到达' : '离开'}「${a ? nm(a) : '--'}」${
-          state.gpsActive ? '（GPS 信号中断）' : '（打开 GPS 可自动更新）'
-        }`;
-      }
+      if (start.here) whereTxt = `在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到）`;
+      else if (start.source === 'gps') whereTxt = `GPS 定位中（最近的站点：${escapeHtml(state.gpsInfo.nearestName)}）`;
+      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）`;
+      if (start.source !== 'gps') whereTxt += `<span class="cp-now-sub">${state.gpsActive ? 'GPS 信号中断，' : ''}不对的话点下面的站标「我在这」，或打开 GPS</span>`;
 
-      // What to do now
+      // Plan label
+      const planLbl = state.live.appliedAt != null ? `重算方案（${fmtTime(state.live.appliedAt)} 启动）` : '原定计划（按现在位置重算）';
+
+      // Next action
+      const first = planned.legs.find(l => !l.here);
       let doTxt;
-      let navNode = null;
-      if (here) {
-        navNode = next ? next.node : null;
-        doTxt = now <= here.dep
-          ? `在「${nm(here.node)}」，可以待到 <b>${fmtTime(here.dep)}</b>（还有 ${here.dep - now} 分钟）${next ? `，然后去「${nm(next.node)}」` : ''}`
-          : `<b>该走了！</b>${next ? `现在出发去「${nm(next.node)}」` : '行程已到最后一站'}`;
-      } else if (next && overrun >= 10) {
-        navNode = next.node;
-        doTxt = `本应 ${fmtTime(next.arr)} 到「${nm(next.node)}」。<b>已经到了</b>就按下面的按钮更新；还没到就继续前往`;
-      } else if (next) {
-        navNode = next.node;
-        doTxt = `前往「${nm(next.node)}」，计划 <b>${fmtTime(next.arr)}</b> 到${next.stay ? `，停留 ${next.stay} 分钟` : ''}`;
+      let navNode;
+      if (planned.legs[0] && planned.legs[0].here) {
+        const h = planned.legs[0];
+        const nextName = first ? nm(first.node) : nm(dest);
+        navNode = first ? first.node : dest;
+        doTxt =
+          h.dep <= now
+            ? `<b>现在离开</b>「${nm(h.node)}」，去「${nextName}」`
+            : `在「${nm(h.node)}」待到 <b>${fmtTime(h.dep)}</b>（还剩 ${h.dep - now} 分），然后去「${nextName}」`;
+        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚可拖到 ${fmtTime(h.dep + slack)} 再走</span>`;
+      } else if (first) {
+        navNode = first.node;
+        doTxt = `去「${nm(first.node)}」，约 <b>${fmtTime(first.arr)}</b> 到`;
+        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚 ${fmtTime(now + slack)} 前出发都来得及</span>`;
       } else {
-        doTxt = last ? `已离开「${nm(last.node)}」，行程到这里结束` : '行程已结束';
+        navNode = dest;
+        doTxt = `去「${nm(dest)}」，约 <b>${fmtTime(planned.destArr)}</b> 到${dl.train ? `，坐 ${escapeHtml(dl.train.name)}` : ''}`;
+        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚 ${fmtTime(now + slack)} 前出发</span>`;
       }
       const navBtn = navNode && navNode.navUrl
         ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>`
         : '';
-      const syncNode = here ? here.node : next ? next.node : null;
-      const syncBtn = overrun >= 10 && syncNode
-        ? `<button type="button" class="cp-now-sync" data-now-sync="${escapeAttr(syncNode.id)}" data-now-ev="${here ? 'dep' : 'arr'}">⏱ 按现在 ${fmtTime(now)} 更新：我刚${here ? '离开' : '到'}「${nm(syncNode)}」</button>`
-        : '';
 
-      // Backup
-      let backupHtml;
-      const recIdx = proposals.findIndex(p => p.rec && p.id !== state.activePlanId);
-      const rec = recIdx >= 0 ? proposals[recIdx] : null;
-      if (lvl === 'ok') {
-        backupHtml = `<div class="cp-now-row"><span class="k">备选</span><span>✅ 不需要，按当前方案走就行</span></div>`;
-      } else if (rec) {
-        backupHtml = `<div class="cp-now-rec">
-            <div><b>建议改用：</b>${escapeHtml(rec.name)}</div>
-            <div class="cp-now-rec-sum">${escapeHtml(rec.summary)}</div>
-            <button type="button" class="cp-plan-apply" data-plan-idx="${recIdx}">⚡ 一键改用这个方案</button>
-            <a class="cp-now-more" href="#cp-plans-anchor">看全部 ${proposals.length} 个备选 ↓</a>
-          </div>`;
-      } else {
-        backupHtml = `<div class="cp-now-row"><span class="k">备选</span><span>${
-          overrun >= 10 ? '先按上面的按钮更新进度，备选方案会按最新时间重算' : '已是推荐方案；更多选择见下方「重排方案」'
-        }</span></div>`;
+      // Stop chips
+      const chips = stopNodes()
+        .map(n => {
+          const isHere = start.here && start.here.id === n.id;
+          const st = isHere ? 'here' : liveStatus(n);
+          const lbl = { here: '📍 在这', want: '要去', done: '✔ 已去', skip: '不去' }[st];
+          return `<button type="button" class="cp-now-chip ${st}" data-stop="${escapeAttr(n.id)}"><b>${nm(n)}</b> ${lbl}</button>`;
+        })
+        .join('');
+
+      // Alternative
+      let altHtml = '';
+      if (slack < 0 || !L.bestIsPlanned) {
+        if (best && best.slack >= 0 && !L.bestIsPlanned) {
+          altHtml = `<div class="cp-now-rec">
+              <div><b>${slack < 0 ? '来不及！改成这样：' : '更稳的走法：'}</b></div>
+              <div class="cp-now-route">${describeRoute(best)}</div>
+              <div class="cp-now-rec-sum">余裕 ${best.slack} 分钟${best.destArr <= best.dl.target ? '（赶得上理想班次）' : ''}</div>
+              <button type="button" class="cp-plan-apply" data-live-apply="best">▶ 启动这个方案</button>
+            </div>`;
+          if (tight && !sameRoute(tight, planned)) {
+            altHtml += `<div class="cp-now-rec">
+              <div><b>⚡ 压哨版（玩得更多，但几乎没余裕）：</b></div>
+              <div class="cp-now-route">${describeRoute(tight)}</div>
+              <div class="cp-now-rec-sum">余裕只有 ${tight.slack} 分钟，排队、结账慢一点就会错过</div>
+              <button type="button" class="cp-plan-apply" data-live-apply="tight">▶ 启动压哨版</button>
+            </div>`;
+          }
+        } else if (slack < 0) {
+          altHtml = `<div class="cp-now-rec"><b>所有走法都来不及${dl.hardLabel}</b>，最好的是：<div class="cp-now-route">${describeRoute(best)}</div></div>`;
+        }
+        if (fallback) {
+          altHtml += `<div class="cp-now-rec">
+              <div><b>💴 花钱换时间：</b>${escapeHtml(fallback.name)}</div>
+              <div class="cp-now-rec-sum">保留全部安排，约 ${fmtTime(fallback.arr)} 到终点（${fallback.slack >= 0 ? `余裕 ${fallback.slack} 分` : `仍晚 ${-fallback.slack} 分`}）</div>
+              ${fallback.navUrl ? `<a class="cp-now-more" href="${fallback.navUrl}" target="_blank" rel="noopener">查看路线</a>` : ''}
+            </div>`;
+        }
       }
 
-      return `<div class="cp-now ${lvl}" id="cp-now">
+      const html = `<div class="cp-now ${lvl}" id="cp-now">
           <div class="cp-now-hd"><span>🧭 此刻导航</span><span class="cp-now-clock">现在 ${fmtTime(now)}</span></div>
-          <div class="cp-now-prog">${progressTxt}</div>
-          ${overrun >= 3 && overrun >= delayMin ? `<div class="cp-now-why">${overrunWhy}，还没打卡</div>` : ''}
-          <div class="cp-now-row"><span class="k">方案</span><span>${escapeHtml(planName)}</span></div>
+          <div class="cp-now-prog">${big}</div>
+          <div class="cp-now-why">从终点倒推：${escapeHtml(dl.hardLabel)}，最晚 ${fmtTime(dl.hard)} 到「${nm(dest)}」</div>
+          <div class="cp-now-row"><span class="k">方案</span><span>${planLbl}<span class="cp-now-route">${describeRoute(planned)}</span></span></div>
           <div class="cp-now-row"><span class="k">位置</span><span>${whereTxt}</span></div>
           <div class="cp-now-row"><span class="k">现在做</span><span>${doTxt}</span></div>
-          <div class="cp-now-btns">${navBtn}${syncBtn}</div>
-          ${backupHtml}
-          <div class="cp-now-foot">${
-            overrun >= 10 ? '⏳ 终点时间要等更新进度后才准' : escapeHtml(sim.headline)
-          }</div>
+          <div class="cp-now-btns">${navBtn}</div>
+          ${altHtml}
+          <div class="cp-now-row"><span class="k">各站</span><span class="cp-now-chips">${chips}<span class="cp-now-sub">点一下切换：要去 → 📍在这 → ✔已去 → 不去</span></span></div>
         </div>`;
+      return { html, L };
     }
 
     // Main Render
     function render() {
       lastRenderedGpsFresh = isGpsFresh();
+      const nowCard = buildNowCard();
+      lastNowCard = nowCard;
       const sim = simulateSchedule({});
       const delayMin = getDelayVsBaseline();
       const showReplan = sim.riskLevel !== 'ok' || delayMin >= 20 || state.activePlanId !== 'current' || state.emergencyMode;
@@ -1561,16 +1789,13 @@
       const dockSub = document.getElementById('cp-dock-sub');
       const dockGuard = document.getElementById('cp-dock-guard');
       if (dockBadge) {
-        dockBadge.className = `cp-dock-badge ${delayBadgeCls}`;
-        dockBadge.textContent =
-          delayBadgeCls === 'err'
-            ? `🔴 滞后 ${delaySign}・需重排`
-            : delayBadgeCls === 'warn'
-            ? `🟠 偏差 ${delaySign}・注意死线`
-            : `🟢 进度正常 (${delaySign})`;
+        const ls = nowCard.L.planned.slack;
+        dockBadge.className = `cp-dock-badge ${ls < 0 ? 'err' : ls < 10 ? 'warn' : 'ok'}`;
+        dockBadge.textContent = ls >= 0 ? `${ls < 10 ? "🟡" : "🟢"} 余裕 ${ls} 分` : `🔴 落后 ${-ls} 分・点看改法`;
       }
       if (dockSub) {
-        dockSub.textContent = sim.headline.replace(/^[✅⚠️🚨✈️]+\s*/, '');
+        const lp = nowCard.L.planned;
+        dockSub.textContent = `按现在位置倒推：约 ${fmtTime(lp.destArr)} 到终点（${lp.dl.hardLabel}）`;
       }
       if (dockGuard) {
         dockGuard.className = 'cp-dock-btn' + (state.guardActive ? ' guard-on' : '');
@@ -1598,7 +1823,7 @@
 
       mount.innerHTML = `
         <div class="cp-shell state-${delayBadgeCls}">
-          ${buildNowCard(sim, delayMin, proposals)}
+          ${nowCard.html}
           ${replayHtml}
 
           <!-- 1. Pre-Flight Anti-Trap Gate -->
@@ -2059,6 +2284,7 @@
         state.emergencyMode = false;
         state.activePlanId = 'current';
         state.observedPace = null;
+        state.live = { status: {}, stayMode: 'full', hereMode: 'full', appliedAt: null };
         state.anchor = {
           nodeId: config.nodes[0].id,
           event: 'dep',
@@ -2126,9 +2352,13 @@
       document.getElementById('cp-gps-btn')?.addEventListener('click', toggleGpsMode);
 
       // Apply proposal & copy WeChat buttons
-      mount.querySelectorAll('[data-now-sync]').forEach(btn => {
+      mount.querySelectorAll('[data-stop]').forEach(btn => {
+        btn.addEventListener('click', () => cycleStopStatus(btn.dataset.stop));
+      });
+      mount.querySelectorAll('[data-live-apply]').forEach(btn => {
         btn.addEventListener('click', () => {
-          recordCheckin(btn.dataset.nowSync, btn.dataset.nowEv, nowLocalMin(), '按现在时间更新进度');
+          const r = lastNowCard && (btn.dataset.liveApply === 'tight' ? lastNowCard.L.tight : lastNowCard.L.best);
+          if (r) applyLiveRoute(r);
         });
       });
       mount.querySelectorAll('[data-plan-idx]').forEach(btn => {
