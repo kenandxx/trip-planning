@@ -904,3 +904,15 @@ body.has-cp-dock .toast {
 .cp-now-rec-sum { font-size: 12px; color: var(--cp-soft); margin: 4px 0 8px; }
 .cp-now-more { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--cp-nav); }
 .cp-now-foot { margin-top: 6px; font-size: 12px; color: var(--cp-soft); }
+.cp-now-sub { display: block; font-size: 12px; color: var(--cp-soft); margin-top: 2px; }
+.cp-now-route { display: block; font-size: 13px; margin-top: 2px; }
+.cp-now-rec + .cp-now-rec { margin-top: 8px; }
+.cp-now-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-now-chip {
+  font: inherit; font-size: 12px; padding: 5px 9px; border-radius: 99px; cursor: pointer;
+  border: 1.5px solid var(--cp-line); background: var(--cp-card); color: var(--cp-ink);
+}
+.cp-now-chip.want { border-color: var(--cp-nav); color: var(--cp-nav); }
+.cp-now-chip.here { border-color: var(--cp-ok); background: var(--cp-ok); color: #fff; }
+.cp-now-chip.done { color: var(--cp-soft); text-decoration: line-through; }
+.cp-now-chip.skip { color: var(--cp-soft); border-style: dashed; opacity: .75; }
