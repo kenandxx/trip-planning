@@ -59,11 +59,11 @@ Every navigation link MUST follow official Google Maps URLs v1 (`https://www.goo
 
 ---
 
-## 4. Live Trip Co-Pilot, 4-Channel Strong Alerts & Auto-Replan Engine (v2.0 Core)
-Every trip page under `trips/YYYY-MM-<slug>/` MUST include `manifest.webmanifest`, link `../../copilot/trip-copilot.css` & `../../copilot/trip-copilot.js` (backed by root `sw.js`), mount `#copilot` as the top interactive section + sticky bottom dock, and configure `TripCopilot.init({...})` with:
-1. **Dual-Mode Progress Tracking**:
-   - **GPS Auto Geofence & Slow-Road Detector**: Real `lat, lng, radiusKm` for every node so foreground GPS (`watchPosition`) auto-checks in arrivals within ~600m, estimates live remaining distance/ETA, learns observed pace factor, and warns if speed stays `< 32 km/h` on an expressway leg (catching accidental non-ETC surface routing early!).
-   - **1-Second Co-Pilot Check-in & Quick Bump Buttons**: Node selector + editable time (`取当前` or manual `HH:MM`) + `📍 我刚到这里` / `🚀 刚从这出发` + 1-tap `+15m 休息` / `+15m 走错路` / `+20m 堵车慢行`.
+## 4. Live Trip Co-Pilot, 4-Channel Strong Alerts & Auto-Replan Engine (v2.8 Core)
+Every trip page under `trips/YYYY-MM-<slug>/` MUST include `manifest.webmanifest`, link `../../copilot/trip-copilot.css?v=2.8` & `../../copilot/trip-copilot.js?v=2.8` (backed by root `sw.js`), mount `#copilot` as the top interactive section + sticky bottom dock, and configure `TripCopilot.init({...})` with:
+1. **Self-Proving GPS Live Bar, Unified 2-Tab Console (`🧭 此刻护航` ｜ `⏰ 自由死线倒推`) & 1-Tap Check-in**:
+   - **Always-Visible GPS Live Verification Bar**: Displays pulsing status (`🟢 GPS正常稼働中 · N秒前刷新 · 更新#次数 · 精度±米数 · 邻近站点距离` / `🟡 信号偏弱` / `⚪ 信号暂中断`), 1-tap **`🔄 立即测位`** active hardware ping test, and **`🗺️ 地图核对`** blue-dot verification link, plus a live GPS pill in the sticky bottom dock. Stale fixes (`≥ 30s` in tunnels/B1/subways) automatically pause from delay math while keeping `watchPosition` alive.
+   - **Unified Smart Clock & 2-Tab Console**: Tab 1 (`🧭 此刻护航＆打卡`) unifies pre-trip/archive preview vs live clock vs replay simulation with interactive stop chips (`要去 → 📍在这 → ✔已去 → 不去`) and expandable exact-time check-in / delay bump buttons; Tab 2 (`⏰ 自由死线倒推`) computes live reverse-ETAs and Walk/Transit/Car/Taxi arrival comparisons for any stop, pasted Google Maps URL, or coordinates, with `15 / 5 / 0` min departure alerts.
 2. **Restaurant `L.O.` Guard & 3-Tier Dynamic Re-Plan Engine**:
    - Configure `directDriveMap` (exact expressway minutes when skipping optional/core stops), `mealGuards` (`loMin`, `closeMin`, fast-turnover flag), and `deadlineSpec` (`targetArrMin`, `hardArrMin`, train connections if any, and `emergencyDirect` ultimate fallback if applicable).
    - Whenever delay `≥ 20 min` or a deadline is threatened, automatically present **3 concrete Re-Plan cards**:

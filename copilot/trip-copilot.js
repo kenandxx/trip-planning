@@ -1,5 +1,5 @@
 /*!
- * Trip Co-Pilot v2.0 — Universal Live Progress, Risk Management & Multi-Channel Strong Alert Engine
+ * Trip Co-Pilot v2.8 — Unified Live Progress, Self-Proving GPS Monitor, Deadline Back-Planner & 4-Channel Strong Alerts
  * Repository: kenandxx/trip-planning
  * Zero external dependencies; offline-capable; mobile-first (iOS Safari / WeChat / Android Chrome).
  */
@@ -13,6 +13,9 @@
     return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
   };
 
+  const fmtClockHMS = d =>
+    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+
   const parseTime = str => {
     if (!str || !/^\d{1,2}:\d{2}$/.test(str.trim())) return null;
     const [h, m] = str.trim().split(':').map(Number);
@@ -22,6 +25,20 @@
   const nowLocalMin = () => {
     const d = new Date();
     return d.getHours() * 60 + d.getMinutes();
+  };
+
+  const todayTokyoYmd = () => {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(new Date());
+    } catch (_) {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
   };
 
   const haversineKm = (lat1, lon1, lat2, lon2) => {
@@ -111,7 +128,7 @@
       el.textContent = msg;
       el.classList.add('show');
       clearTimeout(showPageToast._t);
-      showPageToast._t = setTimeout(() => el.classList.remove('show'), 2800);
+      showPageToast._t = setTimeout(() => el.classList.remove('show'), 3000);
     }
   }
 
@@ -152,11 +169,17 @@
         extraDelayMin: 0,
         reason: '行前基准计划'
       },
+      activeTab: location.hash === '#deadline' ? 'deadline' : 'live',
+      simClockMin: null,      // Set when testing Replay Scenarios or custom HH:MM simulation
+      forceRealClock: false,  // Set when user clicks "按当前时间实测" or turns on GPS / custom deadline
       guardActive: false,
       gpsActive: false,
-      gpsInfo: null, // { lat, lng, speedKmh, accuracy, nearestId, remKm, liveDeltaMin, slowRoadWarn }
-      gpsLastFixAt: null, // ms timestamp of the last position received from watchPosition
-      gpsLastError: null, // last non-fatal error message (timeout / unavailable) while still watching
+      gpsPinging: false,
+      gpsFixCount: 0,
+      gpsLastFixAt: null,
+      gpsLastFixClock: '',
+      gpsLastError: null,
+      gpsInfo: null,
       observedPace: savedState.observedPace || null,
       live: Object.assign({ status: {}, stayMode: 'full', hereMode: 'full', appliedAt: null }, savedState.live || {}),
       lastAlertSig: ''
@@ -164,15 +187,14 @@
 
     let watchId = null;
     let gpsFreshTimer = null;
-    let lastRenderedGpsFresh = false; // isGpsFresh() as of the last full render()
-    const GPS_STALE_SEC = 30; // no new fix for this long → show "signal lost"
-    const GPS_POOR_ACCURACY_M = 100; // accuracy worse than this → show "poor accuracy"
+    let lastRenderedGpsFresh = false;
+    const GPS_STALE_SEC = 30;
+    const GPS_POOR_ACCURACY_M = 100;
     let wakeLockSentinel = null;
     let guardTimer = null;
     let swReg = null;
     let deferredInstallPrompt = null;
 
-    // Register Service Worker for offline + PWA system notifications
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       navigator.serviceWorker
         .register(config.swPath || '../../sw.js')
@@ -215,7 +237,47 @@
       safeSave(GLOBAL_PREF_KEY, globalPrefs);
     }
 
-    // Lookup base drive minutes between any two active nodes
+    // Unified Smart Clock Context: prevents false "落后 257 分钟" on archived/finished trips
+    // and keeps Replay Scenarios & Manual Check-ins 100% synchronized across both panels!
+    function getHardLimitMin() {
+      const d = config.deadlineSpec || {};
+      if (d.trains && d.trains.length) {
+        return d.trains[d.trains.length - 1].dep;
+      }
+      return d.hardArrMin || 1260;
+    }
+
+    function isWithinLiveTripWindow(realNow) {
+      const m = realNow != null ? realNow : nowLocalMin();
+      const isToday = Boolean(config.date && todayTokyoYmd() === config.date);
+      const winStart = (config.defaultDepMin || 600) - 90;
+      const winEnd = getHardLimitMin() + 30;
+      return isToday && m >= winStart && m <= winEnd;
+    }
+
+    function getClockContext() {
+      const realNow = nowLocalMin();
+      if (state.simClockMin != null) {
+        return {
+          now: state.simClockMin + (state.anchor.extraDelayMin || 0),
+          mode: 'sim',
+          realNow
+        };
+      }
+      if (state.forceRealClock || isWithinLiveTripWindow(realNow)) {
+        return { now: realNow, mode: 'live', realNow };
+      }
+      const isToday = Boolean(config.date && todayTokyoYmd() === config.date);
+      const winEnd = getHardLimitMin() + 30;
+      return {
+        now: state.anchor.timeMin + (state.anchor.extraDelayMin || 0),
+        mode: 'preview',
+        realNow,
+        isPastToday: isToday && realNow > winEnd
+      };
+    }
+
+    // Lookup base drive/walk minutes between any two active nodes
     function getDriveMin(fromId, toId, pace) {
       const key = `${fromId}->${toId}`;
       const map = config.directDriveMap || {};
@@ -228,7 +290,6 @@
           for (let i = fromIdx + 1; i <= toIdx; i++) {
             base += config.nodes[i].driveMin || 0;
           }
-          // Slight directness discount when skipping intermediate stops
           if (toIdx - fromIdx > 1) base = Math.round(base * 0.92);
         } else {
           base = 30;
@@ -237,9 +298,10 @@
       return Math.round(base * (pace || 1.0));
     }
 
-    // Compute baseline schedule (1.0x from defaultDepMin with defaultEnabled nodes) for delay comparison
     function computeBaselineMap() {
-      const active = config.nodes.filter(n => n.role === 'origin' || n.role === 'meal' || n.role === 'destination' || n.role === 'after' || defaultEnabled[n.id]);
+      const active = config.nodes.filter(
+        n => n.role === 'origin' || n.role === 'meal' || n.role === 'destination' || n.role === 'after' || defaultEnabled[n.id]
+      );
       let t = config.defaultDepMin || 600;
       const byId = {};
       active.forEach((n, idx) => {
@@ -257,7 +319,6 @@
 
     const baselineMap = computeBaselineMap();
 
-    // Simulate schedule given explicit overrides
     function simulateSchedule(opts) {
       const enabled = opts.enabledNodes || state.enabledNodes;
       const stays = opts.stayOverrides || state.stayOverrides;
@@ -272,7 +333,6 @@
 
       let anchorIdx = activeNodes.findIndex(n => n.id === anchor.nodeId);
       if (anchorIdx < 0) {
-        // If anchor node was disabled, snap to nearest preceding active node
         const origOrder = config.nodes.findIndex(n => n.id === anchor.nodeId);
         anchorIdx = 0;
         activeNodes.forEach((n, i) => {
@@ -283,7 +343,6 @@
       const timeline = [];
       let t = anchor.timeMin + (anchor.extraDelayMin || 0);
 
-      // Emergency direct override (e.g. direct expressway drive to airport OR late-night Shutoko taxi rescue!)
       if (emergency && config.deadlineSpec && config.deadlineSpec.emergencyDirect) {
         const em = config.deadlineSpec.emergencyDirect;
         const anchorNode = activeNodes[anchorIdx];
@@ -361,7 +420,6 @@
       const destArr = destEntry ? destEntry.arr : t;
       const homeArr = afterEntry ? afterEntry.arr : destArr + 30;
 
-      // Evaluate against trains or hard arrival deadline
       let matchedTrain = null;
       let riskLevel = 'ok';
       let bufferMin = 0;
@@ -415,7 +473,6 @@
       };
     }
 
-    // Calculate current delay vs baseline at current anchor
     function getDelayVsBaseline() {
       const a = state.anchor;
       const base = baselineMap[a.nodeId];
@@ -424,25 +481,22 @@
         const ref = a.event === 'dep' ? base.dep : base.arr;
         delta = a.timeMin + (a.extraDelayMin || 0) - ref;
       }
-      // Only trust the GPS-derived ETA while the fix is fresh; a stale fix would freeze an old delay.
       if (isGpsFresh() && state.gpsInfo.liveDeltaMin != null) {
         delta = Math.max(delta, state.gpsInfo.liveDeltaMin);
       }
       return delta;
     }
 
-    // Generate 3 smart Re-Plan options dynamically from current anchor & time
     function generateReplanProposals(currentSim, delayMin) {
       const anchorOrigIdx = config.nodes.findIndex(n => n.id === state.anchor.nodeId);
       const remainingOptional = config.nodes.filter((n, idx) => idx > anchorOrigIdx && n.role === 'optional');
       const remainingCore = config.nodes.filter((n, idx) => idx > anchorOrigIdx && n.role === 'core');
       const mealNode = config.nodes.find((n, idx) => idx >= anchorOrigIdx && n.role === 'meal');
 
-      // Use realistic highway pace once ETC/highway is verified (avoid over-penalizing highway legs)
       const rescuePace = Math.min(Math.max(state.paceFactor, 1.05), 1.2);
       const proposals = [];
 
-      // Plan A: Save Golden Target Deadline (trim meal, cut optional stops, and cut/compress core stop as needed)
+      // Plan A: Save Golden Target Deadline
       {
         const enA = Object.assign({}, state.enabledNodes);
         const stA = {};
@@ -456,10 +510,9 @@
         if (mealNode && (state.anchor.nodeId !== mealNode.id || state.anchor.event === 'arr')) {
           const fastMeal = mealNode.minStayMin || 50;
           stA[mealNode.id] = fastMeal;
-          pills.push({ cls: 'trim', txt: `🍽️ 用餐压缩至 ${fastMeal}分（选快出餐店）` });
+          pills.push({ cls: 'trim', txt: `⏱️ ${mealNode.shortName || '前站'}压至 ${fastMeal}分` });
         }
 
-        // First test keeping core stops compressed; if that misses targetArrMin, convert core stop to non-stop pass-through
         remainingCore.forEach(n => {
           enA[n.id] = true;
           stA[n.id] = n.minStayMin || 18;
@@ -499,17 +552,19 @@
         proposals.push({
           id: 'rescue_gold',
           rec: true,
-          name: config.planAName || (isTransit ? '🛡️ 方案一（首推）：稳保22:00铁律・砍第2轩从容归宅版' : '🛡️ 方案一（首推）：稳救黄金死线・砍支线直穿版'),
+          name:
+            config.planAName ||
+            (isTransit ? '🛡️ 方案一（首推）：稳保22:00铁律・砍第2轩从容归宅版' : '🛡️ 方案一（首推）：稳救黄金死线・砍支线直穿版'),
           summary: simA.matchedTrain
             ? `确保 ${fmtTime(simA.destArr)} 抵${config.deadlineSpec.destName || '站'}，稳赶【${simA.matchedTrain.name}】（缓冲 ${simA.bufferMin} 分钟）！`
             : simA.headline,
           pills,
           sim: simA,
-          patch: { enabledNodes: enA, stayOverrides: stA, paceFactor: rescuePace, emergencyMode: false }
+          patch: { enabledNodes: enA, stayOverrides: stA, paceFactor: rescuePace, emergencyMode: false, liveStayMode: 'min' }
         });
       }
 
-      // Plan B: Keep Core Highlight Stop (compressed to minStayMin), accept fallback deadline/train
+      // Plan B: Keep Core Stop compressed
       if (remainingCore.length) {
         const isTransit = config.mode === 'transit';
         const enB = Object.assign({}, state.enabledNodes);
@@ -567,17 +622,23 @@
           summary: summaryB,
           pills: pillsB,
           sim: simB,
-          patch: { enabledNodes: enB, stayOverrides: stB, paceFactor: paceB, emergencyMode: false }
+          patch: { enabledNodes: enB, stayOverrides: stB, paceFactor: paceB, emergencyMode: false, liveStayMode: 'min' }
         });
       }
 
-      // Plan C: Emergency Direct Fallback (Airport direct drive OR Late-night Shutoko Taxi rescue!)
+      // Plan C: Emergency Direct Fallback
       if (config.deadlineSpec && config.deadlineSpec.emergencyDirect) {
         const em = config.deadlineSpec.emergencyDirect;
         const stC = {};
         if (mealNode && !em.keepFullStays) stC[mealNode.id] = mealNode.stayMin ? Math.min(mealNode.stayMin, 55) : 55;
+        const enC = Object.assign({}, state.enabledNodes);
+        if (em.includeRemainingCore) {
+          remainingCore.forEach(n => {
+            enC[n.id] = true;
+          });
+        }
         const simC = simulateSchedule({
-          enabledNodes: state.enabledNodes,
+          enabledNodes: enC,
           stayOverrides: stC,
           paceFactor: rescuePace,
           emergencyMode: true
@@ -595,14 +656,13 @@
                 { cls: 'trim', txt: '🏠 送完开50分回滝不動' }
               ],
           sim: simC,
-          patch: { stayOverrides: stC, paceFactor: rescuePace, emergencyMode: true }
+          patch: { enabledNodes: enC, stayOverrides: stC, paceFactor: rescuePace, emergencyMode: true, liveStayMode: 'full' }
         });
       }
 
       return proposals;
     }
 
-    // Evaluate Restaurant Last Order (L.O.) & Queue Risks at predicted/actual meal arrival
     function evaluateMealGuards(sim) {
       if (!config.mealGuards || !config.mealGuards.length) return [];
       const mealEntry = sim.timeline.find(x => x.node.role === 'meal');
@@ -626,7 +686,6 @@
       });
     }
 
-    // Build RFC 5545 .ics calendar content with dual VALARM triggers
     function buildIcsContent(sim) {
       const dateRaw = (config.date || '2026-11-25').replace(/-/g, '');
       const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -642,24 +701,21 @@
       const events = [];
       const isTransit = config.mode === 'transit';
 
-      // 1. Pre-flight check 10m before origin departure
       const depMin = config.defaultDepMin || 600;
       events.push({
         uid: `${config.tripId}-preflight@trip-copilot`,
         start: depMin - 10,
         end: depMin,
         summary: isTransit
-          ? `🚨【开场防呆】${(config.gateLabels && config.gateLabels.icsPreflightTitle) || 'Suica余额核查＋拒理客引き＋准备开40分表'}`
+          ? `🚨【开场防呆】${(config.gateLabels && config.gateLabels.icsPreflightTitle) || '确认Suica余额＋拒理客引き＋落座开40分表'}`
           : `🚨【发车防呆】关Google Maps避开收费站＋确认ETC绿灯`,
         desc: `${config.tollReminder || ''}\\n${config.etcCashReminder || ''}\\n打开实时护航页：${baseUrl}?copilot=1`,
         url: `${baseUrl}?copilot=1`
       });
 
-      // 2. Key checkpoints & must-depart redlines from current active schedule
-      sim.timeline.forEach((item, idx) => {
+      sim.timeline.forEach(item => {
         if (item.node.role === 'origin') {
           if (!isTransit) {
-            // Add mid-way highway checkpoint 60 min after origin departure
             events.push({
               uid: `${config.tripId}-midcheck@trip-copilot`,
               start: item.dep + 60,
@@ -753,7 +809,7 @@
         showUrgentModal(
           'warn',
           '📱 请在 Safari / 默认浏览器中导入日历',
-          '微信内置浏览器会拦截系统日历写入。请点击右上角「···」→「在默认浏览器中打开」，再点一次即可将全天关键死线双闹钟一键写入手机锁屏与 CarPlay！',
+          '微信内置浏览器会拦截系统日历写入。请点击右上角「···」→「在默认浏览器中打开」，再点一次即可将关键死线双闹钟一键写入手机锁屏！',
           null
         );
         return;
@@ -778,12 +834,10 @@
       showPageToast('已生成 .ics 死线闹钟文件，打开即可导入手机系统日历！');
     }
 
-    // Push notifications: Bark (iOS) + ntfy.sh + PWA Service Worker Notification
     async function dispatchStrongNotifications(title, body, targetUrl, level) {
       const isCrit = level === 'err' && globalPrefs.barkLevel === 'critical';
       const results = [];
 
-      // 1. PWA / Browser System Notification
       if ('Notification' in global && Notification.permission === 'granted') {
         try {
           if (swReg && swReg.active) {
@@ -801,7 +855,6 @@
         } catch (_) {}
       }
 
-      // 2. iPhone Bark Push (supports multiple keys & critical bypass-mute ring!)
       const rawBark = (globalPrefs.barkKeys || '').trim();
       if (rawBark) {
         const entries = rawBark.split(/[\s,;]+/).filter(Boolean);
@@ -818,7 +871,7 @@
               device_key: deviceKey,
               title,
               body,
-              group: '日本自驾护航',
+              group: '行程实时护航',
               level: isCrit ? 'critical' : 'timeSensitive',
               volume: 10,
               url: targetUrl || location.href
@@ -834,7 +887,6 @@
         }
       }
 
-      // 3. ntfy.sh Team Broadcast
       const topic = (globalPrefs.ntfyTopic || '').trim();
       if (topic) {
         try {
@@ -855,7 +907,6 @@
       return results;
     }
 
-    // Urgent Fullscreen Takeover Modal
     function showUrgentModal(level, title, bodyHtml, primaryAction) {
       const modal = document.getElementById('cp-urgent-modal');
       if (!modal) return;
@@ -894,14 +945,13 @@
       const closeBtn = document.createElement('button');
       closeBtn.type = 'button';
       closeBtn.className = 'm-sec';
-      closeBtn.textContent = '我知道了（查看下方重排方案）';
+      closeBtn.textContent = '我知道了（查看重排方案）';
       closeBtn.addEventListener('click', () => modal.classList.remove('show'));
       actWrap.appendChild(closeBtn);
 
       modal.classList.add('show');
     }
 
-    // Toggle Foreground WakeLock + Voice Watchdog
     async function toggleGuardMode(forceState) {
       const next = forceState != null ? forceState : !state.guardActive;
       state.guardActive = next;
@@ -914,8 +964,8 @@
           } catch (_) {}
         }
         playChime('ok');
-        speakZh('副驾护航已开启，屏幕将保持常亮，为您实时盯防发车红线与晚点风险。');
-        showPageToast('🛡️ 副驾常亮护航已开启（含语音与死线巡检）');
+        speakZh('常亮语音护航已开启，屏幕将保持常亮，为您盯防死线与晚点风险。');
+        showPageToast('🛡️ 屏幕常亮＋语音护航已开启');
         clearInterval(guardTimer);
         guardTimer = setInterval(runClockWatchdog, 30000);
       } else {
@@ -925,12 +975,11 @@
         }
         clearInterval(guardTimer);
         guardTimer = null;
-        showPageToast('已关闭副驾常亮护航');
+        showPageToast('已关闭屏幕常亮护航');
       }
       render();
     }
 
-    // Periodic clock watchdog when Foreground Guard is ON
     function runClockWatchdog() {
       if (!state.guardActive) return;
       const sim = simulateSchedule({});
@@ -938,23 +987,200 @@
       const firstAt = sim.timeline[0];
       if (!firstAt) return;
 
-      // Warn 10m before departure deadline of current stop
       if (firstAt.stay > 0 && nowM >= firstAt.dep - 10 && nowM <= firstAt.dep + 2) {
         const sig = `dep10_${firstAt.node.id}_${firstAt.dep}`;
         if (state.lastAlertSig !== sig) {
           state.lastAlertSig = sig;
-          const msg = `距离离开 ${firstAt.node.shortName || firstAt.node.name} 的建议发车时间 ${fmtTime(firstAt.dep)} 仅剩不到 10 分钟，请准备上车出发。`;
+          const msg = `距离离开 ${firstAt.node.shortName || firstAt.node.name} 的死线时间 ${fmtTime(firstAt.dep)} 仅剩不到 10 分钟，请立即准备结账出发。`;
           playChime('warn');
           speakZh(msg);
-          if (globalPrefs.autoBark) dispatchStrongNotifications('⏰ 10分钟发车提醒', msg, firstAt.node.navUrl, 'warn');
+          if (globalPrefs.autoBark) dispatchStrongNotifications('⏰ 10分钟死线提醒', msg, firstAt.node.navUrl, 'warn');
         }
       }
     }
 
-    // Toggle Live GPS Monitoring
+    // ===== Self-Proving Live GPS Engine (1-sec heartbeat + on-demand ping test) =====
+    function gpsAgeSec() {
+      return state.gpsLastFixAt ? Math.max(0, Math.floor((Date.now() - state.gpsLastFixAt) / 1000)) : null;
+    }
+
+    function isGpsFresh() {
+      const age = gpsAgeSec();
+      return Boolean(state.gpsActive && state.gpsInfo && age != null && age < GPS_STALE_SEC);
+    }
+
+    function gpsStatusModel() {
+      if (!state.gpsActive) {
+        return {
+          cls: 'off',
+          dockTxt: '',
+          headline: 'GPS 实时追踪：未开启',
+          meta: '开启后可实时显示刷新秒数、精度米数与最近站点距离（也可只用手动打卡）'
+        };
+      }
+      const acc = state.gpsInfo ? state.gpsInfo.accuracy : null;
+      const age = gpsAgeSec();
+      const near = state.gpsInfo && state.gpsInfo.nearestName ? ` · 邻近 ${state.gpsInfo.nearestName}` : '';
+
+      if (age == null) {
+        if (state.gpsLastError) {
+          return {
+            cls: 'lost',
+            dockTxt: '🛰️ 无信号',
+            headline: `⚪ GPS 搜星受阻（${state.gpsLastError}）`,
+            meta: '后台仍在持续搜星；若在室内/地下可走到室外再点右侧「立即测位」验证'
+          };
+        }
+        return {
+          cls: 'wait',
+          dockTxt: '🛰️ 连接中',
+          headline: '🔵 正在连接手机 GPS 卫星…',
+          meta: '首次开启请点「允许」定位权限，并在室外或窗边稍候 3–8 秒'
+        };
+      }
+
+      const ageTxt = age < 60 ? `${age}秒前` : `${Math.floor(age / 60)}分${age % 60}秒前`;
+      if (age >= GPS_STALE_SEC) {
+        return {
+          cls: 'lost',
+          dockTxt: `🛰️ 中断 ${age}s`,
+          headline: `⚪ GPS 信号暂时中断（最后更新 ${ageTxt}）`,
+          meta: `上次 ${state.gpsLastFixClock} (±${acc ?? '?'}m) · 地下/店内无信号属正常，出地面自动恢复；旧定位已暂停计入晚点`
+        };
+      }
+      if (acc != null && acc > GPS_POOR_ACCURACY_M) {
+        return {
+          cls: 'weak',
+          dockTxt: `🛰️ 弱 ±${acc}m`,
+          headline: `🟡 GPS 信号偏弱 · ${ageTxt}刷新（精度 ±${acc}m）`,
+          meta: `更新 #${state.gpsFixCount} (${state.gpsLastFixClock})${near} · 室内正用 Wi-Fi/基站估算`
+        };
+      }
+      return {
+        cls: 'ok',
+        dockTxt: `🟢 GPS ${age}s`,
+        headline: `🟢 GPS 正常稼働中 · ${ageTxt}刷新（精度 ±${acc ?? '?'}m）`,
+        meta: `更新 #${state.gpsFixCount} (${state.gpsLastFixClock})${near}${
+          state.gpsInfo && state.gpsInfo.speedKmh != null ? ` · 速度 ${state.gpsInfo.speedKmh}km/h` : ''
+        }`
+      };
+    }
+
+    function renderGpsBarHtml() {
+      const m = gpsStatusModel();
+      const mapUrl =
+        state.gpsInfo && state.gpsInfo.lat != null
+          ? `https://www.google.com/maps/search/?api=1&query=${state.gpsInfo.lat},${state.gpsInfo.lng}`
+          : '';
+      return `
+        <div class="cp-gps-card ${m.cls}" id="cp-gps-card">
+          <div class="cp-gps-left">
+            <span class="cp-gps-dot" aria-hidden="true"></span>
+            <div class="cp-gps-main">
+              <b id="cp-gps-headline">${escapeHtml(m.headline)}</b>
+              <span class="cp-gps-meta" id="cp-gps-meta">${escapeHtml(m.meta)}</span>
+            </div>
+          </div>
+          <div class="cp-gps-actions">
+            ${
+              state.gpsActive
+                ? `<button type="button" class="cp-gps-btn-sm" id="cp-gps-ping" ${state.gpsPinging ? 'disabled' : ''}>${
+                    state.gpsPinging ? '⏳ 测位中…' : '🔄 立即测位'
+                  }</button>
+                  <a class="cp-gps-btn-sm" id="cp-gps-map" href="${mapUrl || '#'}" target="_blank" rel="noopener" title="在 Google 地图核对当前蓝点" style="display:${
+                    mapUrl ? 'inline-flex' : 'none'
+                  }">🗺️ 地图核对</a>
+                  <button type="button" class="cp-gps-btn-sm" id="cp-gps-toggle-top">⏹️ 关闭</button>`
+                : `<button type="button" class="cp-gps-btn-sm pri" id="cp-gps-toggle-top">🛰️ 开启GPS自动追踪</button>`
+            }
+            <button type="button" class="cp-gps-btn-sm ${state.guardActive ? 'on' : ''}" id="cp-guard-toggle-top">
+              ${state.guardActive ? '🛡️ 常亮语音中' : '🛡️ 常亮护航'}
+            </button>
+          </div>
+        </div>`;
+    }
+
+    // In-place update on 1s ticks so buttons are NEVER detached mid-tap!
+    function refreshGpsBarOnly(flash) {
+      const m = gpsStatusModel();
+      const card = document.getElementById('cp-gps-card');
+      const hd = document.getElementById('cp-gps-headline');
+      const meta = document.getElementById('cp-gps-meta');
+      const pingBtn = document.getElementById('cp-gps-ping');
+      const mapLink = document.getElementById('cp-gps-map');
+
+      if (card && hd && meta) {
+        card.className = `cp-gps-card ${m.cls}` + (flash ? ' flash' : '');
+        hd.textContent = m.headline;
+        meta.textContent = m.meta;
+        if (pingBtn) {
+          pingBtn.disabled = Boolean(state.gpsPinging);
+          pingBtn.textContent = state.gpsPinging ? '⏳ 测位中…' : '🔄 立即测位';
+        }
+        if (mapLink) {
+          if (state.gpsInfo && state.gpsInfo.lat != null) {
+            mapLink.href = `https://www.google.com/maps/search/?api=1&query=${state.gpsInfo.lat},${state.gpsInfo.lng}`;
+            mapLink.style.display = 'inline-flex';
+          } else {
+            mapLink.style.display = 'none';
+          }
+        }
+        if (flash) {
+          setTimeout(() => card.classList.remove('flash'), 700);
+        }
+      }
+
+      const dockGps = document.getElementById('cp-dock-gps');
+      if (dockGps) {
+        dockGps.className = `cp-dock-gps ${m.cls}`;
+        dockGps.textContent = m.dockTxt;
+        dockGps.style.display = state.gpsActive ? 'inline-flex' : 'none';
+      }
+
+      const fresh = isGpsFresh();
+      if (fresh !== lastRenderedGpsFresh) {
+        render();
+      }
+    }
+
+    function bindGpsBarEvents(root) {
+      root.querySelector('#cp-gps-toggle-top')?.addEventListener('click', toggleGpsMode);
+      root.querySelector('#cp-gps-ping')?.addEventListener('click', pingGpsNow);
+      root.querySelector('#cp-guard-toggle-top')?.addEventListener('click', () => toggleGuardMode());
+    }
+
+    function startGpsFreshTicker() {
+      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
+      gpsFreshTimer = setInterval(() => {
+        if (document.visibilityState === 'visible') refreshGpsBarOnly(false);
+      }, 1000);
+    }
+
+    function stopGps() {
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
+      gpsFreshTimer = null;
+      state.gpsActive = false;
+      state.gpsPinging = false;
+      state.gpsInfo = null;
+      state.gpsLastFixAt = null;
+      state.gpsLastError = null;
+    }
+
+    function recordRawFix(coords) {
+      state.gpsFixCount += 1;
+      state.gpsLastFixAt = Date.now();
+      state.gpsLastFixClock = fmtClockHMS(new Date());
+      state.gpsLastError = null;
+      gpsTrail.push({ t: Date.now(), lat: coords.latitude, lng: coords.longitude });
+      while (gpsTrail.length && Date.now() - gpsTrail[0].t > 5 * 60000) gpsTrail.shift();
+      handleGpsPosition(coords);
+    }
+
     function toggleGpsMode() {
       if (!('geolocation' in navigator)) {
-        showPageToast('当前浏览器不支持 GPS 定位，请使用手动 1 秒打卡');
+        showPageToast('当前浏览器不支持 GPS 定位，请直接使用站点打卡');
         return;
       }
       if (state.gpsActive) {
@@ -965,130 +1191,79 @@
       }
 
       unlockAudio();
+      if (isWithinLiveTripWindow()) {
+        state.simClockMin = null;
+      }
       state.gpsActive = true;
+      state.gpsFixCount = 0;
       state.gpsLastFixAt = null;
       state.gpsLastError = null;
-      showPageToast('🛰️ 正在连接手机 GPS 定位监测…');
+      showPageToast('🛰️ 已开启 GPS 监测！正在请求卫星定位…');
       render();
       startGpsFreshTicker();
 
       watchId = navigator.geolocation.watchPosition(
         pos => {
-          state.gpsLastFixAt = Date.now();
-          state.gpsLastError = null;
-          gpsTrail.push({ t: Date.now(), lat: pos.coords.latitude, lng: pos.coords.longitude });
-          while (gpsTrail.length && Date.now() - gpsTrail[0].t > 5 * 60000) gpsTrail.shift();
-          handleGpsPosition(pos.coords);
+          recordRawFix(pos.coords);
+          refreshGpsBarOnly(true);
         },
         err => {
-          // PERMISSION_DENIED (1) is fatal: stop watching.
-          // POSITION_UNAVAILABLE (2) / TIMEOUT (3) are transient (tunnel, subway, indoors):
-          // the browser keeps the watch alive, so keep the UI "on" and show the stale state instead.
           if (err.code === 1) {
             stopGps();
-            showPageToast('定位权限被拒绝：请在 设置 → 隐私与安全性 → 定位服务 → Safari 网站 中允许，并打开「精确位置」。现在可先用下方 1 秒打卡');
+            showPageToast('定位权限被拒绝：请在手机「设置 → 隐私与安全性 → 定位服务 → 浏览器」允许访问并开启精确位置');
             render();
             return;
           }
           const firstError = !state.gpsLastError;
-          state.gpsLastError = err.code === 3 ? '定位超时' : '暂时无法定位';
-          if (firstError) showPageToast(`🛰️ GPS 信号弱（${state.gpsLastError}），继续搜索中…可先用下方 1 秒打卡`);
-          updateGpsFreshness();
+          state.gpsLastError = err.code === 3 ? '搜星超时' : '暂无卫星信号';
+          if (firstError) showPageToast(`🛰️ GPS 信号弱（${state.gpsLastError}），后台持续重连中…`);
+          refreshGpsBarOnly(false);
         },
-        { enableHighAccuracy: true, maximumAge: 15000, timeout: 15000 }
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
       );
     }
 
-    function stopGps() {
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
-      watchId = null;
-      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
-      gpsFreshTimer = null;
-      state.gpsActive = false;
-      state.gpsInfo = null;
-      state.gpsLastFixAt = null;
-      state.gpsLastError = null;
-    }
-
-    function startGpsFreshTicker() {
-      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
-      gpsFreshTimer = setInterval(updateGpsFreshness, 5000);
-    }
-
-    // One glanceable status for the GPS pill. Plain words first; numbers only in `detail`.
-    // level: 'wait' (connecting) | 'ok' (live) | 'weak' (poor accuracy) | 'lost' (no recent fix)
-    function gpsFreshness() {
-      const acc = state.gpsInfo ? state.gpsInfo.accuracy : null;
-      const ageSec = gpsAgeSec();
-      const ageTxt = ageSec == null ? '' : ageSec < 60 ? `${ageSec} 秒前` : `${Math.floor(ageSec / 60)} 分钟前`;
-      const detail = ageSec == null
-        ? (state.gpsLastError ? `尚未收到任何位置（${state.gpsLastError}）` : '尚未收到任何位置')
-        : `最后更新 ${ageTxt} · 误差约 ${acc != null ? acc + 'm' : '未知'}`;
-      if (ageSec == null) {
-        return state.gpsLastError
-          ? { level: 'lost', label: '搜不到信号', hint: '到站请先手动打卡', detail }
-          : { level: 'wait', label: '正在连接…', hint: '', detail };
-      }
-      if (ageSec >= GPS_STALE_SEC) {
-        return { level: 'lost', label: '信号中断', hint: '地下或室内时，到站请手动打卡', detail };
-      }
-      if (acc != null && acc > GPS_POOR_ACCURACY_M) {
-        return { level: 'weak', label: '信号弱', hint: '位置可能偏差几百米', detail };
-      }
-      return { level: 'ok', label: '定位中', hint: '', detail };
-    }
-
-    function gpsAgeSec() {
-      return state.gpsLastFixAt ? Math.max(0, Math.round((Date.now() - state.gpsLastFixAt) / 1000)) : null;
-    }
-
-    // True while GPS is on and the last fix is younger than GPS_STALE_SEC.
-    function isGpsFresh() {
-      const age = gpsAgeSec();
-      return Boolean(state.gpsActive && state.gpsInfo && age != null && age < GPS_STALE_SEC);
-    }
-
-    let gpsShowDetail = false; // details (seconds / metres) hidden by default
-
-    function gpsPillInner() {
-      const f = gpsFreshness();
-      return `<button type="button" class="cp-gps-pill ${f.level}" id="cp-gps-pill" aria-expanded="${gpsShowDetail}" title="点击查看详情">
-          <span class="cp-gps-dot" aria-hidden="true"></span><b>${escapeHtml(f.label)}</b>${
-            f.hint ? `<span class="cp-gps-hint">${escapeHtml(f.hint)}</span>` : ''
-          }<span class="cp-gps-more" aria-hidden="true">${gpsShowDetail ? '▴' : '▾'}</span>
-        </button>${gpsShowDetail ? `<div class="cp-gps-detail">${escapeHtml(f.detail)}</div>` : ''}`;
-    }
-
-    function gpsFreshHtml() {
-      if (!state.gpsActive) return '';
-      return `<div class="cp-gps-fresh" id="cp-gps-fresh">${gpsPillInner()}</div>`;
-    }
-
-    // Lightweight update of only the status pill (no full re-render every few seconds).
-    function updateGpsFreshness() {
-      const el = document.getElementById('cp-gps-fresh');
-      if (!el || !state.gpsActive) return;
-      const fresh = isGpsFresh();
-      if (fresh !== lastRenderedGpsFresh) {
-        // Fresh ↔ stale transition changes the delay verdict: do one full re-render.
-        render();
+    // Active 1-tap GPS verification test ("GPSが稼働中か確認")
+    function pingGpsNow() {
+      if (!('geolocation' in navigator)) {
+        showPageToast('当前浏览器不支持 GPS 定位');
         return;
       }
-      el.innerHTML = gpsPillInner();
-    }
+      unlockAudio();
+      state.gpsPinging = true;
+      refreshGpsBarOnly(false);
 
-    // Pill is re-created every few seconds, so handle its clicks by delegation.
-    document.addEventListener('click', e => {
-      if (!e.target.closest || !e.target.closest('#cp-gps-pill')) return;
-      gpsShowDetail = !gpsShowDetail;
-      updateGpsFreshness();
-    });
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          state.gpsPinging = false;
+          recordRawFix(pos.coords);
+          playChime('ok');
+          refreshGpsBarOnly(true);
+          const acc = Math.round(pos.coords.accuracy || 0);
+          const near = state.gpsInfo ? state.gpsInfo.nearestName : '';
+          showPageToast(`✅ GPS 稼働確認OK！${state.gpsLastFixClock} 实测成功（精度 ±${acc}m · 邻近 ${near}）`);
+        },
+        err => {
+          state.gpsPinging = false;
+          if (err.code === 1) {
+            stopGps();
+            showPageToast('❌ 定位权限未开启：请检查手机系统设置 → 定位服务');
+            render();
+            return;
+          }
+          state.gpsLastError = err.code === 3 ? '测位超时（可能在室内/地下）' : '暂时无法获取卫星定位';
+          refreshGpsBarOnly(false);
+          showPageToast(`⚠️ 立即测位未果：${state.gpsLastError}。走到室外可自动恢复`);
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      );
+    }
 
     function handleGpsPosition(coords) {
       const { latitude: lat, longitude: lng, speed, accuracy } = coords;
       const speedKmh = speed != null && speed >= 0 ? Math.round(speed * 3.6) : null;
+      const allowAutoGeofence = isWithinLiveTripWindow() || state.forceRealClock;
 
-      // Find nearest active node & check geofence
       const sim = simulateSchedule({});
       let nearest = null;
       let minDist = Infinity;
@@ -1101,27 +1276,40 @@
         }
       });
 
-      // Arrived at any stop we still want to visit (order doesn't matter: plans change on the road)
-      if (nearest && minDist <= (nearest.radiusKm || (config.mode === 'transit' ? 0.06 : 0.65)) && state.anchor.nodeId !== nearest.id &&
-          !['origin', 'destination', 'after'].includes(nearest.role) && liveStatus(nearest) === 'want') {
-        state.gpsInfo = { lat: lat.toFixed(4), lng: lng.toFixed(4), speedKmh, accuracy: Math.round(accuracy || 0),
-          nearestName: `${nearest.shortName || nearest.name} (${minDist.toFixed(1)}km)`, remKm: null, liveDeltaMin: null, slowRoadWarn: false };
-        recordCheckin(nearest.id, 'arr', nowLocalMin(), 'GPS 自动识别到站');
+      const distFmt = minDist < 1 ? `${Math.round(minDist * 1000)}m` : `${minDist.toFixed(1)}km`;
+      const nearestName = nearest ? `${nearest.shortName || nearest.name} (${distFmt})` : '--';
+
+      if (
+        allowAutoGeofence &&
+        nearest &&
+        minDist <= (nearest.radiusKm || (config.mode === 'transit' ? 0.06 : 0.65)) &&
+        state.anchor.nodeId !== nearest.id &&
+        !['origin', 'destination', 'after'].includes(nearest.role) &&
+        liveStatus(nearest) === 'want'
+      ) {
+        state.gpsInfo = {
+          lat: lat.toFixed(4),
+          lng: lng.toFixed(4),
+          speedKmh,
+          accuracy: Math.round(accuracy || 0),
+          nearestName,
+          remKm: null,
+          liveDeltaMin: null,
+          slowRoadWarn: false
+        };
+        recordCheckin(nearest.id, 'arr', nowLocalMin(), 'GPS 围栏自动识别到站', { isRealTime: true });
         return;
       }
 
-      // Next upcoming node in current timeline
       const nextItem = sim.timeline.find(x => x.status === 'upcoming') || sim.timeline[0];
       let remKm = null;
       let liveDeltaMin = null;
       let slowRoadWarn = false;
-      const nearestName = nearest ? `${nearest.shortName || nearest.name} (${minDist.toFixed(1)}km)` : '--';
 
       if (nextItem && nextItem.node.lat != null) {
         remKm = Math.round(haversineKm(lat, lng, nextItem.node.lat, nextItem.node.lng) * 10) / 10;
-        // Geofence auto check-in if within radiusKm
         const rad = nextItem.node.radiusKm || (config.mode === 'transit' ? 0.06 : 0.65);
-        if (remKm <= rad && state.anchor.nodeId !== nextItem.node.id) {
+        if (allowAutoGeofence && remKm <= rad && state.anchor.nodeId !== nextItem.node.id) {
           state.gpsInfo = {
             lat: lat.toFixed(4),
             lng: lng.toFixed(4),
@@ -1132,17 +1320,18 @@
             liveDeltaMin: null,
             slowRoadWarn: false
           };
-          recordCheckin(nextItem.node.id, 'arr', nowLocalMin(), 'GPS 围栏自动识别到站');
+          recordCheckin(nextItem.node.id, 'arr', nowLocalMin(), 'GPS 围栏自动识别到站', { isRealTime: true });
           return;
         }
 
-        // Estimate remaining drive time at realistic speed (default 58 km/h highway or live speed)
-        const estSpeed = speedKmh && speedKmh > 18 ? Math.min(85, Math.max(25, speedKmh)) : 55;
-        const estRemMin = Math.round(((remKm * 1.28) / estSpeed) * 60);
-        const liveEta = nowLocalMin() + estRemMin;
-        const baseTarget = baselineMap[nextItem.node.id];
-        if (baseTarget) {
-          liveDeltaMin = liveEta - baseTarget.arr;
+        if (allowAutoGeofence) {
+          const estSpeed = speedKmh && speedKmh > 18 ? Math.min(85, Math.max(25, speedKmh)) : config.mode === 'transit' ? 18 : 55;
+          const estRemMin = Math.round(((remKm * 1.28) / estSpeed) * 60);
+          const liveEta = nowLocalMin() + estRemMin;
+          const baseTarget = baselineMap[nextItem.node.id];
+          if (baseTarget) {
+            liveDeltaMin = liveEta - baseTarget.arr;
+          }
         }
         if (speedKmh != null && speedKmh > 5 && speedKmh < 32 && remKm > 22) {
           slowRoadWarn = true;
@@ -1162,31 +1351,57 @@
       render();
     }
 
-    // Core action: Check-in at a node or bump delay
-    function recordCheckin(nodeId, eventType, timeMin, reason) {
+    // Core action: Check-in at a node or Replay simulation
+    function recordCheckin(nodeId, eventType, timeMin, reason, opts) {
       unlockAudio();
+      const options = opts || {};
+      const realNow = nowLocalMin();
+
+      if (options.isReplay || Math.abs(timeMin - realNow) > 8) {
+        state.simClockMin = timeMin;
+      } else if (options.isRealTime) {
+        state.simClockMin = null;
+        state.forceRealClock = true;
+      }
+
       const prevAnchor = state.anchor;
       const isStop = id => {
         const n = config.nodes.find(x => x.id === id);
         return n && !['origin', 'destination', 'after'].includes(n.role);
       };
+
+      // Mark earlier stops before nodeId as done when checking in mid-route
+      const targetIdx = config.nodes.findIndex(x => x.id === nodeId);
+      config.nodes.forEach((n, idx) => {
+        if (!isStop(n.id)) return;
+        if (idx < targetIdx) {
+          state.live.status[n.id] = 'done';
+        } else if (idx > targetIdx && options.isReplay) {
+          state.live.status[n.id] = n.role === 'meal' || state.enabledNodes[n.id] ? 'want' : 'skip';
+        }
+      });
+
       if (prevAnchor && prevAnchor.event === 'arr' && prevAnchor.nodeId !== nodeId && isStop(prevAnchor.nodeId)) {
         state.live.status[prevAnchor.nodeId] = 'done';
       }
       if (eventType === 'dep' && isStop(nodeId)) state.live.status[nodeId] = 'done';
-      if (eventType === 'arr' && isStop(nodeId) && state.live.status[nodeId] !== 'done') state.live.status[nodeId] = 'want';
+      if (eventType === 'arr' && isStop(nodeId)) state.live.status[nodeId] = 'want';
       if (eventType === 'arr') state.live.hereMode = 'full';
+      if (options.isReplay) {
+        state.live.stayMode = 'full';
+        state.live.appliedAt = null;
+      }
+
       state.anchor = {
         nodeId,
         event: eventType,
         timeMin,
         extraDelayMin: 0,
-        reason: reason || (eventType === 'arr' ? '手动到站打卡' : '手动发车打卡')
+        reason: reason || (eventType === 'arr' ? '手动到站打卡' : '手动离开打卡')
       };
       state.emergencyMode = false;
       state.activePlanId = 'current';
 
-      // Learn observed pace if checking in arrival from origin departure
       const origBase = baselineMap[config.nodes[0].id];
       const curBase = baselineMap[nodeId];
       if (eventType === 'arr' && origBase && curBase && curBase.arr > origBase.dep) {
@@ -1206,7 +1421,7 @@
       if (sim.riskLevel === 'err' || delay >= 45) {
         playChime('err');
         const best = proposals[0];
-        const speech = `注意！当前进度比原计划滞后 ${delay} 分钟。${sim.headline} 系统已为您生成 ${proposals.length} 套救援重排方案，首推${best ? best.name : '调整行程'}。`;
+        const speech = `注意！当前比原计划滞后 ${delay} 分钟。${sim.headline} 已生成 ${proposals.length} 套重排方案，首推${best ? best.name : '调整行程'}。`;
         speakZh(speech);
         if (globalPrefs.autoBark) {
           dispatchStrongNotifications(
@@ -1241,16 +1456,28 @@
         speakZh(`轻度滞后 ${delay} 分钟。${sim.headline}`);
       } else {
         playChime('ok');
-        showPageToast(`✅ 已打卡：${fmtTime(timeMin)}（进度非常稳健！）`);
+        showPageToast(`✅ 已打卡：${fmtTime(timeMin)}（进度稳健！）`);
       }
     }
 
+    // Unified Plan Apply: updates BOTH schedule state AND live-card stop status!
     function applyProposal(prop) {
       unlockAudio();
-      if (prop.patch.enabledNodes) state.enabledNodes = Object.assign({}, prop.patch.enabledNodes);
+      if (prop.patch.enabledNodes) {
+        state.enabledNodes = Object.assign({}, prop.patch.enabledNodes);
+        const anchorIdx = config.nodes.findIndex(n => n.id === state.anchor.nodeId);
+        config.nodes.forEach((n, idx) => {
+          if (['origin', 'destination', 'after'].includes(n.role)) return;
+          if (idx > anchorIdx) {
+            state.live.status[n.id] = n.role === 'meal' || state.enabledNodes[n.id] ? 'want' : 'skip';
+          }
+        });
+      }
       if (prop.patch.stayOverrides) state.stayOverrides = Object.assign({}, prop.patch.stayOverrides);
       if (prop.patch.paceFactor != null) state.paceFactor = prop.patch.paceFactor;
       state.emergencyMode = Boolean(prop.patch.emergencyMode);
+      state.live.stayMode = prop.patch.liveStayMode || 'full';
+      state.live.appliedAt = getClockContext().now;
       state.activePlanId = prop.id;
       saveState();
 
@@ -1281,10 +1508,7 @@
     }
 
     function copyAdjustedWeChatSummary(sim, label) {
-      const lines = [
-        `📢【实时行程动态更新｜${label || '最新重排方案'}】`,
-        `${sim.headline}`
-      ];
+      const lines = [`📢【实时行程动态更新｜${label || '最新重排方案'}】`, `${sim.headline}`];
       if (sim.emergency && sim.emSpec) {
         lines.push(`• 路线调整：${sim.emSpec.desc}`);
         lines.push(
@@ -1312,15 +1536,14 @@
       showPageToast('📋 已复制最新调整版微信群通知！');
     }
 
-    // Build Context-Rich Prompt for AI Deep Replanning
     function buildAiEmergencyPrompt(sim, delayMin, customWish) {
       const isTransit = config.mode === 'transit';
       const aNode = config.nodes.find(n => n.id === state.anchor.nodeId) || config.nodes[0];
       const gpsStale = state.gpsInfo && !isGpsFresh();
       const gpsStr = state.gpsInfo
-        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，移动速度 ${state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'}${
-            gpsStale ? `（注意：这是 ${gpsAgeSec() ?? '?'} 秒前的旧定位，可能已不准）` : ''
-          }`
+        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，移动速度 ${
+            state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'
+          }${gpsStale ? `（注意：这是 ${gpsAgeSec() ?? '?'} 秒前的旧定位，可能已不准）` : ''}`
         : `打卡节点「${aNode.name}」（坐标约 ${aNode.lat}, ${aNode.lng}）`;
 
       const doneList = config.nodes
@@ -1349,13 +1572,17 @@
         ``,
         `1. 【当前实况】`,
         `- 日期与行程：${config.date}｜${config.title}`,
-        `- 当前真实时间锚点：${fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0))}（状态：${state.anchor.event === 'arr' ? '刚到达' : '刚离开'}「${aNode.shortName || aNode.name}」，较原计划偏差 ${delayMin >= 0 ? '+' + delayMin : delayMin} 分钟）`,
+        `- 当前真实时间锚点：${fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0))}（状态：${
+          state.anchor.event === 'arr' ? '刚到达' : '刚离开'
+        }「${aNode.shortName || aNode.name}」，较原计划偏差 ${delayMin >= 0 ? '+' + delayMin : delayMin} 分钟）`,
         `- 当前位置：${gpsStr}`,
         `- 实测/设定节奏系数：${state.observedPace ? `前半段实测 ${state.observedPace}x / ` : ''}后续设定 ${state.paceFactor}x`,
         `- 已走进度：${doneList}`,
         `- 当前推演剩余时间线：${remList}`,
         `- 系统风险判定：${sim.headline}`,
-        customWish ? `- 💬 我们的临时新诉求：${customWish}` : `- 💬 诉求：在绝不耽误核心硬死线的前提下，给出最省时、不踩雷、零容错的后续取舍与替代建议`,
+        customWish
+          ? `- 💬 我们的临时新诉求：${customWish}`
+          : `- 💬 诉求：在绝不耽误核心硬死线的前提下，给出最省时、不踩雷、零容错的后续取舍与替代建议`,
         ``,
         `2. 【绝对硬约束（必须遵守）】`,
         ...constraints,
@@ -1401,8 +1628,16 @@
       }
     }
 
-    // Build persistent DOM skeleton (Dock + Urgent Modal) once
+    // Build persistent DOM skeleton (Dock + Urgent Modal + Top Nav Deadline Link)
     ensureGlobalOverlays();
+
+    function switchTab(tabName, scrollToConsole) {
+      state.activeTab = tabName;
+      render();
+      if (scrollToConsole) {
+        mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
 
     function ensureGlobalOverlays() {
       document.body.classList.add('has-cp-dock');
@@ -1412,12 +1647,15 @@
         dock.id = 'cp-dock';
         dock.innerHTML = `
           <div class="cp-dock-inner">
-            <div class="cp-dock-status" id="cp-dock-jump" title="点击跳至实时护航与重排控制台">
-              <div><span class="cp-dock-badge" id="cp-dock-badge">🟢 准点待命</span></div>
+            <div class="cp-dock-status" id="cp-dock-jump" title="点击跳至实时护航控制台">
+              <div>
+                <span class="cp-dock-badge" id="cp-dock-badge">🟢 准点待命</span>
+                <span class="cp-dock-gps" id="cp-dock-gps" style="display:none"></span>
+              </div>
               <div class="cp-dock-sub" id="cp-dock-sub">点右侧「打卡」汇报进度，晚点自动生成3套新方案</div>
             </div>
             <div class="cp-dock-btns">
-              <button type="button" class="cp-dock-btn pri" id="cp-dock-checkin">📍 1秒打卡</button>
+              <button type="button" class="cp-dock-btn pri" id="cp-dock-checkin">📍 打卡</button>
               <button type="button" class="cp-dock-btn" id="cp-dock-guard">🛡️ 护航</button>
             </div>
           </div>`;
@@ -1427,11 +1665,15 @@
           mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         document.getElementById('cp-dock-checkin').addEventListener('click', () => {
+          state.activeTab = 'live';
+          render();
+          const det = document.getElementById('cp-fold-checkin');
+          if (det) det.open = true;
           mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
           setTimeout(() => {
             const sel = document.getElementById('cp-node-sel');
             if (sel) sel.focus();
-          }, 350);
+          }, 320);
         });
         document.getElementById('cp-dock-guard').addEventListener('click', () => toggleGuardMode());
       }
@@ -1451,15 +1693,28 @@
           </div>`;
         document.body.appendChild(modal);
       }
+
+      // Add clean jump link in top <nav> without injecting a giant duplicate section above #copilot
+      if (config.deadlineTab !== false && !document.getElementById('cp-nav-deadline')) {
+        const nav = document.querySelector('nav .wrap') || document.querySelector('nav');
+        if (nav) {
+          const a = document.createElement('a');
+          a.href = '#deadline';
+          a.id = 'cp-nav-deadline';
+          a.textContent = '⏰ 死线倒推';
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            switchTab('deadline', true);
+          });
+          nav.insertBefore(a, nav.firstChild);
+        }
+      }
     }
 
-    // ===== Live reverse planner ("此刻导航") with user-editable deadline tags =====
-    // Assumes nothing went to plan: starts from where we are NOW (GPS, or the last check-in place),
-    // works back from "be at PLACE by TIME" deadlines, searches every keep/shorten/skip combination
-    // of the remaining stops, and turns the result into live tips and alerts.
+    // ===== Live Reverse Planner ("此刻导航" & "⏰ 死线倒推") =====
     const STOP_ROLES_EXCLUDED = ['origin', 'destination', 'after'];
-    const LIVE_SAFE_MIN = 5; // recommended plans keep at least this much buffer when possible
-    const LEAVE_ALERTS = [15, 5, 0]; // minutes before the latest departure
+    const LIVE_SAFE_MIN = 5;
+    const LEAVE_ALERTS = [15, 5, 0];
     const stopNodes = () => config.nodes.filter(n => !STOP_ROLES_EXCLUDED.includes(n.role));
     const destNode = () =>
       config.nodes.find(n => n.id === ((config.deadlineSpec && config.deadlineSpec.destNodeId) || 'dest')) ||
@@ -1467,8 +1722,9 @@
       config.nodes[config.nodes.length - 1];
 
     let lastNowCard = null;
-    const leaveAlertPrev = {}; // deadline id -> minutes-to-leave at the previous refresh
-    const gpsTrail = []; // recent fixes [{ t, lat, lng }] for "moving away" detection
+    const leaveAlertPrev = {};
+    const gpsTrail = [];
+    let dlFormDraft = null;
 
     function liveStatus(n) {
       const st = state.live.status[n.id];
@@ -1476,27 +1732,48 @@
       return n.role === 'meal' || state.enabledNodes[n.id] ? 'want' : 'skip';
     }
 
-    // ---- Deadline tags ----
     function defaultDeadlines() {
       const d = config.deadlineSpec || {};
       const dest = destNode();
       if (d.trains && d.trains.length) {
         const buf = d.transferBufferMin || 10;
         const last = d.trains[d.trains.length - 1];
-        return [{ id: 'cfg', nodeId: dest.id, time: last.dep - buf, label: `赶 ${fmtTime(last.dep)} 末班`, fromConfig: true }];
+        const finalHint = last.finalBadge ? ` → ${last.finalBadge}` : '';
+        return [
+          {
+            id: 'cfg',
+            nodeId: dest.id,
+            time: last.dep - buf,
+            label: `赶 ${fmtTime(last.dep)} 末班${finalHint}`,
+            fromConfig: true
+          }
+        ];
       }
-      return [{ id: 'cfg', nodeId: dest.id, time: d.hardArrMin || 1080, label: '最晚红线', fromConfig: true }];
+      return [{ id: 'cfg', nodeId: dest.id, time: d.hardArrMin || 1080, label: '最晚安全红线', fromConfig: true }];
     }
+
     const getDeadlines = () => (state.live.deadlines || defaultDeadlines()).slice().sort((a, b) => a.time - b.time);
+
     function deadlinePlace(dl) {
       if (dl.nodeId) return config.nodes.find(n => n.id === dl.nodeId) || destNode();
-      return { id: null, name: dl.placeName || '自定位置', shortName: dl.placeName || '自定位置', lat: dl.lat, lng: dl.lng, navUrl: dl.lat != null
-        ? `https://www.google.com/maps/dir/?api=1&destination=${dl.lat},${dl.lng}&travelmode=${config.mode === 'transit' ? 'transit' : 'driving'}` : null };
+      return {
+        id: null,
+        name: dl.placeName || '自定位置',
+        shortName: dl.placeName || '自定位置',
+        lat: dl.lat,
+        lng: dl.lng,
+        navUrl:
+          dl.lat != null
+            ? `https://www.google.com/maps/dir/?api=1&destination=${dl.lat},${dl.lng}&travelmode=${
+                config.mode === 'transit' ? 'transit' : 'driving'
+              }`
+            : null
+      };
     }
-    // Wanted stops that come before this deadline in the plan order (all of them for a free-form place)
+
     const nodeOrder = id => config.nodes.findIndex(n => n.id === id);
     function stopsBefore(dl, list) {
-      if (!dl.nodeId) return []; // a place outside the plan: just get there
+      if (!dl.nodeId) return [];
       const k = nodeOrder(dl.nodeId);
       return list.filter(n => n.id !== dl.nodeId && nodeOrder(n.id) < k);
     }
@@ -1505,19 +1782,20 @@
       const list = getDeadlines();
       return list.find(d => d.time >= now - 5) || list[list.length - 1];
     }
+
     function saveDeadlines(list) {
       state.live.deadlines = list;
       saveState();
     }
 
-    // ---- Travel time ----
     function estimateLegMin(km) {
       const pace = state.paceFactor || 1;
       let m;
-      if (config.mode === 'transit') m = km <= 1.5 ? (km * 1.25 / 4.8) * 60 : 10 + (km * 1.3 / 25) * 60;
-      else m = 3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60;
+      if (config.mode === 'transit') m = km <= 1.5 ? ((km * 1.25) / 4.8) * 60 : 10 + ((km * 1.3) / 25) * 60;
+      else m = 3 + ((km * 1.3) / (km > 20 ? 70 : 35)) * 60;
       return Math.max(1, Math.round(m * pace));
     }
+
     function legMin(a, b) {
       if (a.id && b.id) {
         if (a.id === b.id) return 0;
@@ -1530,7 +1808,6 @@
       return estimateLegMin(haversineKm(a.lat, a.lng, b.lat, b.lng));
     }
 
-    // Where are we, and are we in the middle of a stop?
     function liveStart(now) {
       const a = state.anchor;
       const aNode = config.nodes.find(n => n.id === a.nodeId) || config.nodes[0];
@@ -1539,8 +1816,14 @@
       const nearAnchor = !gps || aNode.lat == null || haversineKm(gps.lat, gps.lng, aNode.lat, aNode.lng) <= (aNode.radiusKm || 0.35);
       const inStop =
         a.event === 'arr' && !STOP_ROLES_EXCLUDED.includes(aNode.role) && !['done', 'skip'].includes(liveStatus(aNode)) && nearAnchor;
-      return { here: inStop ? aNode : null, hereArr: inStop ? aTime : null, pos: inStop ? aNode : gps || aNode,
-        source: gps ? 'gps' : 'checkin', aNode, aTime };
+      return {
+        here: inStop ? aNode : null,
+        hereArr: inStop ? aTime : null,
+        pos: inStop ? aNode : gps || aNode,
+        source: gps ? 'gps' : 'checkin',
+        aNode,
+        aTime
+      };
     }
 
     function simulateLive(start, now, stops, stayMode, hereMode, dl) {
@@ -1549,22 +1832,68 @@
       let pos = start.pos;
       if (start.here) {
         const n = start.here;
-        const want = hereMode === 'now' ? 0 : hereMode === 'min' ? n.minStayMin || n.stayMin || 0 : n.stayMin || 0;
+        const overrideStay = state.stayOverrides[n.id];
+        const want =
+          hereMode === 'now'
+            ? 0
+            : hereMode === 'min'
+            ? n.minStayMin || n.stayMin || 0
+            : overrideStay != null
+            ? overrideStay
+            : n.stayMin || 0;
         const leave = Math.max(now, start.hereArr + want);
         legs.push({ node: n, arr: start.hereArr, dep: leave, here: true });
         t = leave;
       }
       stops.forEach(n => {
         const arr = t + legMin(pos, n);
-        const stay = stayMode === 'min' ? n.minStayMin || n.stayMin || 0 : n.stayMin || 0;
+        const overrideStay = state.stayOverrides[n.id];
+        const stay =
+          stayMode === 'min'
+            ? n.minStayMin || n.stayMin || 0
+            : overrideStay != null
+            ? overrideStay
+            : n.stayMin || 0;
         legs.push({ node: n, arr, dep: arr + stay, stay });
         t = arr + stay;
         pos = n;
       });
+
+      const d = config.deadlineSpec || {};
+      // Honor Emergency Direct Mode (e.g., Shutoko Taxi / Direct Airport Drive) when active!
+      if (state.emergencyMode && dl.fromConfig && d.emergencyDirect) {
+        const em = d.emergencyDirect;
+        const fromId = pos && pos.id;
+        const baseDrv = (em.driveFrom && (em.driveFrom[fromId] || Object.values(em.driveFrom)[0])) || 45;
+        const drvMin = Math.round(baseDrv * (em.fixedPace || state.paceFactor || 1));
+        const finalArr = t + drvMin;
+        const safeLim = em.safeAirportArrMin || d.hardArrMin || 1320;
+        const emPlace = {
+          id: 'em_dest',
+          name: em.destBadgePrefix || '终点',
+          shortName: em.destBadgePrefix || '直达终点',
+          navUrl: em.navUrl
+        };
+        return {
+          legs,
+          lastDep: t,
+          lastNode: pos,
+          destArr: finalArr,
+          slack: safeLim - finalArr,
+          train: null,
+          emergency: true,
+          emSpec: em,
+          place: emPlace,
+          dl: Object.assign({}, dl, { time: safeLim, label: em.shortBadge || '直达兜底' }),
+          stops,
+          stayMode,
+          hereMode
+        };
+      }
+
       const place = deadlinePlace(dl);
       const destArr = t + legMin(pos, place);
       let train = null;
-      const d = config.deadlineSpec || {};
       if (dl.fromConfig && d.trains && d.trains.length) {
         train = d.trains.find(tr => tr.dep >= destArr + (d.transferBufferMin || 10)) || null;
       }
@@ -1577,7 +1906,6 @@
         s += n.role === 'meal' || n.role === 'core' ? 10 : 3;
         if (r.stayMode === 'full') s += 1;
       });
-      // The stop we're in counts like a visit; walking out before its minimum stay throws it away.
       const h = r.legs[0] && r.legs[0].here ? r.legs[0] : null;
       if (h) {
         const minStay = h.node.minStayMin || h.node.stayMin || 0;
@@ -1589,11 +1917,17 @@
       if (tgt && r.destArr <= tgt) s += 0.5;
       return s;
     }
+
     const sameRoute = (a, b) =>
-      a && b && a.stayMode === b.stayMode && a.hereMode === b.hereMode && a.stops.map(s => s.id).join() === b.stops.map(s => s.id).join();
+      a &&
+      b &&
+      a.stayMode === b.stayMode &&
+      a.hereMode === b.hereMode &&
+      a.stops.map(s => s.id).join() === b.stops.map(s => s.id).join();
 
     function computeLive() {
-      const now = nowLocalMin();
+      const clockCtx = getClockContext();
+      const now = clockCtx.now;
       const dl = activeDeadline(now);
       const start = liveStart(now);
       const wantAll = stopNodes().filter(n => liveStatus(n) === 'want' && (!start.here || n.id !== start.here.id));
@@ -1603,7 +1937,9 @@
       const cands = [];
       for (let mask = 0; mask < 1 << want.length; mask++) {
         const sub = want.filter((_, i) => mask & (1 << i));
-        ['full', 'min'].forEach(sm => (start.here ? ['full', 'min', 'now'] : [null]).forEach(hm => cands.push(simulateLive(start, now, sub, sm, hm, dl))));
+        ['full', 'min'].forEach(sm =>
+          (start.here ? ['full', 'min', 'now'] : [null]).forEach(hm => cands.push(simulateLive(start, now, sub, sm, hm, dl)))
+        );
       }
       const pick = list => list.slice().sort((x, y) => routeScore(y) - routeScore(x) || y.slack - x.slack)[0];
       const safe = cands.filter(r => r.slack >= LIVE_SAFE_MIN);
@@ -1613,41 +1949,55 @@
       const best = bestSafe || bestTight || cands.slice().sort((x, y) => y.slack - x.slack)[0];
       const tight = bestTight && bestSafe && routeScore(bestTight) > routeScore(bestSafe) ? bestTight : null;
 
-      // Money-for-time fallback (e.g. taxi) only for the plan's own deadline
       let fallback = null;
       const em = config.deadlineSpec && config.deadlineSpec.emergencyDirect;
-      if (em && dl.fromConfig && planned.slack < 0) {
+      if (em && dl.fromConfig && planned.slack < 0 && !planned.emergency) {
         const fromId = planned.lastNode && planned.lastNode.id;
         const drv = Math.round(((em.driveFrom && (em.driveFrom[fromId] || Object.values(em.driveFrom)[0])) || 45) * (em.fixedPace || 1));
         const arr = planned.lastDep + drv;
-        const lim = em.safeAirportArrMin || (config.deadlineSpec.hardArrMin || 1320);
+        const lim = em.safeAirportArrMin || config.deadlineSpec.hardArrMin || 1320;
         fallback = { name: em.cardName || em.title || '直达兜底', arr, slack: lim - arr, navUrl: em.navUrl };
       }
 
-      // Later deadlines: chain from the active one's place, visiting the wanted stops in between
       const chain = [];
       const stayAt = (n, at) => (n.id && wantAll.some(w => w.id === n.id) ? at + (n.stayMin || 0) : at);
       let prevPlace = planned.place;
       let prevT = stayAt(planned.place, planned.destArr);
       const done = new Set(want.map(n => n.id).concat(dl.nodeId ? [dl.nodeId] : []));
-      getDeadlines().filter(d => d.time > dl.time).forEach(d => {
-        const p = deadlinePlace(d);
-        stopsBefore(d, wantAll).filter(n => !done.has(n.id)).forEach(n => {
-          prevT = prevT + legMin(prevPlace, n);
-          prevT += (state.live.stayMode === 'min' ? n.minStayMin : 0) || n.stayMin || 0;
-          prevPlace = n;
-          done.add(n.id);
+      getDeadlines()
+        .filter(d => d.time > dl.time)
+        .forEach(d => {
+          const p = deadlinePlace(d);
+          stopsBefore(d, wantAll)
+            .filter(n => !done.has(n.id))
+            .forEach(n => {
+              prevT = prevT + legMin(prevPlace, n);
+              prevT += (state.live.stayMode === 'min' ? n.minStayMin : 0) || n.stayMin || 0;
+              prevPlace = n;
+              done.add(n.id);
+            });
+          const arr = prevT + legMin(prevPlace, p);
+          chain.push({ dl: d, place: p, arr, slack: d.time - arr });
+          if (d.nodeId) done.add(d.nodeId);
+          prevPlace = p;
+          prevT = stayAt(p, arr);
         });
-        const arr = prevT + legMin(prevPlace, p);
-        chain.push({ dl: d, place: p, arr, slack: d.time - arr });
-        if (d.nodeId) done.add(d.nodeId);
-        prevPlace = p;
-        prevT = stayAt(p, arr);
-      });
 
-      // Latest moment to leave where we are, keeping the current plan
       const leaveBy = planned.slack >= 0 ? (planned.legs[0] && planned.legs[0].here ? planned.legs[0].dep : now) + planned.slack : null;
-      return { now, dl, start, want, planned, best, tight, fallback, chain, leaveBy, bestIsPlanned: sameRoute(best, planned) };
+      return {
+        now,
+        clockCtx,
+        dl: planned.dl || dl,
+        start,
+        want,
+        planned,
+        best,
+        tight,
+        fallback,
+        chain,
+        leaveBy,
+        bestIsPlanned: sameRoute(best, planned)
+      };
     }
 
     function describeRoute(r) {
@@ -1655,42 +2005,60 @@
       const parts = r.legs.map(l =>
         l.here
           ? `${nm(l.node)}${r.hereMode === 'now' ? '（马上走）' : `（待到 ${fmtTime(l.dep)}）`}`
-          : `${nm(l.node)}${r.stayMode === 'min' ? `（缩短到 ${l.stay} 分）` : ''}`
+          : `${nm(l.node)}${l.stay < (l.node.stayMin || 0) ? `（压至 ${l.stay} 分）` : ''}`
       );
       const placeIsStop = r.place.id && !STOP_ROLES_EXCLUDED.includes(r.place.role);
-      if (!r.stops.length && !r.legs.some(l => l.here) && !placeIsStop && stopsBefore(r.dl, stopNodes()).length) parts.push('不去店了，直接去');
+      if (!r.stops.length && !r.legs.some(l => l.here) && !placeIsStop && stopsBefore(r.dl, stopNodes()).length) {
+        parts.push('跳过剩余门店直奔车站');
+      }
+      if (r.emergency && r.emSpec) {
+        parts.push(`🚕 ${escapeHtml(r.emSpec.shortBadge || '直达')} → <b>${fmtTime(r.destArr)}</b> 抵${nm(r.place)}`);
+        return parts.join(' → ');
+      }
       parts.push(`${nm(r.place)} <b>${fmtTime(r.destArr)}</b>`);
-      return parts.join(' → ') + (r.train ? ` → ${escapeHtml(r.train.finalBadge || r.train.name)}` : '');
+      return parts.join(' → ') + (r.train ? ` → <b>${escapeHtml(r.train.finalBadge || r.train.name)}</b>` : '');
     }
 
-    // ---- Live tips ----
-    function buildTips(L) {
+    function buildTips(L, hasRichProposalsBelow) {
       const tips = [];
       const nm = x => escapeHtml(x.shortName || x.name);
       const { now, planned, leaveBy, start, dl } = L;
       const placeName = nm(planned.place);
 
-      if (planned.slack < 0) {
-        tips.push({ lvl: 'err', html: `按现在的安排会<b>晚 ${-planned.slack} 分钟</b>到「${placeName}」，请从下面选一个改法` });
+      if (planned.emergency && planned.emSpec) {
+        tips.push({
+          lvl: planned.slack >= 0 ? 'ok' : 'warn',
+          html: `🚕 已启用兜底直达：<b>${fmtTime(planned.lastDep)}</b> 上车 → 预计 <b>${fmtTime(planned.destArr)}</b> 抵${placeName}`
+        });
+      } else if (planned.slack < 0) {
+        tips.push({
+          lvl: 'err',
+          html: hasRichProposalsBelow
+            ? `🚨 按原安排会<b>晚 ${-planned.slack} 分钟</b>到「${placeName}」！请在紧接下方的 <b>3 套救援方案</b> 中点选一套`
+            : `🚨 按现在的安排会<b>晚 ${-planned.slack} 分钟</b>到「${placeName}」，请从下方选一个改法`
+        });
       } else {
         const m = leaveBy - now;
         const where = start.here ? `离开「${nm(start.here)}」` : '出发';
-        if (m <= 0) tips.push({ lvl: 'err', html: `⏰ <b>现在就${where}！</b>` });
+        if (m <= 0) tips.push({ lvl: 'err', html: `⏰ <b>请现在立即${where}！</b>` });
         else if (m <= 5) tips.push({ lvl: 'err', html: `⏰ <b>${m} 分钟内必须${where}</b>（最晚 ${fmtTime(leaveBy)}）` });
-        else if (m <= 15) tips.push({ lvl: 'warn', html: `⌛ 还有 ${m} 分钟要${where}：先结账、去洗手间` });
-        else tips.push({ lvl: 'ok', html: `最晚 <b>${fmtTime(leaveBy)}</b> ${where}（还有 ${m} 分钟）` });
+        else if (m <= 15) tips.push({ lvl: 'warn', html: `⌛ 还有 ${m} 分钟要${where}：请提前结账（先会計）` });
+        else tips.push({ lvl: 'ok', html: `最晚 <b>${fmtTime(leaveBy)}</b> ${where}（当前留有 ${m} 分钟机动缓冲）` });
       }
 
-      // Train context for the plan's own deadline
       const d = config.deadlineSpec || {};
       if (planned.train && dl.fromConfig) {
         const buf = d.transferBufferMin || 10;
         const margin = planned.train.dep - buf - planned.destArr;
-        tips.push({ lvl: 'ok', html: `🚃 能赶 ${escapeHtml(planned.train.name)}${margin <= 10 ? `；<b>再晚 ${margin} 分钟</b>就赶不上这班` : ''}` });
+        tips.push({
+          lvl: margin < 5 ? 'warn' : 'ok',
+          html: `🚆 衔接：<b>${escapeHtml(planned.train.name)}</b>${
+            margin <= 10 ? `（再晚 <b>${margin} 分钟</b> 就会掉到下一班！）` : ''
+          }`
+        });
       }
 
-      // Ahead: room to add back a skipped stop?
-      if (planned.slack >= 15) {
+      if (planned.slack >= 15 && !planned.emergency) {
         stopNodes()
           .filter(n => liveStatus(n) === 'skip' && stopsBefore(dl, [n]).length)
           .forEach(n => {
@@ -1699,12 +2067,17 @@
             const stops = planned.stops.concat([n]).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
             const r = simulateLive(start, now, stops, planned.stayMode, planned.hereMode, dl);
             if (r.slack >= LIVE_SAFE_MIN) {
-              tips.push({ lvl: 'ok', add: true, html: `时间还多：可以加上「${nm(n)}」（加了还剩 ${r.slack} 分）<button type="button" class="cp-now-mini" data-addback="${escapeAttr(n.id)}">＋加上</button>` });
+              tips.push({
+                lvl: 'ok',
+                add: true,
+                html: `💡 时间充裕：可顺路加上「${nm(n)}」（加完仍余 ${r.slack} 分）<button type="button" class="cp-now-mini" data-addback="${escapeAttr(
+                  n.id
+                )}">＋加上</button>`
+              });
             }
           });
       }
 
-      // Moving away from the deadline place?
       const place = planned.place;
       if (isGpsFresh() && place.lat != null && !start.here && gpsTrail.length >= 2) {
         const cur = gpsTrail[gpsTrail.length - 1];
@@ -1712,23 +2085,28 @@
         const dNow = haversineKm(cur.lat, cur.lng, place.lat, place.lng);
         const dOld = haversineKm(old.lat, old.lng, place.lat, place.lng);
         if (dNow - dOld >= 0.15) {
-          tips.push({ lvl: 'warn', html: `⚠️ 你正在远离「${nm(place)}」（比 ${Math.max(1, Math.round((cur.t - old.t) / 60000))} 分钟前远了 ${Math.round((dNow - dOld) * 1000)}m）` });
+          tips.push({
+            lvl: 'warn',
+            html: `⚠️ 方向提醒：你正在远离「${nm(place)}」（比 ${Math.max(1, Math.round((cur.t - old.t) / 60000))} 分钟前远了 ${Math.round(
+              (dNow - dOld) * 1000
+            )}m）`
+          });
         }
       }
 
-      if (!state.gpsActive) tips.push({ lvl: 'info', html: '📍 打开 GPS，位置和倒推会自动更新' });
-      else if (!isGpsFresh()) tips.push({ lvl: 'warn', html: '📍 GPS 信号中断：暂按最后打卡的位置计算' });
-
       L.chain.forEach(c => {
-        tips.push({ lvl: c.slack < 0 ? 'err' : c.slack < 10 ? 'warn' : 'ok',
-          html: `下一个死线 ${fmtTime(c.dl.time)}「${nm(c.place)}」：预计 ${fmtTime(c.arr)} 到，${c.slack >= 0 ? `余裕 ${c.slack} 分` : `<b>晚 ${-c.slack} 分</b>`}` });
+        tips.push({
+          lvl: c.slack < 0 ? 'err' : c.slack < 10 ? 'warn' : 'ok',
+          html: `下一死线 ${fmtTime(c.dl.time)}「${nm(c.place)}」：预计 ${fmtTime(c.arr)} 到（${
+            c.slack >= 0 ? `余裕 ${c.slack} 分` : `<b>晚 ${-c.slack} 分</b>`
+          }）`
+        });
       });
       return tips;
     }
 
-    // Toast + chime + vibration when the latest departure gets close (once per threshold)
     function fireLeaveAlerts(L) {
-      if (L.leaveBy == null) return;
+      if (L.clockCtx.mode !== 'live' || L.leaveBy == null) return;
       const m = L.leaveBy - L.now;
       const key = `${L.dl.id}@${L.dl.time}`;
       const prev = leaveAlertPrev[key];
@@ -1739,48 +2117,56 @@
       const place = L.planned.place.shortName || L.planned.place.name;
       const msg = th === 0 ? `现在就出发去「${place}」！` : `${th} 分钟后必须出发去「${place}」（${L.dl.label || fmtTime(L.dl.time)}）`;
       playChime(th === 0 ? 'err' : 'warn');
-      try { navigator.vibrate && navigator.vibrate([250, 120, 250]); } catch (_) {}
       showPageToast(`⏰ ${msg}`);
-      if (globalPrefs.autoBark) dispatchStrongNotifications('⏰ 死线提醒', msg, L.planned.place.navUrl || location.href, 'warn');
+      if (globalPrefs.autoBark) dispatchStrongNotifications('⏰ 死线出发提醒', msg, L.planned.place.navUrl || location.href, 'warn');
     }
 
-    // ---- Actions ----
     function applyLiveRoute(r) {
       const keep = new Set(r.stops.map(s => s.id));
       const hereId = r.legs[0] && r.legs[0].here ? r.legs[0].node.id : null;
-      // Only touch stops that belong before this deadline; later ones stay as they are
       stopsBefore(r.dl, stopNodes()).forEach(n => {
-        if (liveStatus(n) === 'want' && !keep.has(n.id) && n.id !== hereId) state.live.status[n.id] = 'skip';
+        const shouldKeep = keep.has(n.id) || n.id === hereId;
+        if (liveStatus(n) === 'want' && !shouldKeep) {
+          state.live.status[n.id] = 'skip';
+          state.enabledNodes[n.id] = false;
+        }
+        if (shouldKeep && r.stayMode === 'min' && n.minStayMin) {
+          state.stayOverrides[n.id] = n.minStayMin;
+        }
       });
       state.live.stayMode = r.stayMode;
       state.live.hereMode = r.hereMode || 'full';
-      state.live.appliedAt = nowLocalMin();
+      state.live.appliedAt = getClockContext().now;
       saveState();
       playChime('ok');
-      showPageToast(`✅ 已启动：${fmtTime(r.destArr)} 到「${r.place.shortName || r.place.name}」，余裕 ${r.slack} 分`);
+      showPageToast(`✅ 已启动新安排：预计 ${fmtTime(r.destArr)} 到「${r.place.shortName || r.place.name}」（余裕 ${r.slack} 分）`);
       render();
     }
 
     function cycleStopStatus(id) {
       const n = config.nodes.find(x => x.id === id);
       if (!n) return;
-      const start = liveStart(nowLocalMin());
+      const now = getClockContext().now;
+      const start = liveStart(now);
       if (start.here && start.here.id === id) {
         state.live.status[id] = 'done';
-        recordCheckin(id, 'dep', nowLocalMin(), '手动标记离开');
+        recordCheckin(id, 'dep', now, `标记离开 ${n.shortName || n.name}`);
         return;
       }
       const st = liveStatus(n);
       if (st === 'want') {
-        recordCheckin(id, 'arr', nowLocalMin(), '手动标记：我在这');
+        recordCheckin(id, 'arr', now, `标记到达 ${n.shortName || n.name}`);
         return;
       }
-      state.live.status[id] = st === 'done' ? 'skip' : 'want';
+      const nextSt = st === 'done' ? 'skip' : 'want';
+      state.live.status[id] = nextSt;
+      if (n.role !== 'meal') {
+        state.enabledNodes[id] = nextSt === 'want';
+      }
       saveState();
       render();
     }
 
-    // ---- Rendering ----
     function altBlocksHtml(L) {
       const { planned, best, tight, fallback } = L;
       const slack = planned.slack;
@@ -1788,135 +2174,111 @@
       if (slack < 0 || !L.bestIsPlanned) {
         if (best && best.slack >= 0 && !L.bestIsPlanned) {
           altHtml += `<div class="cp-now-rec">
-              <div><b>${slack < 0 ? '来不及！改成这样：' : '更稳的走法：'}</b></div>
+              <div><b>${slack < 0 ? '🛡️ 稳妥改法（推荐）：' : '💡 更稳的走法：'}</b></div>
               <div class="cp-now-route">${describeRoute(best)}</div>
-              <div class="cp-now-rec-sum">余裕 ${best.slack} 分钟</div>
+              <div class="cp-now-rec-sum">死线前留有 ${best.slack} 分钟余裕</div>
               <button type="button" class="cp-plan-apply" data-live-apply="best">▶ 启动这个方案</button>
             </div>`;
           if (tight && !sameRoute(tight, planned)) {
             altHtml += `<div class="cp-now-rec">
-              <div><b>⚡ 压哨版（玩得更多，但几乎没余裕）：</b></div>
+              <div><b>⚡ 压哨双全版（少留缓冲多去一站）：</b></div>
               <div class="cp-now-route">${describeRoute(tight)}</div>
-              <div class="cp-now-rec-sum">余裕只有 ${tight.slack} 分钟，排队、结账慢一点就会错过</div>
+              <div class="cp-now-rec-sum">余裕仅 ${tight.slack} 分钟，结账/换乘零容错</div>
               <button type="button" class="cp-plan-apply" data-live-apply="tight">▶ 启动压哨版</button>
             </div>`;
           }
         } else if (slack < 0) {
-          altHtml += `<div class="cp-now-rec"><b>所有走法都来不及</b>，最接近的是：<div class="cp-now-route">${describeRoute(best)}</div>
-            <div class="cp-now-rec-sum">仍晚 ${-best.slack} 分钟。可以把死线改晚，或考虑下面的花钱方案</div></div>`;
+          altHtml += `<div class="cp-now-rec"><b>⚠️ 常规交通已来不及</b>，最快压缩后：<div class="cp-now-route">${describeRoute(best)}</div>
+            <div class="cp-now-rec-sum">仍晚 ${-best.slack} 分钟。可改晚目标时间，或启用下方打车/高速直达方案</div></div>`;
         }
         if (fallback) {
           altHtml += `<div class="cp-now-rec">
-              <div><b>💴 花钱换时间：</b>${escapeHtml(fallback.name)}</div>
-              <div class="cp-now-rec-sum">保留全部安排，约 ${fmtTime(fallback.arr)} 到终点（${fallback.slack >= 0 ? `余裕 ${fallback.slack} 分` : `仍晚 ${-fallback.slack} 分`}）</div>
-              ${fallback.navUrl ? `<a class="cp-now-more" href="${fallback.navUrl}" target="_blank" rel="noopener">查看路线</a>` : ''}
+              <div><b>🚕 花钱换时间：</b>${escapeHtml(fallback.name)}</div>
+              <div class="cp-now-rec-sum">保留行程，预计 ${fmtTime(fallback.arr)} 直抵终点（${
+            fallback.slack >= 0 ? `余裕 ${fallback.slack} 分` : `仍晚 ${-fallback.slack} 分`
+          }）</div>
+              ${fallback.navUrl ? `<a class="cp-now-more" href="${fallback.navUrl}" target="_blank" rel="noopener">查看路线 ›</a>` : ''}
             </div>`;
         }
       }
-
       return altHtml;
     }
 
-    function buildNowCard() {
+    function buildNowCard(hasRichProposalsBelow) {
       const L = computeLive();
-      const { now, start, planned, best, tight, fallback } = L;
+      const { now, clockCtx, start, planned } = L;
       const nm = x => escapeHtml(x.shortName || x.name);
       const slack = planned.slack;
       const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
 
       let whereTxt;
-      if (start.here) whereTxt = `在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到）`;
-      else if (start.source === 'gps') whereTxt = `GPS 定位中（最近的站点：${escapeHtml(state.gpsInfo.nearestName)}）`;
-      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）<span class="cp-now-sub">不对的话点下面的站标「我在这」，或打开 GPS</span>`;
+      if (start.here) whereTxt = `📍 在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到站）`;
+      else if (start.source === 'gps') whereTxt = `🟢 GPS 实时位置（邻近 ${escapeHtml(state.gpsInfo.nearestName)}）`;
+      else
+        whereTxt = `打卡基准「${nm(start.aNode)}」（${fmtTime(start.aTime)}）<span class="cp-now-sub">位置有变可点下方站点切换「📍在这」，或点顶部开启 GPS</span>`;
 
       const first = planned.legs.find(l => !l.here);
-      const navNode = first ? first.node : planned.place;
-      const navBtn = navNode && navNode.navUrl
-        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>` : '';
+      const navNode = planned.emergency && planned.emSpec ? { shortName: planned.emSpec.shortBadge, navUrl: planned.emSpec.navUrl } : first ? first.node : planned.place;
+      const navBtn =
+        navNode && navNode.navUrl
+          ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 一键导航去「${nm(navNode)}」</a>`
+          : '';
 
-      const tips = buildTips(L)
+      const tips = buildTips(L, hasRichProposalsBelow)
         .map(t => `<li class="${t.lvl}">${t.html}</li>`)
         .join('');
 
-      const altHtml = altBlocksHtml(L);
+      // Avoid rendering two competing sets of plan cards on Tab 1 when the 3-Plan Engine is visible right below!
+      const altHtml = hasRichProposalsBelow ? '' : altBlocksHtml(L);
 
       const chips = stopNodes()
         .map(n => {
           const st = start.here && start.here.id === n.id ? 'here' : liveStatus(n);
           const lbl = { here: '📍 在这', want: '要去', done: '✔ 已去', skip: '不去' }[st];
-          return `<button type="button" class="cp-now-chip ${st}" data-stop="${escapeAttr(n.id)}"><b>${nm(n)}</b> ${lbl}</button>`;
+          return `<button type="button" class="cp-now-chip ${st}" data-stop="${escapeAttr(n.id)}"><b>${nm(n)}</b> · ${lbl}</button>`;
         })
         .join('');
 
-      const planLbl = state.live.appliedAt != null ? `重算方案（${fmtTime(state.live.appliedAt)} 启动）` : '原定安排（按现在位置重算）';
+      const clockLabel =
+        clockCtx.mode === 'sim'
+          ? `🧪 演练时刻 ${fmtTime(now)}`
+          : clockCtx.mode === 'preview'
+          ? `📋 预览基准 ${fmtTime(now)}`
+          : `🟢 实时 ${fmtTime(now)}`;
+
+      const planLbl =
+        state.activePlanId !== 'current' || state.live.appliedAt != null ? '已调整方案' : '当前排期推演';
+
       const html = `<div class="cp-now ${lvl}" id="cp-now">
-          <div class="cp-now-hd"><span>🧭 此刻导航</span><span class="cp-now-clock">现在 ${fmtTime(now)}</span></div>
-          <a class="cp-dl-line" href="#deadline">⏰ 目标：<b>${fmtTime(L.dl.time)}</b> 前到「${nm(planned.place)}」${
-            L.dl.label ? `（${escapeHtml(L.dl.label)}）` : ''
-          }<span>改 ›</span></a>
+          <div class="cp-now-hd"><span>🧭 此刻护航总览</span><span>${clockLabel}</span></div>
+          <button type="button" class="cp-dl-line" id="cp-jump-deadline">
+            <span class="cp-dl-main">⏰ 死线：<b>${fmtTime(L.dl.time)}</b> 前到「${nm(planned.place)}」${
+        L.dl.label ? `（${escapeHtml(L.dl.label)}）` : ''
+      }</span>
+            <span class="cp-dl-edit-link">改死线 ›</span>
+          </button>
           <div class="cp-now-prog">${slack >= 0 ? `余裕 ${slack} 分钟` : `落后 ${-slack} 分钟`}</div>
           <ul class="cp-now-tips">${tips}</ul>
           <div class="cp-now-btns">${navBtn}</div>
           ${altHtml}
-          <div class="cp-now-row"><span class="k">路线</span><span>${planLbl}<span class="cp-now-route">${describeRoute(planned)}</span></span></div>
+          <div class="cp-now-row"><span class="k">路线</span><span><b>${planLbl}：</b><span class="cp-now-route">${describeRoute(planned)}</span></span></div>
           <div class="cp-now-row"><span class="k">位置</span><span>${whereTxt}</span></div>
-          <div class="cp-now-row"><span class="k">各站</span><span class="cp-now-chips">${chips}<span class="cp-now-sub">点一下切换：要去 → 📍在这 → ✔已去 → 不去</span></span></div>
+          <div class="cp-now-row"><span class="k">各站</span><div><div class="cp-now-chips">${chips}</div><span class="cp-now-sub">点站点一键切换：要去 → 📍在这 → ✔已去 → 不去</span></div></div>
         </div>`;
       return { html, L };
     }
 
-    // Re-render only the card (used by the 30 s ticker; keeps the rest of the page untouched)
-    function refreshNowCard() {
-      const wrap = document.getElementById('cp-now-wrap');
-      if (!wrap) return null;
-      const card = buildNowCard();
-      lastNowCard = card;
-      wrap.innerHTML = card.html;
-      bindNowCard(wrap);
-      fireLeaveAlerts(card.L);
-      renderDeadlineResult(card.L);
-      const dockBadge = document.getElementById('cp-dock-badge');
-      const dockSub = document.getElementById('cp-dock-sub');
-      const ls = card.L.planned.slack;
-      if (dockBadge) {
-        dockBadge.className = `cp-dock-badge ${ls < 0 ? 'err' : ls < 10 ? 'warn' : 'ok'}`;
-        dockBadge.textContent = ls >= 0 ? `${ls < 10 ? '🟡' : '🟢'} 余裕 ${ls} 分` : `🔴 落后 ${-ls} 分・点看改法`;
-      }
-      if (dockSub) {
-        const p = card.L.planned;
-        dockSub.textContent = `⏰ ${fmtTime(card.L.dl.time)} 前到「${p.place.shortName || p.place.name}」· 预计 ${fmtTime(p.destArr)}`;
-      }
-      return card;
-    }
-
-    function bindNowCard(root) {
-      root.querySelectorAll('[data-stop]').forEach(btn => btn.addEventListener('click', () => cycleStopStatus(btn.dataset.stop)));
-      root.querySelectorAll('[data-live-apply]').forEach(btn =>
-        btn.addEventListener('click', () => {
-          const r = lastNowCard && (btn.dataset.liveApply === 'tight' ? lastNowCard.L.tight : lastNowCard.L.best);
-          if (r) applyLiveRoute(r);
-        })
-      );
-      root.querySelectorAll('[data-addback]').forEach(btn =>
-        btn.addEventListener('click', () => {
-          state.live.status[btn.dataset.addback] = 'want';
-          saveState();
-          render();
-        })
-      );
-    }
-
-    // ===== "⏰ 死线倒推" tab: be at PLACE by TIME → ahead / behind from live GPS → alternatives =====
-    // Reads a coordinate out of a pasted Google Maps link or a "lat, lng" pair (no network, no API key).
     function parsePlaceInput(raw) {
       const txt = (raw || '').trim();
-      if (!txt) return { error: '请粘贴地图链接或坐标' };
+      if (!txt) return { error: '请粘贴 Google 地图链接或「纬度, 经度」坐标' };
       let s = txt;
-      try { s = decodeURIComponent(txt); } catch (_) {}
+      try {
+        s = decodeURIComponent(txt);
+      } catch (_) {}
       const pats = [
-        /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, // exact place pin
+        /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
         /[?&](?:q|query|destination|daddr|ll)=(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/,
-        /@(-?\d+\.\d+),(-?\d+\.\d+)/, // map centre
+        /@(-?\d+\.\d+),(-?\d+\.\d+)/,
         /^\s*(-?\d{1,2}\.\d+)\s*[,，\s]\s*(-?\d{1,3}\.\d+)\s*$/
       ];
       for (const re of pats) {
@@ -1931,47 +2293,32 @@
         }
       }
       if (/goo\.gl|maps\.app/.test(s)) {
-        return { error: '这是短链接，读不出坐标。请在浏览器打开它，再复制地址栏里的完整链接；或在地图上长按地点，复制坐标（如 35.7318, 139.7111）' };
+        return {
+          error:
+            '这是短链接，离线读不出坐标。请先在浏览器打开它再复制地址栏完整链接，或在地图上长按地点复制坐标（如 35.7318, 139.7111）'
+        };
       }
-      return { error: '没找到坐标。请粘贴完整的 Google 地图链接，或「纬度, 经度」' };
+      return { error: '未识别出坐标。请粘贴完整的 Google 地图链接，或「纬度, 经度」' };
     }
 
-    // Rough door-to-door minutes by mode, from straight-line distance (offline estimate)
     function modeEstimates(km) {
       const out = [];
-      if (km <= 3) out.push({ key: 'walk', icon: '🚶', name: '步行', min: Math.max(1, Math.round((km * 1.25 / 4.8) * 60)), tm: 'walking' });
+      if (km <= 3) out.push({ key: 'walk', icon: '🚶', name: '步行', min: Math.max(1, Math.round(((km * 1.25) / 4.8) * 60)), tm: 'walking' });
       if (config.mode === 'transit') {
-        if (km >= 1) out.push({ key: 'transit', icon: '🚃', name: '电车', min: Math.round(10 + (km * 1.3 / 25) * 60), tm: 'transit', note: '含走到车站＋等车约 10 分' });
+        if (km >= 1)
+          out.push({ key: 'transit', icon: '🚆', name: '电车', min: Math.round(10 + ((km * 1.3) / 25) * 60), tm: 'transit', note: '含进站候车约10分' });
       } else {
-        out.push({ key: 'car', icon: '🚗', name: '开车', min: Math.round(3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60 * (state.paceFactor || 1)), tm: 'driving' });
+        out.push({
+          key: 'car',
+          icon: '🚗',
+          name: '自驾',
+          min: Math.round((3 + ((km * 1.3) / (km > 20 ? 70 : 35)) * 60) * (state.paceFactor || 1)),
+          tm: 'driving'
+        });
       }
-      if (km >= 0.8) out.push({ key: 'taxi', icon: '🚕', name: '打车', min: Math.round(5 + (km * 1.3 / (km > 15 ? 45 : 20)) * 60), tm: 'driving', note: '含叫车约 5 分' });
+      if (km >= 0.8)
+        out.push({ key: 'taxi', icon: '🚕', name: '打车', min: Math.round(5 + ((km * 1.3) / (km > 15 ? 45 : 20)) * 60), tm: 'driving', note: '含叫车约5分' });
       return out;
-    }
-
-    let dlFormDraft = null; // { time, place, link, label } while typing
-
-    function injectDeadlineTab() {
-      if (config.deadlineTab === false || document.getElementById('deadline')) return;
-      const host = mount.closest('section') || mount;
-      const sec = document.createElement('section');
-      sec.id = 'deadline';
-      sec.innerHTML = `
-        <div class="sec-head"><div><div class="sec-k">DEADLINE BACK-PLANNER</div><h2>⏰ 死线倒推</h2></div>
-          <span class="tag warn">几点前必须到哪</span></div>
-        <div class="cp-dlt">
-          <div id="cp-dlt-form"></div>
-          <div id="cp-dlt-result"></div>
-        </div>`;
-      host.parentNode.insertBefore(sec, host);
-      const nav = document.querySelector('nav .wrap') || document.querySelector('nav');
-      if (nav) {
-        const a = document.createElement('a');
-        a.href = '#deadline';
-        a.textContent = '⏰ 死线倒推';
-        nav.insertBefore(a, nav.firstChild);
-      }
-      renderDeadlineForm();
     }
 
     function renderDeadlineForm() {
@@ -1991,25 +2338,28 @@
       box.innerHTML = `
         <div class="cp-dlt-form">
           <div class="cp-dlt-row">
-            <label>几点前<input type="time" id="dlt-time" value="${fmtTime(d.time)}"></label>
-            <label class="grow">必须到<select id="dlt-place">
-              <optgroup label="行程里的地点">${opts}</optgroup>
-              <option value="__link" ${d.place === '__link' ? 'selected' : ''}>🔗 其他地点（粘贴地图链接/坐标）</option>
-              ${state.gpsInfo ? `<option value="__gps" ${d.place === '__gps' ? 'selected' : ''}>📍 我现在站的地方</option>` : ''}
+            <label>几点前必须到<input type="time" id="dlt-time" value="${fmtTime(d.time)}"></label>
+            <label class="grow">目标地点<select id="dlt-place">
+              <optgroup label="行程内节点">${opts}</optgroup>
+              <option value="__link" ${d.place === '__link' ? 'selected' : ''}>🔗 任意地点（粘贴地图链接 / 坐标）</option>
+              ${state.gpsInfo ? `<option value="__gps" ${d.place === '__gps' ? 'selected' : ''}>📍 我现在站的位置</option>` : ''}
             </select></label>
           </div>
           <div class="cp-dlt-link" ${d.place === '__link' ? '' : 'hidden'}>
-            <label>Google 地图链接 或 坐标<input type="text" id="dlt-link" inputmode="url" value="${escapeAttr(d.link || '')}" placeholder="https://www.google.com/maps/place/... 或 35.7318, 139.7111"></label>
-            <label>地点名字<input type="text" id="dlt-name" value="${escapeAttr(d.name || '')}" placeholder="例：滝不動駅"></label>
-            <div class="cp-dlt-hint">在 Google 地图点开地点 →「分享」→ 复制链接；短链接（maps.app.goo.gl）要先在浏览器打开，再复制地址栏</div>
+            <label>Google 地图完整链接 或 坐标<input type="text" id="dlt-link" inputmode="url" value="${escapeAttr(
+              d.link || ''
+            )}" placeholder="https://www.google.com/maps/place/... 或 35.7318, 139.7111"></label>
+            <label>地点名称<input type="text" id="dlt-name" value="${escapeAttr(d.name || '')}" placeholder="例：滝不動駅 / 朋友约见点"></label>
+            <div class="cp-dlt-hint">提示：Google 地图短链（maps.app.goo.gl）请先在浏览器打开再复制地址栏链接，或直接在地图长按复制坐标</div>
           </div>
-          <label>备注（可不填）<input type="text" id="dlt-label" value="${escapeAttr(d.label || '')}" placeholder="例：赶末班 / 约了朋友"></label>
+          <label>备注（可选）<input type="text" id="dlt-label" value="${escapeAttr(d.label || '')}" placeholder="例：赶20:53末班 / 酒店最晚入住"></label>
           <div class="cp-dlt-btns">
-            <button type="button" class="cp-plan-apply" id="dlt-save">▶ 开始倒推</button>
-            ${state.live.deadlines ? '<button type="button" class="cp-now-mini" id="dlt-reset">恢复行程默认目标</button>' : ''}
+            <button type="button" class="cp-plan-apply" id="dlt-save">▶ 按当前时间开始倒推</button>
+            ${state.live.deadlines ? '<button type="button" class="cp-now-mini" id="dlt-reset">恢复行程默认死线</button>' : ''}
           </div>
           <div class="cp-dlt-err" id="dlt-err"></div>
         </div>`;
+
       const $ = id => box.querySelector('#' + id);
       const readDraft = () => {
         const tv = $('dlt-time').value;
@@ -2029,8 +2379,8 @@
       });
       $('dlt-reset')?.addEventListener('click', () => {
         dlFormDraft = null;
+        state.forceRealClock = false;
         saveDeadlines(null);
-        renderDeadlineForm();
         render();
       });
       $('dlt-save').addEventListener('click', () => {
@@ -2043,21 +2393,25 @@
             $('dlt-err').textContent = p.error;
             return;
           }
-          Object.assign(entry, { lat: p.lat, lng: p.lng, placeName: (f.name || p.name || '目的地').slice(0, 40) });
+          Object.assign(entry, { lat: p.lat, lng: p.lng, placeName: (f.name || p.name || '自定目的地').slice(0, 40) });
         } else if (f.place === '__gps' && state.gpsInfo) {
-          Object.assign(entry, { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng, placeName: (f.name || '设定时站的地方').slice(0, 40) });
+          Object.assign(entry, {
+            lat: +state.gpsInfo.lat,
+            lng: +state.gpsInfo.lng,
+            placeName: (f.name || '当前定位点').slice(0, 40)
+          });
         } else {
           entry.nodeId = f.place;
           const def = defaultDeadlines()[0];
-          if (def.nodeId === entry.nodeId) entry.fromConfig = true; // keep the plan's train logic
+          if (def.nodeId === entry.nodeId) entry.fromConfig = true;
         }
         dlFormDraft = null;
+        state.simClockMin = null;
+        state.forceRealClock = true;
         saveDeadlines([entry]);
-        renderDeadlineForm();
         render();
         const p = deadlinePlace(entry);
-        showPageToast(`⏰ 目标：${fmtTime(entry.time)} 前到「${p.shortName || p.name}」`);
-        document.getElementById('cp-dlt-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showPageToast(`⏰ 已更新死线目标：${fmtTime(entry.time)} 前到「${p.shortName || p.name}」`);
       });
     }
 
@@ -2065,22 +2419,20 @@
       const box = document.getElementById('cp-dlt-result');
       if (!box) return;
       const nm = x => escapeHtml(x.shortName || x.name);
-      const { now, start, planned, dl } = L;
+      const { now, clockCtx, start, planned, dl } = L;
       const place = planned.place;
       const slack = planned.slack;
       const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
       const remaining = dl.time - now;
 
-      // Where from
       const from = start.here || (start.source === 'gps' ? { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng } : start.aNode);
       const km = from.lat != null && place.lat != null ? haversineKm(from.lat, from.lng, place.lat, place.lng) : null;
       const fromTxt = start.here
         ? `在「${nm(start.here)}」`
         : start.source === 'gps'
         ? 'GPS 当前位置'
-        : `「${nm(start.aNode)}」（最后打卡，GPS 未开${state.gpsActive ? '或信号中断' : ''}）`;
+        : `「${nm(start.aNode)}」（打卡基准${state.gpsActive ? '，GPS信号暂中断' : '，GPS未开启'}）`;
 
-      // Leave now, by each mode
       const modes = km != null ? modeEstimates(km) : [];
       const leaveAt = start.here ? Math.max(now, planned.legs[0] ? planned.legs[0].dep : now) : now;
       const modeRows = modes
@@ -2098,74 +2450,167 @@
         })
         .join('');
 
-      // Going straight there the normal way, right now
       const directMin = from.lat != null && place.lat != null ? legMin(start.here || from, place) : null;
       const directSlack = directMin != null ? dl.time - (now + directMin) : null;
 
-      // Recommendation
       const okModes = modes.filter(m => now + m.min <= dl.time);
       const hasStops = planned.stops.length || planned.legs.some(l => l.here);
       let rec;
       if (slack >= 0) {
         rec = hasStops
-          ? `✅ 按现在的安排（${planned.stops.map(nm).join('、') || '当前这站'}）能赶到，最晚 <b>${fmtTime(L.leaveBy)}</b> ${start.here ? '离开' : '出发'}`
-          : `✅ 来得及：最晚 <b>${fmtTime(L.leaveBy)}</b> 出发（还有 ${L.leaveBy - now} 分钟）`;
+          ? `✅ 按当前安排（${planned.stops.map(nm).join('、') || '当前站'}）来得及！最晚 <b>${fmtTime(L.leaveBy)}</b> ${
+              start.here ? '离店/出发' : '动身'
+            }`
+          : `✅ 来得及：最晚 <b>${fmtTime(L.leaveBy)}</b> 出发（还有 ${L.leaveBy - now} 分钟机动时间）`;
       } else if (L.best && L.best.slack >= 0 && hasStops) {
-        rec = `⚠️ 按现在的安排会晚 ${-slack} 分钟 → 改走法就能赶上（见下面「行程调整」）`;
+        rec = `⚠️ 按原安排会晚 ${-slack} 分钟 → 压缩或跳过中途站点即可救回（见下方「行程调整」）`;
       } else if (okModes.length) {
         const m = okModes[0];
-        rec = `⚠️ 现在马上出发，<b>${m.icon} ${m.name}</b> 能赶上（${fmtTime(now + m.min)} 到，余裕 ${dl.time - now - m.min} 分）`;
+        rec = `⚠️ 现在跳过中途直奔终点，<b>${m.icon} ${m.name}</b> 可在 ${fmtTime(now + m.min)} 赶到（余裕 ${dl.time - now - m.min} 分）`;
       } else if (modes.length) {
         const fastest = modes.slice().sort((a, b) => a.min - b.min)[0];
-        rec = `🚨 所有方式都来不及。最快是 ${fastest.icon} ${fastest.name}，${fmtTime(now + fastest.min)} 到（晚 ${now + fastest.min - dl.time} 分）→ 建议现在就联系对方，或把目标时间改晚`;
+        rec = `🚨 常规方式已赶不上 ${fmtTime(dl.time)}（最快 ${fastest.icon} ${fastest.name} 约 ${fmtTime(
+          now + fastest.min
+        )} 到，晚 ${now + fastest.min - dl.time} 分）→ 请考虑打车兜底或调整目标时间`;
       } else {
-        rec = `🚨 会晚 ${-slack} 分钟`;
+        rec = `🚨 预计落后 ${-slack} 分钟`;
       }
+
+      const clockNote =
+        clockCtx.mode === 'preview'
+          ? `推演基准时刻 ${fmtTime(now)}（尚未按真实时钟 ${fmtTime(clockCtx.realNow)} 计算，点上方「按当前时间开始倒推」可测实时）`
+          : `计算时刻 ${fmtTime(now)}（距死线 ${remaining >= 0 ? `剩 ${remaining} 分钟` : `已过 ${-remaining} 分钟`}）`;
 
       box.innerHTML = `
         <div class="cp-dlt-res ${lvl}">
           <div class="cp-dlt-target">⏰ <b>${fmtTime(dl.time)}</b> 前到「${nm(place)}」${dl.label ? `（${escapeHtml(dl.label)}）` : ''}
-            <span class="cp-now-sub">现在 ${fmtTime(now)}，离目标时间还有 ${remaining} 分钟${km != null ? `｜从${fromTxt}直线 ${km < 1 ? Math.round(km * 1000) + 'm' : km.toFixed(1) + 'km'}` : ''}</span>
+            <span class="cp-now-sub">${clockNote}${km != null ? `｜距${fromTxt}直线 ${km < 1 ? Math.round(km * 1000) + 'm' : km.toFixed(1) + 'km'}` : ''}</span>
           </div>
           <div class="cp-dlt-verdict">${slack >= 0 ? `Ahead・余裕 ${slack} 分钟` : `Behind・会晚 ${-slack} 分钟`}</div>
-          ${hasStops ? `<div class="cp-now-sub">按现在的安排算（路上还要去：${planned.legs.map(l => nm(l.node)).join('、')}）${
-            directSlack != null ? `；直接去的话${directSlack >= 0 ? `余裕 ${directSlack} 分` : `也会晚 ${-directSlack} 分`}` : ''
-          }</div>` : ''}
+          ${
+            hasStops
+              ? `<div class="cp-now-sub">含中途站点（${planned.legs.map(l => nm(l.node)).join(' → ')}）${
+                  directSlack != null ? `｜若现在不去店直奔终点：${directSlack >= 0 ? `余裕 ${directSlack} 分` : `晚 ${-directSlack} 分`}` : ''
+                }</div>`
+              : ''
+          }
           <div class="cp-dlt-rec">${rec}</div>
 
-          <h3>🚦 现在出发，各种方式几点到</h3>
-          ${modeRows ? `<table class="cp-dlt-modes"><tbody>${modeRows}</tbody></table>
-            <div class="cp-now-sub">按直线距离估算，仅供参考；点「导航」看 Google 地图的实际时间</div>` : '<div class="cp-now-sub">目的地没有坐标，无法估算</div>'}
-          ${start.here && leaveAt > now ? `<div class="cp-now-sub">注意：你在「${nm(start.here)}」，按计划 ${fmtTime(leaveAt)} 才离开；上表按「现在马上走」计算</div>` : ''}
+          <h3>🚦 若现在立刻直奔目的地，各方式预计到达</h3>
+          ${
+            modeRows
+              ? `<table class="cp-dlt-modes"><tbody>${modeRows}</tbody></table>
+            <div class="cp-now-sub">注：上表按直线距离离线估算；点右侧「导航」可查看 Google 地图实时路况/乘换</div>`
+              : '<div class="cp-now-sub">该目的地无经纬度坐标，请使用上方地图导航</div>'
+          }
+          ${
+            start.here && leaveAt > now
+              ? `<div class="cp-now-sub">提示：你当前在「${nm(start.here)}」（计划 ${fmtTime(leaveAt)} 离开），上表为「现在立刻中断离开」的直达估算</div>`
+              : ''
+          }
 
-          ${hasStops || L.want.length || !L.bestIsPlanned ? `<h3>🛍️ 行程调整（路上还要去的地方）</h3>
+          ${
+            hasStops || L.want.length || !L.bestIsPlanned
+              ? `<h3>🛍️ 中途站点自动取舍建议</h3>
             <div class="cp-now-route">${describeRoute(planned)}</div>
-            ${altBlocksHtml(L) || '<div class="cp-now-sub">不用调整</div>'}
-            <div class="cp-now-sub">哪站去过、不去了，在「🛰️ 实时护航」卡片底部的各站按钮里改</div>` : ''}
+            ${altBlocksHtml(L) || '<div class="cp-now-sub">当前排期无需删减站点</div>'}`
+              : ''
+          }
 
-          <h3>⏳ 最晚出发</h3>
-          <div>${L.leaveBy != null
-            ? `最晚 <b>${fmtTime(L.leaveBy)}</b> ${start.here ? `离开「${nm(start.here)}」` : '出发'}（还有 ${L.leaveBy - now} 分钟）。15 / 5 / 0 分钟前会响铃＋震动提醒（页面要开着）`
-            : directSlack != null && directSlack >= 0
-            ? `按现在的安排来不及。<b>直接去</b>的话最晚 <b>${fmtTime(now + directSlack)}</b> 出发（还有 ${directSlack} 分钟）`
-            : '直接去也来不及，请看上面最快的交通方式'}</div>
+          <h3>⏳ 最晚出发红线</h3>
+          <div style="font-size:13px">${
+            L.leaveBy != null
+              ? `最晚 <b>${fmtTime(L.leaveBy)}</b> ${start.here ? `离开「${nm(start.here)}」` : '出发'}（距今 ${
+                  L.leaveBy - now
+                } 分钟）。实时模式下提前 15 / 5 / 0 分钟自动响铃＋震动提醒。`
+              : directSlack != null && directSlack >= 0
+              ? `含中途站已来不及；若<b>现在放弃中途站直奔终点</b>，最晚 <b>${fmtTime(now + directSlack)}</b> 出发（剩 ${directSlack} 分钟）。`
+              : '直奔终点亦超出当前设定时刻，请启用打车兜底或修改目标时间。'
+          }</div>
         </div>`;
+
       box.querySelectorAll('[data-live-apply]').forEach(btn =>
         btn.addEventListener('click', () => {
           const r = btn.dataset.liveApply === 'tight' ? L.tight : L.best;
-          if (r) applyLiveRoute(r);
+          if (r) {
+            applyLiveRoute(r);
+            switchTab('live', false);
+          }
         })
       );
     }
 
-    // 30 s heartbeat so the countdown, tips and alerts stay live without any tap
+    function refreshNowCard(hasRichProposalsBelow) {
+      const wrap = document.getElementById('cp-now-wrap');
+      const card = buildNowCard(Boolean(hasRichProposalsBelow));
+      lastNowCard = card;
+      if (wrap) {
+        wrap.innerHTML = card.html;
+        bindNowCard(wrap);
+      }
+      fireLeaveAlerts(card.L);
+      renderDeadlineResult(card.L);
+
+      const dockBadge = document.getElementById('cp-dock-badge');
+      const dockSub = document.getElementById('cp-dock-sub');
+      const dockGps = document.getElementById('cp-dock-gps');
+      const ls = card.L.planned.slack;
+      const modeTag = card.L.clockCtx.mode === 'sim' ? '演练 ' : card.L.clockCtx.mode === 'preview' ? '预览 ' : '';
+
+      if (dockBadge) {
+        dockBadge.className = `cp-dock-badge ${ls < 0 ? 'err' : ls < 10 ? 'warn' : 'ok'}`;
+        dockBadge.textContent =
+          ls >= 0 ? `${ls < 10 ? '🟡' : '🟢'} ${modeTag}余裕 ${ls}分` : `🔴 ${modeTag}落后 ${-ls}分・点看重排`;
+      }
+      if (dockSub) {
+        const p = card.L.planned;
+        dockSub.textContent = p.train
+          ? `预计 ${fmtTime(p.destArr)} 进站 → ${p.train.finalBadge || p.train.name.split(' ')[0]}`
+          : `⏰ ${fmtTime(card.L.dl.time)} 前到「${p.place.shortName || p.place.name}」· 预计 ${fmtTime(p.destArr)}`;
+      }
+      if (dockGps) {
+        const gm = gpsStatusModel();
+        dockGps.className = `cp-dock-gps ${gm.cls}`;
+        dockGps.textContent = gm.dockTxt;
+        dockGps.style.display = state.gpsActive ? 'inline-flex' : 'none';
+      }
+      return card;
+    }
+
+    function bindNowCard(root) {
+      root.querySelector('#cp-jump-deadline')?.addEventListener('click', () => switchTab('deadline', false));
+      root.querySelectorAll('[data-stop]').forEach(btn => btn.addEventListener('click', () => cycleStopStatus(btn.dataset.stop)));
+      root.querySelectorAll('[data-live-apply]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const r = lastNowCard && (btn.dataset.liveApply === 'tight' ? lastNowCard.L.tight : lastNowCard.L.best);
+          if (r) applyLiveRoute(r);
+        })
+      );
+      root.querySelectorAll('[data-addback]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.addback;
+          state.live.status[id] = 'want';
+          state.enabledNodes[id] = true;
+          saveState();
+          render();
+        })
+      );
+    }
+
+    // 30 s live heartbeat for countdowns & leave alerts
     setInterval(() => {
-      if (document.visibilityState === 'visible') refreshNowCard();
+      if (document.visibilityState === 'visible') {
+        const sim = simulateSchedule({});
+        const delayMin = getDelayVsBaseline();
+        const showReplan = sim.riskLevel !== 'ok' || delayMin >= 20 || state.activePlanId !== 'current' || state.emergencyMode;
+        refreshNowCard(showReplan);
+      }
     }, 30000);
 
     // Main Render
     function render() {
       lastRenderedGpsFresh = isGpsFresh();
+      const clockCtx = getClockContext();
       const sim = simulateSchedule({});
       const delayMin = getDelayVsBaseline();
       const showReplan = sim.riskLevel !== 'ok' || delayMin >= 20 || state.activePlanId !== 'current' || state.emergencyMode;
@@ -2175,7 +2620,7 @@
       const customWishVal = (document.getElementById('cp-ai-wish') && document.getElementById('cp-ai-wish').value) || '';
       const aiPrompt = buildAiEmergencyPrompt(sim, delayMin, customWishVal);
 
-      // Preserve open state of <details> folds across re-renders
+      const openCheckinFold = document.getElementById('cp-fold-checkin')?.open || false;
       const openAlertsFold = document.getElementById('cp-fold-alerts')?.open || false;
       const openAiFold = document.getElementById('cp-fold-ai')?.open || false;
       const curTimeInput =
@@ -2184,23 +2629,42 @@
       const curSelectedNode = document.getElementById('cp-node-sel')?.value || suggestNextCheckinNodeId();
 
       const delayBadgeCls = sim.riskLevel === 'err' ? 'err' : sim.riskLevel === 'warn' || delayMin >= 25 ? 'warn' : 'ok';
-      const delaySign = delayMin > 0 ? `+${delayMin}分` : delayMin < 0 ? `${delayMin}分` : '准点 ±0分';
 
-      // Update Sticky Bottom Dock
-      const dockBadge = document.getElementById('cp-dock-badge');
-      const dockSub = document.getElementById('cp-dock-sub');
       const dockGuard = document.getElementById('cp-dock-guard');
       if (dockGuard) {
         dockGuard.className = 'cp-dock-btn' + (state.guardActive ? ' guard-on' : '');
-        dockGuard.textContent = state.guardActive ? '🛡️ 护航中' : '🛡️ 开启护航';
+        dockGuard.textContent = state.guardActive ? '🛡️ 护航中' : '🛡️ 护航';
       }
 
-      // Replay scenarios bar (e.g., 11/25 post-mortem test!)
+      // Clock Context Strip: crystal-clear explanation when in Preview/Archive or Replay Simulation!
+      let clockBarHtml = '';
+      if (clockCtx.mode === 'sim') {
+        clockBarHtml = `
+          <div class="cp-clock-bar sim">
+            <span>🧪 <b>演练模拟模式：</b>当前假定时间为 <b>${fmtTime(clockCtx.now)}</b>（${escapeHtml(state.anchor.reason || '手动模拟')}）</span>
+            <button type="button" id="cp-exit-sim">切回正常基准</button>
+          </div>`;
+      } else if (clockCtx.mode === 'preview') {
+        clockBarHtml = `
+          <div class="cp-clock-bar">
+            <span>📋 <b>${clockCtx.isPastToday ? '今日行程已过死线・当前为复盘预览' : '行前预览模式'}：</b>按计划起点 <b>${fmtTime(
+          clockCtx.now
+        )}</b> 推演</span>
+            <button type="button" id="cp-force-live">▶ 按现在 ${fmtTime(clockCtx.realNow)} 实测倒推</button>
+          </div>`;
+      } else if (state.forceRealClock) {
+        clockBarHtml = `
+          <div class="cp-clock-bar">
+            <span>🟢 <b>实时倒推运行中：</b>按当前真实时刻 <b>${fmtTime(clockCtx.realNow)}</b> 动态计算</span>
+            <button type="button" id="cp-exit-live">切回 ${fmtTime(config.defaultDepMin || 600)} 基准预览</button>
+          </div>`;
+      }
+
       const replayHtml =
         config.replayScenarios && config.replayScenarios.length
           ? `<div class="cp-replay-bar">
               <div class="cp-replay-title">
-                <span>🧪 实况痛点演练 / 一键复盘模拟（点一下立即测试风险预警与自动重排）</span>
+                <span>🧪 痛点演练 / 一键模拟晚点（测试强提醒弹窗与 3 套自动重排）</span>
               </div>
               <div class="cp-replay-btns">
                 ${config.replayScenarios
@@ -2209,403 +2673,371 @@
                       `<button type="button" class="cp-chip ${sc.cls || ''}" data-replay="${idx}">${sc.label}</button>`
                   )
                   .join('')}
-                <button type="button" class="cp-chip ok" id="cp-reset-btn">🔄 重置回出发前待命</button>
+                <button type="button" class="cp-chip ok" id="cp-reset-btn">🔄 重置初始状态</button>
               </div>
             </div>`
           : '';
 
       mount.innerHTML = `
         <div class="cp-shell state-${delayBadgeCls}">
-          <div id="cp-now-wrap"></div>
-          ${replayHtml}
+          <!-- Always-Visible Top GPS Live Status & Verification Bar -->
+          <div class="cp-top-bar" id="cp-gps-bar-wrap">${renderGpsBarHtml()}</div>
 
-          <!-- 1. Pre-Flight Anti-Trap Gate -->
-          <div class="cp-gate ${allLockedReady ? 'ready' : 'locked'} ${state.preFlight.collapsed ? 'collapsed' : ''}" id="cp-gate-box">
-            <div class="cp-gate-hd" id="cp-gate-toggle">
-              <b>${
-                allLockedReady
-                  ? (config.gateLabels && config.gateLabels.readyTitle) || '✅ 发车防呆核查已通过（收费高速开启＋ETC就位）'
-                  : (config.gateLabels && config.gateLabels.lockedTitle) || '🛑 发车前必做 2 项防呆锁扣（严防忘开地图ETC误入山路！）'
-              }</b>
-              <span class="tag ${allLockedReady ? 'ok' : 'warn'}">${state.preFlight.collapsed ? '展开 ▼' : '收起 ▲'}</span>
-            </div>
-            <div class="cp-gate-body">
-              <label class="cp-lock-item">
-                <input type="checkbox" id="cp-chk-tolls" ${state.preFlight.tollsOn ? 'checked' : ''}>
-                <span><b>${(config.gateLabels && config.gateLabels.lock1Title) || '① 已关闭 Google Maps「避开收费公路 / 避开高速公路」：'}</b>${
-                  config.tollReminder ||
-                  '点开导航蓝线必须看到「有料/收费」标志！<span class="danger-inline">若未开启收费路，导航会把你导进限速低、弯急危险的山路并直接晚点 1.5 小时！</span>'
-                }</span>
-              </label>
-              <label class="cp-lock-item">
-                <input type="checkbox" id="cp-chk-etc" ${state.preFlight.etcReady ? 'checked' : ''}>
-                <span><b>${(config.gateLabels && config.gateLabels.lock2Title) || '② 车载 ETC 绿灯亮起 ＋ 零钱硬币放杯架：'}</b>${
-                  config.etcCashReminder || '启动车辆确认 ETC 读卡器绿灯提示音，纯现金收费站零钱提前备妥。'
-                }</span>
-              </label>
-              <div>
-                <div style="font-size:12px;font-weight:700;color:var(--cp-soft);margin-bottom:4px">
-                  ${(config.gateLabels && config.gateLabels.paceTitle) || '③ 预设真实行车节奏系数（把低于限速慢行、短暂歇脚缓冲提前算进时间表！）'}
-                </div>
-                <div class="cp-pace-row">
-                  ${(
-                    config.pacePresets || [
-                      [1.0, '1.00× 理想畅通', '纯高速老手基准'],
-                      [1.2, '1.20× 稳健实况(推荐)', '含慢行/短暂歇脚'],
-                      [1.35, '1.35× 谨慎/山路/雨雾', '低速防堵大缓冲']
-                    ]
-                  )
-                    .map(
-                      ([val, t1, t2]) =>
-                        `<button type="button" class="cp-pace-btn ${Math.abs(state.paceFactor - val) < 0.03 ? 'on' : ''}" data-pace="${val}"><b>${t1}</b>${t2}</button>`
-                    )
-                    .join('')}
-                </div>
-              </div>
-            </div>
+          <!-- Clean 2-Tab Switcher (No 3,000px Vertical Duplication!) -->
+          <div class="cp-tabs" role="tablist">
+            <button type="button" class="cp-tab ${state.activeTab === 'live' ? 'on' : ''}" data-cp-tab="live" role="tab" aria-selected="${
+        state.activeTab === 'live'
+      }">🧭 此刻护航＆打卡</button>
+            <button type="button" class="cp-tab ${state.activeTab === 'deadline' ? 'on' : ''}" data-cp-tab="deadline" role="tab" aria-selected="${
+        state.activeTab === 'deadline'
+      }">⏰ 自由死线倒推</button>
           </div>
 
-          <!-- 2. Live Progress KPI Hero -->
-          <div class="cp-status-hero">
-            <div class="cp-stat ${delayBadgeCls}">
-              <div class="k">当前进度偏差</div>
-              <div class="v">${delaySign}</div>
-              <div class="s">${escapeHtml(state.anchor.reason || '基准计划')}</div>
-            </div>
-            <div class="cp-stat ${sim.riskLevel}">
-              <div class="k">${escapeHtml((config.deadlineSpec && config.deadlineSpec.finalDestLabel) || '终点预计抵达')}</div>
-              <div class="v">${
-                sim.emergency
-                  ? fmtTime(sim.destArr)
-                  : sim.matchedTrain && sim.matchedTrain.finalArr
-                  ? escapeHtml(sim.matchedTrain.finalArr)
-                  : !sim.matchedTrain && config.deadlineSpec && config.deadlineSpec.missFinalArr
-                  ? escapeHtml(config.deadlineSpec.missFinalArr)
-                  : fmtTime(sim.destArr)
-              }</div>
-              <div class="s">${
-                sim.emergency
-                  ? escapeHtml((sim.emSpec && sim.emSpec.shortBadge) || '直抵成田出发层')
-                  : sim.matchedTrain
-                  ? sim.matchedTrain.finalArr
-                    ? `${fmtTime(sim.destArr)}进站 → ${sim.matchedTrain.name.split(' ')[0]}発`
-                    : `赶 ${sim.matchedTrain.name.split(' ')[0]} (余${sim.bufferMin}m)`
-                  : config.deadlineSpec && config.deadlineSpec.missFinalArr
-                  ? `${fmtTime(sim.destArr)}才到站・已失守末班`
-                  : `缓冲 ${sim.bufferMin} 分钟`
-              }</div>
-            </div>
-            <div class="cp-stat">
-              <div class="k">${config.mode === 'transit' ? '步行/换乘系数' : '车速折算系数'}</div>
-              <div class="v">${state.paceFactor.toFixed(2)}×</div>
-              <div class="s">${
-                state.observedPace ? `前半段实测 ${state.observedPace}×` : '可随时按实况切换'
-              }</div>
-            </div>
-            <div class="cp-stat ${state.guardActive ? 'ok' : ''}">
-              <div class="k">手机强提醒护航</div>
-              <div class="v">${state.guardActive ? '🛡️ 常亮开启' : '待开启'}</div>
-              <div class="s">${globalPrefs.barkKeys ? 'Bark已配' : '支持日历/语音/Bark'}</div>
-            </div>
-          </div>
+          <!-- TAB 1: Unified Live Co-Pilot -->
+          <div class="cp-pane" id="cp-pane-live" ${state.activeTab === 'live' ? '' : 'hidden'}>
+            ${clockBarHtml}
+            ${replayHtml}
 
-          <!-- 3. 1-Second Check-in & Live GPS Box -->
-          <div class="cp-report-box">
-            <div class="cp-report-top">
-              <div class="cp-field">
-                <label for="cp-node-sel">📍 选择当前所在 / 刚到的节点</label>
-                <select id="cp-node-sel">
-                  ${config.nodes
-                    .filter(n => n.role !== 'after')
-                    .map(
-                      n =>
-                        `<option value="${n.id}" ${n.id === curSelectedNode ? 'selected' : ''}>${
-                          n.shortName || n.name
-                        }${baselineMap[n.id] ? `（原计划 ${fmtTime(n.role === 'origin' ? baselineMap[n.id].dep : baselineMap[n.id].arr)}）` : ''}</option>`
-                    )
-                    .join('')}
-                </select>
-              </div>
-              <div class="cp-field">
-                <label for="cp-time-input">⌚ 实际时间（可改时间模拟）</label>
-                <div class="cp-time-wrap">
-                  <input type="time" id="cp-time-input" value="${curTimeInput}">
-                  <button type="button" class="cp-now-btn" id="cp-use-now">取当前</button>
-                </div>
-              </div>
-            </div>
+            <!-- Unified Live Navigation & Stop Status Card -->
+            <div id="cp-now-wrap"></div>
 
-            <div class="cp-primary-actions">
-              <button type="button" class="cp-act-btn arr" id="cp-btn-arr">📍 我刚到这里（重算后续）</button>
-              <button type="button" class="cp-act-btn dep" id="cp-btn-dep">🚀 刚从这出发（重算后续）</button>
-            </div>
-
-            <div class="cp-quick-bumps">
-              ${(
-                config.bumpPresets || [
-                  [15, '临时停车休息 +15分', '☕ 临时休息 +15m'],
-                  [15, '走错路口重导 +15分', '🔄 走错路 +15m'],
-                  [20, '拥堵/低速慢行 +20分', '🐢 堵车慢行 +20m'],
-                  [-10, '路段顺畅追回 10分', '⚡ 顺畅追回 -10m']
-                ]
-              )
-                .map(
-                  ([bMin, bWhy, bTxt]) =>
-                    `<button type="button" class="cp-bump" data-bump="${bMin}" data-why="${escapeAttr(bWhy)}">${escapeHtml(bTxt)}</button>`
-                )
-                .join('')}
-            </div>
-
-            <div class="cp-gps-strip">
-              <div>
-                ${
-                  state.gpsInfo
-                    ? `🛰️ 实时定位：距下一站约 <b>${state.gpsInfo.remKm ?? '--'}km</b>｜速度 <b>${
-                        state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '测算中'
-                      }</b>｜邻近 ${escapeHtml(state.gpsInfo.nearestName)}${
-                        state.gpsInfo.slowRoadWarn && isGpsFresh() && config.mode !== 'transit'
-                          ? '<br><b style="color:var(--cp-err)">⚠️ 车速持续低于32km/h！请核查是否未上ETC收费高速或遇严重拥堵！</b>'
-                          : ''
-                      }`
-                    : `🛰️ 自动监测：开启后进站自动打卡，并实时测算剩余时间与死线风险`
-                }
-                ${gpsFreshHtml()}
-              </div>
-              <button type="button" class="cp-gps-toggle ${state.gpsActive ? 'on' : ''}" id="cp-gps-btn">
-                ${state.gpsActive ? '🛰️ GPS监测中(点击关闭)' : '🛰️ 开启GPS实时监测'}
-              </button>
-            </div>
-          </div>
-
-          <!-- 4. Live Risk Verdict & Restaurant Last-Order Trap Guard -->
-          <div class="cp-diag ${sim.riskLevel}">
-            <div class="cp-diag-title">${sim.headline}</div>
-            <div style="font-size:12px;opacity:.92">
-              当前推演路线：${
-                sim.emergency
-                  ? `<b>${escapeHtml(sim.emSpec.title)}</b>`
-                  : sim.timeline
-                      .map(x => `${fmtTime(x.arr)} ${escapeHtml(x.node.shortName || x.node.name)}`)
-                      .join(' → ')
-              }
-            </div>
+            <!-- Restaurant L.O. Warnings (only when at risk) -->
             ${
-              mealAlerts.length && (delayMin >= 20 || mealAlerts.some(m => m.isRisk))
-                ? `<div class="cp-lo-list">
-                    <div style="font-size:12px;font-weight:700;margin-top:3px">${escapeHtml(
-                      config.guardListTitle || '🍽️ 餐厅营业与最后点单（L.O.）实时排雷：'
-                    )}</div>
-                    ${mealAlerts
-                      .map(
-                        m =>
-                          `<div class="cp-lo-item ${m.isRisk ? 'risk' : ''}"><b>${escapeHtml(m.name)}：</b>${escapeHtml(
-                            m.statusTxt
-                          )}</div>`
-                      )
-                      .join('')}
+              mealAlerts.some(m => m.isRisk)
+                ? `<div class="cp-diag warn" style="margin-bottom:12px">
+                    <div class="cp-lo-list" style="margin-top:0">
+                      <div style="font-size:12px;font-weight:700">${escapeHtml(
+                        config.guardListTitle || '🍽️ 餐厅营业与最后点单（L.O.）实时排雷：'
+                      )}</div>
+                      ${mealAlerts
+                        .map(
+                          m =>
+                            `<div class="cp-lo-item ${m.isRisk ? 'risk' : ''}"><b>${escapeHtml(m.name)}：</b>${escapeHtml(
+                              m.statusTxt
+                            )}</div>`
+                        )
+                        .join('')}
+                    </div>
                   </div>`
                 : ''
             }
-          </div>
 
-          <!-- 5. Dynamic 3-Option Re-Plan Engine (auto-appears whenever delayed >=20m or at risk!) -->
-          ${
-            proposals.length
-              ? `<div class="cp-plans-wrap" id="cp-plans-anchor">
-                  <div class="cp-plans-hd">
-                    <h3>🧭 动态重排引擎：为您定制的 ${proposals.length} 套后续更优方案</h3>
-                    <span class="tag ${sim.riskLevel === 'err' ? 'err' : 'warn'}">点选即刻更新全页路线与提醒</span>
+            <!-- Dynamic 3-Option Re-Plan Engine (auto-appears when delayed or at risk) -->
+            ${
+              proposals.length
+                ? `<div class="cp-plans-wrap" id="cp-plans-anchor">
+                    <div class="cp-plans-hd">
+                      <h3>🧭 晚点止损重排：为您定制的 ${proposals.length} 套后续方案</h3>
+                      <span class="tag ${sim.riskLevel === 'err' ? 'err' : 'warn'}">点选即刻同步全页</span>
+                    </div>
+                    <div class="cp-plans-grid">
+                      ${proposals
+                        .map((p, idx) => {
+                          const nextNavNode = p.sim.emergency
+                            ? { navUrl: p.sim.emSpec.navUrl, navLabel: p.sim.emSpec.navLabel }
+                            : p.sim.timeline.find(x => x.status === 'upcoming')?.node ||
+                              p.sim.timeline[p.sim.timeline.length - 1]?.node;
+                          return `
+                          <div class="cp-plan-card ${state.activePlanId === p.id ? 'active' : p.rec ? 'rec' : ''}">
+                            <div class="cp-plan-top">
+                              <div class="cp-plan-name">${escapeHtml(p.name)}</div>
+                              <span class="cp-plan-eta">${
+                                p.sim.matchedTrain && p.sim.matchedTrain.finalBadge
+                                  ? escapeHtml(p.sim.matchedTrain.finalBadge)
+                                  : p.sim.emergency && p.sim.emSpec && p.sim.emSpec.destBadgePrefix
+                                  ? `${escapeHtml(p.sim.emSpec.destBadgePrefix)} ${fmtTime(p.sim.destArr)}`
+                                  : `终点 ${fmtTime(p.sim.destArr)}`
+                              }</span>
+                            </div>
+                            <div class="cp-plan-summary">${escapeHtml(p.summary)}</div>
+                            <div class="cp-plan-pills">
+                              ${p.pills.map(pl => `<span class="cp-pill ${pl.cls}">${escapeHtml(pl.txt)}</span>`).join('')}
+                            </div>
+                            <div class="cp-plan-legs">
+                              ${
+                                p.sim.emergency
+                                  ? p.sim.timeline
+                                      .map(
+                                        lg =>
+                                          `<div class="cp-plan-leg"><code>${fmtTime(lg.arr)}${
+                                            lg.stay ? '–' + fmtTime(lg.dep) : ''
+                                          }</code><span>${escapeHtml(lg.node.shortName || lg.node.name)}${
+                                            lg.stay ? `（停${lg.stay}m）` : ''
+                                          }</span></div>`
+                                      )
+                                      .join('') +
+                                    `<div class="cp-plan-leg"><code>${escapeHtml(
+                                      (p.sim.emSpec && p.sim.emSpec.legCode) || '直达终点'
+                                    )}</code><span>${escapeHtml(
+                                      p.sim.emSpec && p.sim.emSpec.legDescFn
+                                        ? p.sim.emSpec.legDescFn(
+                                            fmtTime(p.sim.destArr),
+                                            fmtTime(p.sim.emStartDep || p.sim.destArr)
+                                          )
+                                        : `${fmtTime(p.sim.destArr)} 抵成田出发大厅 → 送完约 ${fmtTime(p.sim.homeArr)} 回自宅`
+                                    )}</span></div>`
+                                  : p.sim.timeline
+                                      .map(
+                                        lg =>
+                                          `<div class="cp-plan-leg"><code>${fmtTime(lg.arr)}${
+                                            lg.stay ? '–' + fmtTime(lg.dep) : ''
+                                          }</code><span>${escapeHtml(lg.node.shortName || lg.node.name)}${
+                                            lg.stay ? `（停${lg.stay}m）` : ''
+                                          }</span></div>`
+                                      )
+                                      .join('')
+                              }
+                            </div>
+                            <div class="cp-plan-btns">
+                              <button type="button" class="cp-plan-apply" data-plan-idx="${idx}">
+                                ${state.activePlanId === p.id ? '✅ 当前已启用此方案' : '⚡ 一键套用此方案'}
+                              </button>
+                              ${
+                                nextNavNode && nextNavNode.navUrl
+                                  ? `<a class="cp-plan-nav" href="${nextNavNode.navUrl}" target="_blank" rel="noopener">🧭 ${escapeHtml(
+                                      nextNavNode.navLabel || '启动下一段导航'
+                                    )}</a>`
+                                  : ''
+                              }
+                              <button type="button" class="cp-plan-wx" data-wx-idx="${idx}">📋 复制群通知</button>
+                            </div>
+                          </div>`;
+                        })
+                        .join('')}
+                    </div>
+                  </div>`
+                : ''
+            }
+
+            <!-- Pre-Flight Anti-Trap Gate (auto-collapses once both locks are checked) -->
+            <div class="cp-gate ${allLockedReady ? 'ready' : 'locked'} ${state.preFlight.collapsed ? 'collapsed' : ''}" id="cp-gate-box">
+              <div class="cp-gate-hd" id="cp-gate-toggle">
+                <b>${
+                  allLockedReady
+                    ? (config.gateLabels && config.gateLabels.readyTitle) || '✅ 出发防呆核查已通过（收费高速开启＋ETC就位）'
+                    : (config.gateLabels && config.gateLabels.lockedTitle) || '🛑 出发前必勾 2 项防呆锁扣（严防忘开地图ETC误入山路！）'
+                }</b>
+                <span class="tag ${allLockedReady ? 'ok' : 'warn'}">${state.preFlight.collapsed ? '展开 ▼' : '收起 ▲'}</span>
+              </div>
+              <div class="cp-gate-body">
+                <label class="cp-lock-item">
+                  <input type="checkbox" id="cp-chk-tolls" ${state.preFlight.tollsOn ? 'checked' : ''}>
+                  <span><b>${(config.gateLabels && config.gateLabels.lock1Title) || '① 已关闭 Google Maps「避开收费公路 / 避开高速公路」：'}</b>${
+        config.tollReminder ||
+        '点开导航蓝线必须看到「有料/收费」标志！<span class="danger-inline">若未开启收费路，导航会把你导进限速低、弯急危险的山路并直接晚点 1.5 小时！</span>'
+      }</span>
+                </label>
+                <label class="cp-lock-item">
+                  <input type="checkbox" id="cp-chk-etc" ${state.preFlight.etcReady ? 'checked' : ''}>
+                  <span><b>${(config.gateLabels && config.gateLabels.lock2Title) || '② 车载 ETC 绿灯亮起 ＋ 零钱硬币放杯架：'}</b>${
+        config.etcCashReminder || '启动车辆确认 ETC 读卡器绿灯提示音，纯现金收费站零钱提前备妥。'
+      }</span>
+                </label>
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--cp-soft);margin-bottom:4px">
+                    ${(config.gateLabels && config.gateLabels.paceTitle) || '③ 预设真实行车节奏系数（把慢行与休息缓冲提前算进时间表）'}
                   </div>
-                  <div class="cp-plans-grid">
-                    ${proposals
-                      .map((p, idx) => {
-                        const nextNavNode = p.sim.emergency
-                          ? { navUrl: p.sim.emSpec.navUrl, navLabel: p.sim.emSpec.navLabel }
-                          : p.sim.timeline.find(x => x.status === 'upcoming')?.node ||
-                            p.sim.timeline[p.sim.timeline.length - 1]?.node;
-                        return `
-                        <div class="cp-plan-card ${state.activePlanId === p.id ? 'active' : p.rec ? 'rec' : ''}">
-                          <div class="cp-plan-top">
-                            <div class="cp-plan-name">${escapeHtml(p.name)}</div>
-                            <span class="cp-plan-eta">${
-                              p.sim.matchedTrain && p.sim.matchedTrain.finalBadge
-                                ? escapeHtml(p.sim.matchedTrain.finalBadge)
-                                : p.sim.emergency && p.sim.emSpec && p.sim.emSpec.destBadgePrefix
-                                ? `${escapeHtml(p.sim.emSpec.destBadgePrefix)} ${fmtTime(p.sim.destArr)}`
-                                : `终点 ${fmtTime(p.sim.destArr)}`
-                            }</span>
-                          </div>
-                          <div class="cp-plan-summary">${escapeHtml(p.summary)}</div>
-                          <div class="cp-plan-pills">
-                            ${p.pills.map(pl => `<span class="cp-pill ${pl.cls}">${escapeHtml(pl.txt)}</span>`).join('')}
-                          </div>
-                          <div class="cp-plan-legs">
-                            ${
-                              p.sim.emergency
-                                ? p.sim.timeline
-                                    .map(
-                                      lg =>
-                                        `<div class="cp-plan-leg"><code>${fmtTime(lg.arr)}${
-                                          lg.stay ? '–' + fmtTime(lg.dep) : ''
-                                        }</code><span>${escapeHtml(lg.node.shortName || lg.node.name)}${
-                                          lg.stay ? `（停${lg.stay}m）` : ''
-                                        }</span></div>`
-                                    )
-                                    .join('') +
-                                  `<div class="cp-plan-leg"><code>${escapeHtml(
-                                    (p.sim.emSpec && p.sim.emSpec.legCode) || '直达航站楼'
-                                  )}</code><span>${escapeHtml(
-                                    p.sim.emSpec && p.sim.emSpec.legDescFn
-                                      ? p.sim.emSpec.legDescFn(fmtTime(p.sim.destArr), fmtTime(p.sim.emStartDep || p.sim.destArr))
-                                      : `${fmtTime(p.sim.destArr)} 抵成田出发大厅 → 送完约 ${fmtTime(p.sim.homeArr)} 回自宅`
-                                  )}</span></div>`
-                                : p.sim.timeline
-                                    .map(
-                                      lg =>
-                                        `<div class="cp-plan-leg"><code>${fmtTime(lg.arr)}${
-                                          lg.stay ? '–' + fmtTime(lg.dep) : ''
-                                        }</code><span>${escapeHtml(lg.node.shortName || lg.node.name)}${
-                                          lg.stay ? `（停${lg.stay}m）` : ''
-                                        }</span></div>`
-                                    )
-                                    .join('')
-                            }
-                          </div>
-                          <div class="cp-plan-btns">
-                            <button type="button" class="cp-plan-apply" data-plan-idx="${idx}">
-                              ${state.activePlanId === p.id ? '✅ 当前已启用此方案' : '⚡ 一键套用此方案'}
-                            </button>
-                            ${
-                              nextNavNode && nextNavNode.navUrl
-                                ? `<a class="cp-plan-nav" href="${nextNavNode.navUrl}" target="_blank" rel="noopener">🧭 ${escapeHtml(
-                                    nextNavNode.navLabel || '启动下一段导航'
-                                  )}</a>`
-                                : ''
-                            }
-                            <button type="button" class="cp-plan-wx" data-wx-idx="${idx}">📋 复制群通知</button>
-                          </div>
-                        </div>`;
-                      })
+                  <div class="cp-pace-row">
+                    ${(
+                      config.pacePresets || [
+                        [1.0, '1.00× 理想畅通', '纯高速老手基准'],
+                        [1.2, '1.20× 稳健实况(推荐)', '含慢行/短暂歇脚'],
+                        [1.35, '1.35× 谨慎/山路/雨雾', '低速防堵大缓冲']
+                      ]
+                    )
+                      .map(
+                        ([val, t1, t2]) =>
+                          `<button type="button" class="cp-pace-btn ${Math.abs(state.paceFactor - val) < 0.03 ? 'on' : ''}" data-pace="${val}"><b>${t1}</b>${t2}</button>`
+                      )
                       .join('')}
                   </div>
-                </div>`
-              : ''
-          }
-
-          <!-- 6. 4-Channel Strong Phone Alert Hub -->
-          <details class="cp-fold" id="cp-fold-alerts" ${openAlertsFold ? 'open' : ''}>
-            <summary>
-              <span>📲 手机「四通道强提醒」设置中心（系统日历闹钟 / 语音常亮 / iPhone Bark突破静音 / 主屏幕通知）</span>
-              <span class="tag blue">展开配置 ▼</span>
-            </summary>
-            <div class="cp-fold-body">
-              <div class="cp-chan">
-                <div class="cp-chan-hd">
-                  <b>① 手机系统日历（.ics）关键死线双闹钟（锁屏 / CarPlay 100% 强弹窗）</b>
-                  <span class="tag ok">零安装最稳</span>
-                </div>
-                <p>根据当前激活的时间表（重排后点此可更新！），在 iPhone/Android 系统日历写入「发车防呆＋途中核查＋每站最晚发车死线」，每站提前 15 分钟＋到点两次系统级响铃弹窗，绝不怕微信/网页杀后台！</p>
-                <div class="cp-sm-btns">
-                  <button type="button" class="cp-sm-btn ok" id="cp-dl-ics">📅 一键导入当前行程死线闹钟 (.ics)</button>
-                </div>
-              </div>
-
-              <div class="cp-chan">
-                <div class="cp-chan-hd">
-                  <b>② 网页「副驾常亮护航」：屏幕不息屏 ＋ 车载警示音 ＋ 中文语音播报</b>
-                  <span class="tag ${state.guardActive ? 'ok' : 'warn'}">${state.guardActive ? '运行中' : '支架推荐'}</span>
-                </div>
-                <p>手机插电放中控架上开启：自动锁定屏幕常亮（WakeLock），逼近每站发车死线或晚点超阈值时自动播放双音警报并语音播报调整建议。</p>
-                <div class="cp-sm-btns">
-                  <button type="button" class="cp-sm-btn pri" id="cp-toggle-guard-2">
-                    ${state.guardActive ? '⏹️ 关闭副驾常亮护航' : '🛡️ 开启副驾常亮护航（解锁语音）'}
-                  </button>
-                  <button type="button" class="cp-sm-btn acc" id="cp-test-voice">🔔 测试强提醒（声音＋语音＋弹窗）</button>
-                </div>
-              </div>
-
-              <div class="cp-chan">
-                <div class="cp-chan-hd">
-                  <b>③ iPhone Bark 强推送 ＆ 同车 ntfy 广播（支持锁屏置顶 / 突破静音响铃！）</b>
-                  <span class="tag err">支持突破静音</span>
-                </div>
-                <p>iPhone 免费安装 <b>Bark</b> App 复制 Key 填入下方（可填多个逗号分隔，司机副驾同收）；选「突破静音响铃」后，一旦发生严重延误会自动向手机发送强制最大音量警报并附带新路线导航直链！Android/跨平台也可填 <b>ntfy.sh</b> 暗号频道。</p>
-                <div class="cp-inline-inputs">
-                  <input type="text" id="cp-bark-input" placeholder="填入 Bark Key 或 https://api.day.app/你的Key（支持多个逗号分隔）" value="${escapeAttr(
-                    globalPrefs.barkKeys
-                  )}">
-                  <select id="cp-bark-level">
-                    <option value="critical" ${globalPrefs.barkLevel === 'critical' ? 'selected' : ''}>🚨 紧急突破静音持续响铃 (Critical)</option>
-                    <option value="timeSensitive" ${globalPrefs.barkLevel === 'timeSensitive' ? 'selected' : ''}>🔔 穿透专注模式时效通知</option>
-                  </select>
-                </div>
-                <div class="cp-inline-inputs">
-                  <input type="text" id="cp-ntfy-input" placeholder="可选：同车队 ntfy.sh 频道名（如 ken-izu-1125）" value="${escapeAttr(
-                    globalPrefs.ntfyTopic
-                  )}">
-                </div>
-                <div class="cp-sm-btns">
-                  <button type="button" class="cp-sm-btn pri" id="cp-save-push">💾 保存并发送测试推送到手机</button>
-                  <button type="button" class="cp-sm-btn" id="cp-copy-shortcut-url">🔗 复制 iOS 快捷指令自动打卡链接</button>
-                </div>
-              </div>
-
-              <div class="cp-chan">
-                <div class="cp-chan-hd">
-                  <b>④ 添加到主屏幕 PWA 原生通知 ＆ 隧道离线秒开</b>
-                  <span class="tag blue">离线防失联</span>
-                </div>
-                <p>iPhone Safari 点底部分享按钮 <code>[↑]</code> → <b>「添加到主屏幕」</b>（Android 直接点下方安装），即可开启系统级原生通知权限，且进海底隧道/深山无信号也能秒开攻略与重排引擎！</p>
-                <div class="cp-sm-btns">
-                  <button type="button" class="cp-sm-btn pri" id="cp-req-notif">🔔 开启浏览器/主屏幕原生通知权限</button>
-                  <button type="button" class="cp-sm-btn ok" id="cp-pwa-install-btn" style="display:${
-                    deferredInstallPrompt ? 'inline-flex' : 'none'
-                  }">📲 一键安装到手机主屏幕</button>
                 </div>
               </div>
             </div>
-          </details>
 
-          <!-- 7. AI Deep Live Re-Planning Drawer -->
-          <details class="cp-fold" id="cp-fold-ai" ${openAiFold ? 'open' : ''}>
-            <summary>
-              <span>🤖 AI 深度实时改道急救台（遇临时封路 / 想换附近餐厅 / 特殊变数）</span>
-              <span class="tag ok">自动打包坐标与死线 ▼</span>
-            </summary>
-            <div class="cp-fold-body">
-              <div class="cp-chan">
-                <p>已自动将你们的<b>当前时间、GPS 坐标、已完结节点、实测慢速系数、硬死线列车/入住约束、新手宽路导航规则</b>打包成急救指令。你可以补充一句话诉求，一键发给任意 AI 秒拿带防坑 Google Maps 链接的新方案：</p>
-                <div class="cp-inline-inputs">
-                  <input type="text" id="cp-ai-wish" placeholder="可选补充诉求：例「刚在小田原吃完饭13:50，想顺路找个高速SA喝咖啡并保16:05送机」" value="${escapeAttr(
-                    customWishVal
-                  )}">
+            <!-- Fine-Grained Time Check-in & Delay Bump Drawer -->
+            <details class="cp-fold" id="cp-fold-checkin" ${openCheckinFold ? 'open' : ''}>
+              <summary>
+                <span>⏱️ 手动指定时间打卡 ／ 延误微调（+10m / +20m）</span>
+                <span class="tag blue">展开操作 ▼</span>
+              </summary>
+              <div class="cp-fold-body">
+                <div class="cp-report-box" style="margin-bottom:0">
+                  <div class="cp-report-top">
+                    <div class="cp-field">
+                      <label for="cp-node-sel">📍 选择所在 / 刚到的节点</label>
+                      <select id="cp-node-sel">
+                        ${config.nodes
+                          .filter(n => n.role !== 'after')
+                          .map(
+                            n =>
+                              `<option value="${n.id}" ${n.id === curSelectedNode ? 'selected' : ''}>${
+                                n.shortName || n.name
+                              }${
+                                baselineMap[n.id]
+                                  ? `（原计划 ${fmtTime(n.role === 'origin' ? baselineMap[n.id].dep : baselineMap[n.id].arr)}）`
+                                  : ''
+                              }</option>`
+                          )
+                          .join('')}
+                      </select>
+                    </div>
+                    <div class="cp-field">
+                      <label for="cp-time-input">⌚ 实际/模拟时间</label>
+                      <div class="cp-time-wrap">
+                        <input type="time" id="cp-time-input" value="${curTimeInput}">
+                        <button type="button" class="cp-now-btn" id="cp-use-now">取当前</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cp-primary-actions">
+                    <button type="button" class="cp-act-btn arr" id="cp-btn-arr">📍 我刚到这里（重算后续）</button>
+                    <button type="button" class="cp-act-btn dep" id="cp-btn-dep">🚀 刚从这离开（重算后续）</button>
+                  </div>
+                  <div class="cp-quick-bumps">
+                    ${(
+                      config.bumpPresets || [
+                        [15, '临时停车休息 +15分', '☕ 临时休息 +15m'],
+                        [15, '走错路口重导 +15分', '🔄 走错路 +15m'],
+                        [20, '拥堵/低速慢行 +20分', '🐢 堵车慢行 +20m'],
+                        [-10, '路段顺畅追回 10分', '⚡ 顺畅追回 -10m']
+                      ]
+                    )
+                      .map(
+                        ([bMin, bWhy, bTxt]) =>
+                          `<button type="button" class="cp-bump" data-bump="${bMin}" data-why="${escapeAttr(bWhy)}">${escapeHtml(bTxt)}</button>`
+                      )
+                      .join('')}
+                  </div>
                 </div>
-                <div class="cp-sm-btns">
-                  <button type="button" class="cp-sm-btn acc" id="cp-copy-ai">📋 一键复制 AI 实时急救指令</button>
-                  <a class="cp-sm-btn pri" href="https://chatgpt.com/" target="_blank" rel="noopener" id="cp-open-gpt" style="text-decoration:none">🚀 复制并打开 ChatGPT</a>
-                  <a class="cp-sm-btn" href="https://claude.ai/new" target="_blank" rel="noopener" id="cp-open-claude" style="text-decoration:none">🤖 打开 Claude</a>
-                </div>
-                <pre class="cp-ai-pre" id="cp-ai-preview">${escapeHtml(aiPrompt)}</pre>
+              </div>
+            </details>
 
-                <details style="margin-top:8px;font-size:12px">
-                  <summary style="cursor:pointer;color:var(--cp-soft)">⚙️ 高阶可选：填入自有 API Key 在本页内直接流式生成方案（仅存本机浏览器）</summary>
-                  <div class="cp-inline-inputs" style="margin-top:6px">
-                    <input type="password" id="cp-llm-key" placeholder="Gemini / OpenAI 兼容 API Key（仅保存在本机 localStorage）" value="${escapeAttr(
-                      globalPrefs.llmApiKey
+            <!-- 4-Channel Strong Phone Alert Hub -->
+            <details class="cp-fold" id="cp-fold-alerts" ${openAlertsFold ? 'open' : ''}>
+              <summary>
+                <span>📲 手机「四通道强提醒」设置（系统日历闹钟 / 常亮语音 / Bark突破静音 / 通知）</span>
+                <span class="tag blue">展开配置 ▼</span>
+              </summary>
+              <div class="cp-fold-body">
+                <div class="cp-chan">
+                  <div class="cp-chan-hd">
+                    <b>① 手机系统日历（.ics）关键死线双闹钟（地下B1无信号照样锁屏弹窗！）</b>
+                    <span class="tag ok">零安装最稳</span>
+                  </div>
+                  <p>根据当前激活方案，在系统日历写入每站最晚离店/发车死线（提前 15 分钟＋到点双响铃），不怕浏览器切后台或地下无信号！</p>
+                  <div class="cp-sm-btns">
+                    <button type="button" class="cp-sm-btn ok" id="cp-dl-ics">📅 一键导入当前死线闹钟 (.ics)</button>
+                  </div>
+                </div>
+
+                <div class="cp-chan">
+                  <div class="cp-chan-hd">
+                    <b>② 网页「常亮语音护航」：防息屏 ＋ 警示音 ＋ 中文语音播报</b>
+                    <span class="tag ${state.guardActive ? 'ok' : 'warn'}">${state.guardActive ? '运行中' : '推荐开启'}</span>
+                  </div>
+                  <p>锁定屏幕常亮（WakeLock），逼近离店/发车死线或晚点超阈值时自动播放双音警报并语音播报止损建议。</p>
+                  <div class="cp-sm-btns">
+                    <button type="button" class="cp-sm-btn pri" id="cp-toggle-guard-2">
+                      ${state.guardActive ? '⏹️ 关闭常亮语音护航' : '🛡️ 开启常亮语音护航（解锁语音）'}
+                    </button>
+                    <button type="button" class="cp-sm-btn acc" id="cp-test-voice">🔔 测试强提醒（声音＋语音＋弹窗）</button>
+                  </div>
+                </div>
+
+                <div class="cp-chan">
+                  <div class="cp-chan-hd">
+                    <b>③ iPhone Bark 强推送 ＆ ntfy 广播（支持突破静音持续响铃！）</b>
+                    <span class="tag err">突破静音</span>
+                  </div>
+                  <p>iPhone 安装免费 <b>Bark</b> App 填入 Key（支持多个逗号分隔）；选 Critical 后，发生超时风险会发送突破静音最大音量警报并附带新路线直链！</p>
+                  <div class="cp-inline-inputs">
+                    <input type="text" id="cp-bark-input" placeholder="填入 Bark Key 或 https://api.day.app/你的Key" value="${escapeAttr(
+                      globalPrefs.barkKeys
                     )}">
-                    <input type="text" id="cp-llm-model" placeholder="模型名 (如 gemini-2.5-flash)" value="${escapeAttr(
-                      globalPrefs.llmModel
+                    <select id="cp-bark-level">
+                      <option value="critical" ${globalPrefs.barkLevel === 'critical' ? 'selected' : ''}>🚨 紧急突破静音响铃 (Critical)</option>
+                      <option value="timeSensitive" ${globalPrefs.barkLevel === 'timeSensitive' ? 'selected' : ''}>🔔 穿透专注模式时效通知</option>
+                    </select>
+                  </div>
+                  <div class="cp-inline-inputs">
+                    <input type="text" id="cp-ntfy-input" placeholder="可选：ntfy.sh 频道名（如 ken-trip-1126）" value="${escapeAttr(
+                      globalPrefs.ntfyTopic
                     )}">
                   </div>
-                  <button type="button" class="cp-sm-btn ok" id="cp-run-llm">⚡ 网页内直连 AI 秒出方案</button>
-                  <div class="cp-ai-reply" id="cp-llm-out" style="display:none"></div>
-                </details>
+                  <div class="cp-sm-btns">
+                    <button type="button" class="cp-sm-btn pri" id="cp-save-push">💾 保存并发送测试推送到手机</button>
+                    <button type="button" class="cp-sm-btn" id="cp-copy-shortcut-url">🔗 复制 iOS 快捷指令打卡链接</button>
+                  </div>
+                </div>
+
+                <div class="cp-chan">
+                  <div class="cp-chan-hd">
+                    <b>④ 添加到主屏幕 PWA 原生通知 ＆ 离线秒开</b>
+                    <span class="tag blue">离线缓存</span>
+                  </div>
+                  <p>Safari 点分享 <code>[↑]</code> →「添加到主屏幕」，即可开启原生通知权限，在地下门店或隧道无网也能秒开重排！</p>
+                  <div class="cp-sm-btns">
+                    <button type="button" class="cp-sm-btn pri" id="cp-req-notif">🔔 开启浏览器原生通知权限</button>
+                    <button type="button" class="cp-sm-btn ok" id="cp-pwa-install-btn" style="display:${
+                      deferredInstallPrompt ? 'inline-flex' : 'none'
+                    }">📲 安装到手机主屏幕</button>
+                  </div>
+                </div>
               </div>
+            </details>
+
+            <!-- AI Deep Live Re-Planning Drawer -->
+            <details class="cp-fold" id="cp-fold-ai" ${openAiFold ? 'open' : ''}>
+              <summary>
+                <span>🤖 AI 深度实时改道急救台（临时换店 / 突发改线）</span>
+                <span class="tag ok">自动打包坐标与死线 ▼</span>
+              </summary>
+              <div class="cp-fold-body">
+                <div class="cp-chan">
+                  <p>已自动将<b>当前时间、GPS 坐标、已完结节点、死线列车约束与防坑规则</b>打包成急救指令，一键复制发给 ChatGPT / Claude / Gemini 即可：</p>
+                  <div class="cp-inline-inputs">
+                    <input type="text" id="cp-ai-wish" placeholder="可选补充诉求：例「想在附近换一家不用等的店并稳赶20:53电车」" value="${escapeAttr(
+                      customWishVal
+                    )}">
+                  </div>
+                  <div class="cp-sm-btns">
+                    <button type="button" class="cp-sm-btn acc" id="cp-copy-ai">📋 一键复制 AI 急救指令</button>
+                    <a class="cp-sm-btn pri" href="https://chatgpt.com/" target="_blank" rel="noopener" id="cp-open-gpt" style="text-decoration:none">🚀 复制并打开 ChatGPT</a>
+                    <a class="cp-sm-btn" href="https://claude.ai/new" target="_blank" rel="noopener" id="cp-open-claude" style="text-decoration:none">🤖 打开 Claude</a>
+                  </div>
+                  <pre class="cp-ai-pre" id="cp-ai-preview">${escapeHtml(aiPrompt)}</pre>
+
+                  <details style="margin-top:8px;font-size:12px">
+                    <summary style="cursor:pointer;color:var(--cp-soft)">⚙️ 高阶可选：填入自有 API Key 在页内直接生成方案</summary>
+                    <div class="cp-inline-inputs" style="margin-top:6px">
+                      <input type="password" id="cp-llm-key" placeholder="Gemini / OpenAI 兼容 API Key（仅存本机）" value="${escapeAttr(
+                        globalPrefs.llmApiKey
+                      )}">
+                      <input type="text" id="cp-llm-model" placeholder="模型名 (如 gemini-2.5-flash)" value="${escapeAttr(
+                        globalPrefs.llmModel
+                      )}">
+                    </div>
+                    <button type="button" class="cp-sm-btn ok" id="cp-run-llm">⚡ 网页内直连 AI 秒出方案</button>
+                    <div class="cp-ai-reply" id="cp-llm-out" style="display:none"></div>
+                  </details>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <!-- TAB 2: Dedicated Free-Form Deadline Back-Planner ("几点前必须到哪") -->
+          <div class="cp-pane" id="cp-pane-deadline" ${state.activeTab === 'deadline' ? '' : 'hidden'}>
+            <div class="cp-dlt">
+              <div id="cp-dlt-form"></div>
+              <div id="cp-dlt-result"></div>
             </div>
-          </details>
+          </div>
         </div>
       `;
 
+      renderDeadlineForm();
+      refreshNowCard(proposals.length > 0);
       bindEvents(sim, proposals);
     }
 
@@ -2623,8 +3055,57 @@
       return state.anchor.nodeId;
     }
 
+    function resetAllToBaseline() {
+      state.enabledNodes = Object.assign({}, defaultEnabled);
+      state.stayOverrides = {};
+      state.paceFactor = config.defaultPaceFactor || 1.0;
+      state.emergencyMode = false;
+      state.activePlanId = 'current';
+      state.observedPace = null;
+      state.simClockMin = null;
+      state.forceRealClock = false;
+      state.live = { status: {}, stayMode: 'full', hereMode: 'full', appliedAt: null, deadlines: state.live.deadlines || null };
+      state.anchor = {
+        nodeId: config.nodes[0].id,
+        event: 'dep',
+        timeMin: config.defaultDepMin || 600,
+        extraDelayMin: 0,
+        reason: '行前基准计划'
+      };
+      saveState();
+      if (typeof config.onApplyPlan === 'function') {
+        config.onApplyPlan({
+          enabledNodes: state.enabledNodes,
+          stayOverrides: state.stayOverrides,
+          paceFactor: state.paceFactor,
+          emergencyMode: false,
+          sim: simulateSchedule({})
+        });
+      }
+      render();
+      showPageToast('🔄 已重置回出发前基准状态');
+    }
+
     function bindEvents(sim, proposals) {
-      // Pre-flight gate
+      bindGpsBarEvents(mount);
+
+      mount.querySelectorAll('[data-cp-tab]').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.cpTab, false));
+      });
+
+      document.getElementById('cp-exit-sim')?.addEventListener('click', resetAllToBaseline);
+      document.getElementById('cp-force-live')?.addEventListener('click', () => {
+        state.simClockMin = null;
+        state.forceRealClock = true;
+        render();
+        showPageToast(`🟢 已切换为按当前真实时刻 ${fmtTime(nowLocalMin())} 动态倒推`);
+      });
+      document.getElementById('cp-exit-live')?.addEventListener('click', () => {
+        state.forceRealClock = false;
+        render();
+        showPageToast('📋 已切回行前基准预览模式');
+      });
+
       document.getElementById('cp-gate-toggle')?.addEventListener('click', () => {
         state.preFlight.collapsed = !state.preFlight.collapsed;
         saveState();
@@ -2633,7 +3114,8 @@
       document.getElementById('cp-chk-tolls')?.addEventListener('change', e => {
         state.preFlight.tollsOn = e.target.checked;
         if (state.preFlight.tollsOn && state.preFlight.etcReady) {
-          showPageToast('✅ 防呆核查完成！祝一路顺风！');
+          state.preFlight.collapsed = true;
+          showPageToast('✅ 防呆核查完成！已自动收起');
         }
         saveState();
         render();
@@ -2641,23 +3123,22 @@
       document.getElementById('cp-chk-etc')?.addEventListener('change', e => {
         state.preFlight.etcReady = e.target.checked;
         if (state.preFlight.tollsOn && state.preFlight.etcReady) {
-          showPageToast('✅ 防呆核查完成！祝一路顺风！');
+          state.preFlight.collapsed = true;
+          showPageToast('✅ 防呆核查完成！已自动收起');
         }
         saveState();
         render();
       });
 
-      // Pace buttons
       mount.querySelectorAll('[data-pace]').forEach(btn => {
         btn.addEventListener('click', () => {
           state.paceFactor = parseFloat(btn.dataset.pace);
           saveState();
           render();
-          showPageToast(`已切换车速折算系数为 ${state.paceFactor.toFixed(2)}×`);
+          showPageToast(`已切换节奏折算系数为 ${state.paceFactor.toFixed(2)}×`);
         });
       });
 
-      // Replay scenarios
       mount.querySelectorAll('[data-replay]').forEach(btn => {
         btn.addEventListener('click', () => {
           const sc = config.replayScenarios[Number(btn.dataset.replay)];
@@ -2666,40 +3147,12 @@
           state.stayOverrides = Object.assign({}, sc.stayOverrides || {});
           if (sc.paceFactor != null) state.paceFactor = sc.paceFactor;
           if (sc.tollsOn != null) state.preFlight.tollsOn = sc.tollsOn;
-          recordCheckin(sc.nodeId, sc.event || 'arr', sc.timeMin, sc.reason);
+          recordCheckin(sc.nodeId, sc.event || 'arr', sc.timeMin, sc.reason, { isReplay: true });
         });
       });
 
-      document.getElementById('cp-reset-btn')?.addEventListener('click', () => {
-        state.enabledNodes = Object.assign({}, defaultEnabled);
-        state.stayOverrides = {};
-        state.paceFactor = config.defaultPaceFactor || 1.0;
-        state.emergencyMode = false;
-        state.activePlanId = 'current';
-        state.observedPace = null;
-        state.live = { status: {}, stayMode: 'full', hereMode: 'full', appliedAt: null };
-        state.anchor = {
-          nodeId: config.nodes[0].id,
-          event: 'dep',
-          timeMin: config.defaultDepMin || 600,
-          extraDelayMin: 0,
-          reason: '行前基准计划'
-        };
-        saveState();
-        if (typeof config.onApplyPlan === 'function') {
-          config.onApplyPlan({
-            enabledNodes: state.enabledNodes,
-            stayOverrides: state.stayOverrides,
-            paceFactor: state.paceFactor,
-            emergencyMode: false,
-            sim: simulateSchedule({})
-          });
-        }
-        render();
-        showPageToast('🔄 已重置回出发前基准状态');
-      });
+      document.getElementById('cp-reset-btn')?.addEventListener('click', resetAllToBaseline);
 
-      // Check-in buttons
       document.getElementById('cp-use-now')?.addEventListener('click', () => {
         const inp = document.getElementById('cp-time-input');
         if (inp) inp.value = fmtTime(nowLocalMin());
@@ -2714,10 +3167,9 @@
         const nodeId = document.getElementById('cp-node-sel').value;
         const tVal = parseTime(document.getElementById('cp-time-input').value) ?? nowLocalMin();
         const node = config.nodes.find(n => n.id === nodeId);
-        recordCheckin(nodeId, 'dep', tVal, `${fmtTime(tVal)} 从 ${node ? node.shortName || node.name : ''} 出发`);
+        recordCheckin(nodeId, 'dep', tVal, `${fmtTime(tVal)} 从 ${node ? node.shortName || node.name : ''} 离开`);
       });
 
-      // Quick bump buttons
       mount.querySelectorAll('[data-bump]').forEach(btn => {
         btn.addEventListener('click', () => {
           unlockAudio();
@@ -2733,7 +3185,7 @@
             speakZh(`已记录${state.anchor.reason}。${nextSim.headline}`);
           } else if (delta > 0) {
             playChime('warn');
-            showPageToast(`⏱️ 已记录：${state.anchor.reason}，时间表已实时顺延并重算风险`);
+            showPageToast(`⏱️ 已记录：${state.anchor.reason}，时间表已同步重算`);
           } else {
             playChime('ok');
             showPageToast(`⚡ 已记录：${state.anchor.reason}`);
@@ -2741,11 +3193,6 @@
         });
       });
 
-      // GPS button
-      document.getElementById('cp-gps-btn')?.addEventListener('click', toggleGpsMode);
-
-      // Apply proposal & copy WeChat buttons
-      refreshNowCard();
       mount.querySelectorAll('[data-plan-idx]').forEach(btn => {
         btn.addEventListener('click', () => {
           const prop = proposals[Number(btn.dataset.planIdx)];
@@ -2759,7 +3206,6 @@
         });
       });
 
-      // 4-Channel Strong Alert Hub actions
       document.getElementById('cp-dl-ics')?.addEventListener('click', () => downloadIcs(sim));
       document.getElementById('cp-toggle-guard-2')?.addEventListener('click', () => toggleGuardMode());
       document.getElementById('cp-test-voice')?.addEventListener('click', () => {
@@ -2769,7 +3215,7 @@
         speakZh(sampleMsg);
         showUrgentModal(
           sim.riskLevel === 'ok' ? 'warn' : 'err',
-          '🔔 车载强提醒效果测试',
+          '🔔 手机强提醒效果测试',
           `<p style="margin:0">声音警报、中文语音播报与全屏高对比弹窗均已正常工作！<br><br><b>当前行程诊断：</b>${sim.headline}</p>`,
           null
         );
@@ -2786,7 +3232,7 @@
         }
         showPageToast('📨 正在向手机发送测试强提醒推送…');
         const sent = await dispatchStrongNotifications(
-          '🚗 日本自驾护航已连接！',
+          '🛰️ 行程实时护航已连接！',
           `测试成功！当前状态：${sim.headline}`,
           location.href,
           globalPrefs.barkLevel === 'critical' ? 'err' : 'warn'
@@ -2799,7 +3245,7 @@
         const selNode = document.getElementById('cp-node-sel').value;
         const shortcutUrl = `${location.origin}${location.pathname}?copilot=1&checkin=${encodeURIComponent(selNode)}`;
         if (navigator.clipboard) navigator.clipboard.writeText(shortcutUrl).catch(() => {});
-        showPageToast('🔗 已复制自动打卡链接！可放入 iOS「快捷指令 / CarPlay 自动化」一键触发');
+        showPageToast('🔗 已复制自动打卡链接！可放入 iOS「快捷指令」一键触发');
       });
 
       document.getElementById('cp-req-notif')?.addEventListener('click', async () => {
@@ -2812,7 +3258,7 @@
           await dispatchStrongNotifications('🔔 原生通知已开启', sim.headline, location.href, 'ok');
           showPageToast('✅ 原生系统通知权限已开启！');
         } else {
-          showPageToast('通知权限未开启，可在系统设置或使用日历闹钟 / Bark 强提醒');
+          showPageToast('通知权限未开启，可使用日历闹钟或 Bark 强提醒');
         }
       });
 
@@ -2824,7 +3270,6 @@
         render();
       });
 
-      // AI Live Emergency Replan actions
       const wishInput = document.getElementById('cp-ai-wish');
       const preEl = document.getElementById('cp-ai-preview');
       wishInput?.addEventListener('input', () => {
@@ -2833,7 +3278,7 @@
       const copyPromptAction = () => {
         const txt = buildAiEmergencyPrompt(sim, getDelayVsBaseline(), wishInput ? wishInput.value : '');
         if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
-        showPageToast('📋 已复制带实时坐标与死线的 AI 急救指令！直接粘贴即可');
+        showPageToast('📋 已复制带实时坐标与死线的 AI 急救指令！');
         return txt;
       };
       document.getElementById('cp-copy-ai')?.addEventListener('click', copyPromptAction);
@@ -2849,7 +3294,6 @@
       });
     }
 
-    // Intercept Leg 1 navigation clicks softly if Pre-Flight Anti-Trap Gate isn't confirmed yet
     document.querySelectorAll('a[href*="google.com/maps/dir"]').forEach(link => {
       link.addEventListener('click', () => {
         if (!state.preFlight.tollsOn && config.mode !== 'transit') {
@@ -2858,33 +3302,34 @@
       });
     });
 
-    // Handle URL deep-link parameters (?copilot=1&checkin=lunch&at=13:30 or ?scenario=0)
     function applyUrlParams() {
       const params = new URLSearchParams(location.search);
       if (params.has('scenario') && config.replayScenarios) {
         const sc = config.replayScenarios[Number(params.get('scenario'))];
         if (sc) {
-          recordCheckin(sc.nodeId, sc.event || 'arr', sc.timeMin, sc.reason);
+          recordCheckin(sc.nodeId, sc.event || 'arr', sc.timeMin, sc.reason, { isReplay: true });
           setTimeout(() => mount.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
           return true;
         }
       }
       if (params.has('checkin')) {
         const nid = params.get('checkin');
-        const atMin = parseTime(params.get('at') || '') ?? nowLocalMin();
+        const atParam = params.get('at');
+        const atMin = parseTime(atParam || '') ?? nowLocalMin();
         if (config.nodes.some(n => n.id === nid)) {
-          recordCheckin(nid, params.get('event') || 'arr', atMin, '从提醒链接一键打卡汇报');
+          recordCheckin(nid, params.get('event') || 'arr', atMin, '从提醒链接一键打卡汇报', {
+            isRealTime: !atParam
+          });
           setTimeout(() => mount.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
           return true;
         }
       }
-      if (params.get('copilot') === '1') {
+      if (params.get('copilot') === '1' || location.hash === '#deadline') {
         setTimeout(() => mount.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
       }
       return false;
     }
 
-    injectDeadlineTab();
     render();
     applyUrlParams();
 
@@ -2896,7 +3341,9 @@
       playChime,
       speakZh,
       dispatchPush: dispatchStrongNotifications,
-      showUrgentModal
+      showUrgentModal,
+      pingGpsNow,
+      switchTab
     };
   }
 

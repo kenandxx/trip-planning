@@ -833,79 +833,276 @@ body.has-cp-dock .toast {
   color: var(--cp-ink);
 }
 
-/* GPS status pill: one glanceable state, details on tap */
-.cp-gps-fresh { margin-top: 6px; }
-.cp-gps-pill {
-  --pill: var(--cp-indigo);
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: 99px;
-  border: 1.5px solid color-mix(in srgb, var(--pill) 45%, transparent);
-  background: color-mix(in srgb, var(--pill) 10%, var(--cp-card));
-  color: var(--pill);
-  font: inherit;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
+/* ==========================================================================
+   v2.8 Unified Top Bar: Live GPS Verification + Mode Switcher + 2-Tab Console
+   ========================================================================== */
+.cp-top-bar {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
 }
-.cp-gps-pill.ok { --pill: var(--cp-ok); }
-.cp-gps-pill.weak { --pill: var(--cp-warn); }
-.cp-gps-pill.lost { --pill: var(--cp-soft); }
+
+/* Glanceable & Self-Proving GPS Status Strip */
+.cp-gps-card {
+  --g-col: var(--cp-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--g-col) 38%, var(--cp-line));
+  background: color-mix(in srgb, var(--g-col) 7%, var(--cp-card2));
+  transition: background .25s, border-color .25s;
+}
+.cp-gps-card.ok { --g-col: var(--cp-ok); }
+.cp-gps-card.wait { --g-col: var(--cp-nav); }
+.cp-gps-card.weak { --g-col: var(--cp-warn); }
+.cp-gps-card.lost { --g-col: var(--cp-err); }
+.cp-gps-card.flash {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cp-ok) 35%, transparent);
+}
+
+.cp-gps-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
 .cp-gps-dot {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--pill);
+  background: var(--g-col);
+  margin-top: 5px;
   flex: none;
 }
-.cp-gps-pill.ok .cp-gps-dot { animation: cp-gps-pulse 1.6s ease-out infinite; }
-.cp-gps-pill.wait .cp-gps-dot { animation: cp-gps-blink 1s ease-in-out infinite; }
-.cp-gps-pill.lost .cp-gps-dot { background: transparent; border: 2px solid var(--pill); }
-.cp-gps-hint { font-size: 12px; font-weight: 600; opacity: .9; }
-.cp-gps-more { font-size: 10px; opacity: .6; }
-.cp-gps-detail { margin-top: 4px; font-size: 12px; color: var(--cp-soft); }
+.cp-gps-card.off .cp-gps-dot {
+  background: transparent;
+  border: 2px solid var(--cp-soft);
+}
+.cp-gps-card.ok .cp-gps-dot {
+  animation: cp-gps-pulse 1.5s ease-out infinite;
+}
+.cp-gps-card.wait .cp-gps-dot {
+  animation: cp-gps-blink 1s ease-in-out infinite;
+}
+.cp-gps-card.lost .cp-gps-dot {
+  background: transparent;
+  border: 2px solid var(--cp-err);
+}
+.cp-gps-main {
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.cp-gps-main b {
+  color: var(--cp-ink);
+  font-size: 13px;
+}
+.cp-gps-card.ok .cp-gps-main b { color: var(--cp-ok); }
+.cp-gps-card.weak .cp-gps-main b { color: var(--cp-warn); }
+.cp-gps-card.lost .cp-gps-main b { color: var(--cp-err); }
+.cp-gps-meta {
+  display: block;
+  font-size: 11.5px;
+  color: var(--cp-soft);
+  margin-top: 1px;
+  font-family: var(--cp-mono);
+}
+.cp-gps-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cp-gps-btn-sm {
+  padding: 6px 10px;
+  border-radius: 99px;
+  border: 1.5px solid var(--cp-line);
+  background: var(--cp-card);
+  color: var(--cp-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cp-gps-btn-sm.pri {
+  background: var(--cp-nav);
+  border-color: var(--cp-nav);
+  color: #fff;
+}
+.cp-gps-btn-sm.on {
+  background: var(--cp-ok);
+  border-color: var(--cp-ok);
+  color: #fff;
+}
+
 @keyframes cp-gps-pulse {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pill) 60%, transparent); }
-  100% { box-shadow: 0 0 0 7px transparent; }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cp-ok) 65%, transparent); }
+  100% { box-shadow: 0 0 0 8px transparent; }
 }
 @keyframes cp-gps-blink { 50% { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) {
-  .cp-gps-pill .cp-gps-dot { animation: none; }
+  .cp-gps-dot { animation: none !important; }
 }
 
-/* 此刻导航: plan / position / progress / next action / backup in one card */
+/* Console 2-Tab Switcher */
+.cp-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--cp-card2);
+  padding: 4px;
+  border-radius: 11px;
+  border: 1px solid var(--cp-line);
+  margin-bottom: 10px;
+}
+.cp-tab {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--cp-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: background .18s, color .18s;
+}
+.cp-tab.on {
+  background: var(--cp-card);
+  color: var(--cp-ink);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+}
+.cp-pane[hidden] {
+  display: none !important;
+}
+
+/* Clock Context Banner (Preview/Archive vs Sim vs Live) */
+.cp-clock-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--cp-indigo) 8%, var(--cp-card2));
+  border: 1px solid color-mix(in srgb, var(--cp-indigo) 28%, var(--cp-line));
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.cp-clock-bar.sim {
+  background: var(--cp-warn-bg);
+  border-color: color-mix(in srgb, var(--cp-warn) 42%, var(--cp-line));
+}
+.cp-clock-bar button {
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--cp-line);
+  background: var(--cp-card);
+  color: var(--cp-nav);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 此刻导航: unified live status card */
 .cp-now {
   --now: var(--cp-ok);
   border: 2px solid var(--now);
-  background: color-mix(in srgb, var(--now) 7%, var(--cp-card));
+  background: color-mix(in srgb, var(--now) 6%, var(--cp-card));
   border-radius: 14px;
   padding: 12px 13px;
   margin-bottom: 12px;
 }
 .cp-now.warn { --now: var(--cp-warn); }
 .cp-now.err { --now: var(--cp-err); }
-.cp-now-hd { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--cp-soft); }
-.cp-now-prog { font-size: 28px; font-weight: 800; color: var(--now); line-height: 1.2; margin: 2px 0 2px; }
-.cp-now-why { font-size: 12px; color: var(--now); font-weight: 600; margin-bottom: 4px; }
-.cp-now-row { display: flex; gap: 8px; font-size: 14px; line-height: 1.45; padding: 4px 0; border-top: 1px dashed var(--cp-line); }
-.cp-now-row .k { flex: none; width: 3.6em; color: var(--cp-soft); font-size: 12px; padding-top: 2px; }
-.cp-now-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.cp-now-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cp-soft);
+}
+.cp-dl-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--cp-line);
+  background: var(--cp-card);
+  color: var(--cp-ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+.cp-dl-main {
+  min-width: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+.cp-dl-edit-link {
+  color: var(--cp-nav);
+  font-size: 12px;
+  font-weight: 700;
+  flex: none;
+  white-space: nowrap;
+}
+.cp-now-prog {
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--now);
+  line-height: 1.22;
+  margin: 4px 0 4px;
+}
+.cp-now-row {
+  display: flex;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  padding: 6px 0;
+  border-top: 1px dashed var(--cp-line);
+}
+.cp-now-row .k {
+  flex: none;
+  width: 3.4em;
+  color: var(--cp-soft);
+  font-size: 12px;
+  font-weight: 700;
+  padding-top: 2px;
+}
+.cp-now-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 6px; }
 .cp-now-btns:empty { display: none; }
 .cp-now-nav, .cp-now-sync {
-  display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 10px;
-  font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; padding: 9px 13px; border-radius: 10px;
+  font: inherit; font-size: 13.5px; font-weight: 700; text-decoration: none; cursor: pointer;
 }
-.cp-now-nav { background: var(--cp-nav); color: #fff; border: 0; }
+.cp-now-nav { background: var(--cp-nav); color: #fff !important; border: 0; flex: 1 1 200px; }
 .cp-now-sync { background: var(--cp-card); color: var(--cp-ink); border: 1.5px solid var(--now); }
-.cp-now-rec { margin-top: 6px; padding: 9px 10px; border-radius: 10px; background: var(--cp-card); border: 1.5px solid var(--now); font-size: 14px; }
+.cp-now-rec { margin-top: 6px; padding: 9px 10px; border-radius: 10px; background: var(--cp-card); border: 1.5px solid var(--now); font-size: 13.5px; }
 .cp-now-rec-sum { font-size: 12px; color: var(--cp-soft); margin: 4px 0 8px; }
-.cp-now-more { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--cp-nav); }
-.cp-now-foot { margin-top: 6px; font-size: 12px; color: var(--cp-soft); }
-.cp-now-sub { display: block; font-size: 12px; color: var(--cp-soft); margin-top: 2px; }
-.cp-now-route { display: block; font-size: 13px; margin-top: 2px; }
+.cp-now-more { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--cp-nav); font-weight: 700; }
+.cp-now-sub { display: block; font-size: 11.5px; color: var(--cp-soft); margin-top: 2px; line-height: 1.4; }
+.cp-now-route { display: block; font-size: 12.5px; margin-top: 2px; line-height: 1.45; }
 .cp-now-rec + .cp-now-rec { margin-top: 8px; }
 .cp-now-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .cp-now-chip {
@@ -917,72 +1114,52 @@ body.has-cp-dock .toast {
 .cp-now-chip.done { color: var(--cp-soft); text-decoration: line-through; }
 .cp-now-chip.skip { color: var(--cp-soft); border-style: dashed; opacity: .75; }
 
-/* Deadline tags: "be at PLACE by TIME" */
-.cp-dl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
-.cp-dl-tag, .cp-dl-add {
-  font: inherit; font-size: 13px; text-align: left; cursor: pointer;
-  padding: 6px 10px; border-radius: 10px; border: 1.5px solid var(--cp-line);
-  background: var(--cp-card); color: var(--cp-ink);
-  display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px;
-}
-.cp-dl-tag.active { border-width: 2px; }
-.cp-dl-tag.ok { border-color: var(--cp-ok); }
-.cp-dl-tag.warn { border-color: var(--cp-warn); }
-.cp-dl-tag.err { border-color: var(--cp-err); }
-.cp-dl-tag.past { opacity: .55; }
-.cp-dl-lbl { font-size: 11px; color: var(--cp-soft); }
-.cp-dl-st { font-size: 12px; font-weight: 700; }
-.cp-dl-tag.ok .cp-dl-st { color: var(--cp-ok); }
-.cp-dl-tag.warn .cp-dl-st { color: var(--cp-warn); }
-.cp-dl-tag.err .cp-dl-st { color: var(--cp-err); }
-.cp-dl-edit { font-size: 11px; color: var(--cp-nav); }
-.cp-dl-add { border-style: dashed; color: var(--cp-nav); }
-.cp-dl-form {
-  display: grid; gap: 8px; margin: 6px 0 8px; padding: 10px;
-  border-radius: 10px; background: var(--cp-card); border: 1.5px solid var(--cp-nav);
-}
-.cp-dl-form label { display: grid; gap: 3px; font-size: 12px; color: var(--cp-soft); }
-.cp-dl-form input, .cp-dl-form select {
-  font: inherit; font-size: 16px; padding: 7px 8px; border-radius: 8px;
-  border: 1px solid var(--cp-line); background: var(--cp-paper); color: var(--cp-ink); min-width: 0;
-}
-.cp-dl-form-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .cp-now-mini {
-  font: inherit; font-size: 12px; padding: 4px 9px; border-radius: 8px; cursor: pointer;
+  font: inherit; font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--cp-line); background: var(--cp-card); color: var(--cp-ink);
 }
-.cp-now-tips { list-style: none; margin: 4px 0 6px; padding: 0; display: grid; gap: 4px; }
-.cp-now-tips li { font-size: 14px; line-height: 1.45; padding: 5px 8px; border-radius: 8px; background: var(--cp-card); border-left: 4px solid var(--cp-line); }
+.cp-now-tips { list-style: none; margin: 4px 0 6px; padding: 0; display: grid; gap: 5px; }
+.cp-now-tips li { font-size: 13px; line-height: 1.45; padding: 6px 9px; border-radius: 8px; background: var(--cp-card); border-left: 4px solid var(--cp-line); }
 .cp-now-tips li.ok { border-left-color: var(--cp-ok); }
 .cp-now-tips li.warn { border-left-color: var(--cp-warn); background: var(--cp-warn-bg); }
 .cp-now-tips li.err { border-left-color: var(--cp-err); background: var(--cp-err-bg); }
 .cp-now-tips li.info { border-left-color: var(--cp-nav); }
 .cp-now-tips li .cp-now-mini { margin-left: 6px; }
 
-/* One-line target summary on the live card */
-.cp-dl-line {
-  display: flex; justify-content: space-between; gap: 8px; margin: 8px 0 2px; padding: 7px 10px;
-  border-radius: 10px; border: 1.5px solid var(--cp-line); background: var(--cp-card);
-  color: var(--cp-ink); font-size: 13px; text-decoration: none;
+/* Dock live GPS indicator dot */
+.cp-dock-gps {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--cp-card2);
+  color: var(--cp-soft);
+  vertical-align: middle;
 }
-.cp-dl-line span { color: var(--cp-nav); flex: none; }
+.cp-dock-gps.ok { background: var(--cp-ok-bg); color: var(--cp-ok); }
+.cp-dock-gps.weak { background: var(--cp-warn-bg); color: var(--cp-warn); }
+.cp-dock-gps.lost { background: var(--cp-err-bg); color: var(--cp-err); }
 
 /* ⏰ 死线倒推 tab */
 .cp-dlt { display: grid; gap: 12px; }
 .cp-dlt-form {
   display: grid; gap: 10px; padding: 12px; border-radius: 14px;
-  background: var(--cp-card); border: 1.5px solid var(--cp-line);
+  background: var(--cp-card2); border: 1.5px solid var(--cp-line);
 }
 .cp-dlt-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .cp-dlt-row .grow { flex: 1 1 180px; }
 .cp-dlt-form label { display: grid; gap: 3px; font-size: 12px; font-weight: 700; color: var(--cp-soft); }
 .cp-dlt-form input, .cp-dlt-form select {
-  font: inherit; font-size: 16px; padding: 8px 9px; border-radius: 9px; min-width: 0; width: 100%;
-  border: 1px solid var(--cp-line); background: var(--cp-paper); color: var(--cp-ink); box-sizing: border-box;
+  font: inherit; font-size: 15px; padding: 8px 9px; border-radius: 9px; min-width: 0; width: 100%;
+  border: 1px solid var(--cp-line); background: var(--cp-card); color: var(--cp-ink); box-sizing: border-box;
 }
 .cp-dlt-link { display: grid; gap: 8px; }
 .cp-dlt-link[hidden] { display: none; }
-.cp-dlt-hint { font-size: 12px; color: var(--cp-soft); }
+.cp-dlt-hint { font-size: 11.5px; color: var(--cp-soft); line-height: 1.45; }
 .cp-dlt-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .cp-dlt-err { font-size: 13px; color: var(--cp-err); font-weight: 700; }
 .cp-dlt-err:empty { display: none; }
@@ -993,11 +1170,11 @@ body.has-cp-dock .toast {
 }
 .cp-dlt-res.warn { --now: var(--cp-warn); }
 .cp-dlt-res.err { --now: var(--cp-err); }
-.cp-dlt-target { font-size: 15px; }
-.cp-dlt-verdict { font-size: 30px; font-weight: 800; color: var(--now); line-height: 1.2; margin: 6px 0 4px; }
-.cp-dlt-rec { font-size: 15px; line-height: 1.5; padding: 8px 10px; border-radius: 10px; background: var(--cp-card); border-left: 4px solid var(--now); }
-.cp-dlt-res h3 { font-size: 14px; margin: 14px 0 6px; }
-.cp-dlt-modes { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-dlt-target { font-size: 14.5px; line-height: 1.45; }
+.cp-dlt-verdict { font-size: 26px; font-weight: 800; color: var(--now); line-height: 1.2; margin: 6px 0 4px; }
+.cp-dlt-rec { font-size: 14px; line-height: 1.5; padding: 8px 10px; border-radius: 10px; background: var(--cp-card); border-left: 4px solid var(--now); margin-top: 6px; }
+.cp-dlt-res h3 { font-size: 13.5px; margin: 13px 0 6px; }
+.cp-dlt-modes { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .cp-dlt-modes td { padding: 6px 4px; border-top: 1px dashed var(--cp-line); vertical-align: top; }
 .cp-dlt-modes tr.ok .sl { color: var(--cp-ok); font-weight: 700; }
 .cp-dlt-modes tr.warn .sl { color: var(--cp-warn); font-weight: 700; }
