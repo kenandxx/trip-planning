@@ -6,11 +6,14 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#151412" media="(prefers-color-scheme: dark)">
-<title>➕ 通用日本自驾新行程模板｜占位模板</title>
+<title>➕ 通用日本自驾新行程模板（v2.0 含实时护航＆强提醒）｜占位模板</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../copilot/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{
   --paper:#f5f0e7; --card:#fcf9f4; --card2:#f0e9dc; --ink:#1f1c18; --soft:#6b6358; --line:#dfd7c8;
-  --accent:#c2542a; --indigo:#2b4c59; --nav:#1a73e8; --ok:#256d49; --ok-bg:#e2f2e9; --warn:#a16207; --warn-bg:#f8ebd0;
+  --accent:#c2542a; --indigo:#2b4c59; --nav:#1a73e8; --ok:#256d49; --ok-bg:#e2f2e9; --warn:#a16207; --warn-bg:#f8ebd0; --err:#b91c1c; --err-bg:#fbe3e3;
   --shadow:0 1px 2px rgba(55,40,18,.06),0 6px 18px rgba(55,40,18,.05);
   --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
@@ -19,7 +22,7 @@
 @media (prefers-color-scheme:dark){
   :root{
     --paper:#151412; --card:#1f1d1a; --card2:#282520; --ink:#ede7db; --soft:#a59d90; --line:#35312b;
-    --accent:#e57c52; --indigo:#8fb7c7; --nav:#4a90f2; --ok:#52b788; --ok-bg:#1b3326; --warn:#e6b655; --warn-bg:#382b12;
+    --accent:#e57c52; --indigo:#8fb7c7; --nav:#4a90f2; --ok:#52b788; --ok-bg:#1b3326; --warn:#e6b655; --warn-bg:#382b12; --err:#f07171; --err-bg:#3a1d1d;
     --shadow:0 2px 10px rgba(0,0,0,.35);
   }
 }
@@ -27,7 +30,7 @@
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:var(--nav);text-decoration:none}
 button{font:inherit;color:inherit;cursor:pointer}
-.wrap{max-width:740px;margin:0 auto;padding:0 16px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
 .hero{background:linear-gradient(135deg,#213843 0%,#355460 52%,#7e442c 100%);color:#fff;padding:24px 16px 20px}
 .hero .wrap{padding:0}
 .back{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:rgba(255,255,255,.88);margin-bottom:10px}
@@ -35,9 +38,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 .badges span{background:rgba(255,255,255,.16);padding:4px 9px;border-radius:99px}
 .hero h1{margin:0;font:600 22px/1.3 var(--serif)}
 .hero p{margin:7px 0 0;font-size:13px;opacity:.92}
-main{padding:18px 0 42px;display:grid;gap:14px}
+main{padding:18px 0 42px;display:grid;gap:16px}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px;box-shadow:var(--shadow)}
 .card h2{margin:0 0 10px;font:700 16.5px/1.35 var(--serif)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.tag.err{background:var(--err-bg);color:var(--err)}
+.tag.blue{background:rgba(43,76,89,.14);color:var(--indigo)}
 .kv{display:grid;gap:8px;font-size:13.5px}
 .row{background:var(--card2);border-radius:9px;padding:8px 11px}
 .row b{color:var(--indigo);display:block;font-size:12px;margin-bottom:2px}
@@ -52,45 +60,54 @@ pre{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:var(--card2)
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 34px;border-top:1px solid var(--line)}
 </style>
+<link rel="stylesheet" href="../../copilot/trip-copilot.css">
 </head>
 <body>
 <header class="hero">
   <div class="wrap">
     <a class="back" href="../">← 返回全部行程总览（Trip Hub）</a>
     <div class="badges">
-      <span>🧩 空白脚手架・复制即用</span>
-      <span>YYYY-MM-DD（复制本文件夹改名后填写）</span>
+      <span>🧩 v2.0 通用脚手架</span>
+      <span>🛰️ 内置行中实时护航＆晚点重排</span>
       <span>目录：trips/template/</span>
     </div>
-    <h1>➕ 通用日本自驾新行程模板</h1>
-    <p>任意目的地通用：复制 trips/template → trips/YYYY-MM-地名，填好 brief.md 即可一键生成全套攻略</p>
+    <h1>➕ 通用日本自驾新行程模板（v2.0）</h1>
+    <p>复制 trips/template → trips/YYYY-MM-地名，填好 brief.md 即可生成全套导航页＋手机四通道强提醒＋晚点自动重排引擎</p>
   </div>
 </header>
 
 <main class="wrap">
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <h2 style="margin:0;font:700 18px/1.3 var(--serif)">🛰️ v2.0 预置模块预览：行中实时护航＆晚点自动重排</h2>
+      <span class="tag ok">新行程自动继承</span>
+    </div>
+    <div id="copilot-mount"></div>
+  </section>
+
   <section class="card">
     <h2>1. 待填核心参数（已同步预置在 brief.md）</h2>
     <div class="kv">
       <div class="row"><b>出发地＆时间锚点</b>千叶滝不動駅（或改为你的实际出发地）</div>
       <div class="row"><b>中途接人点</b>无 / 或填写中途接人酒店（精确地址＋目标抵达时间）</div>
-      <div class="row"><b>目的地＆核心景点</b>填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛）</div>
-      <div class="row"><b>住宿酒店</b>填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）</div>
-      <div class="row"><b>同行人数＆行李</b>共 X 人（注明大箱子/雪板/婴儿车等特殊行李）</div>
-      <div class="row"><b>风景＆餐饮偏好</b>填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好</div>
+      <div class="row"><b>目的地＆核心/可选景点</b>填写必去核心景点与顺路可选彩蛋（便于晚点时引擎自动裁剪支线保主线）</div>
+      <div class="row"><b>终局硬死线（酒店晚餐 / 电车 / 日落）</b>填写最晚入住时间（如 17:30 怀石晚餐）或送站班次死线</div>
+      <div class="row"><b>真实车速系数＆强提醒</b>默认预留 1.20× 稳健缓冲（山路/雪天 1.35×），自动生成 .ics 系统闹钟＋Bark/语音护航</div>
     </div>
     <div class="btns">
       <a class="btn" href="brief.md" target="_blank" rel="noopener">📄 打开 brief.md 原文</a>
-      <a class="btn" href="../../skills/japan-self-drive-trip-planner/SKILL.md" target="_blank" rel="noopener">📘 查看 SKILL.md 规格</a>
+      <a class="btn" href="../../skills/japan-self-drive-trip-planner/SKILL.md" target="_blank" rel="noopener">📘 查看 SKILL.md v2.0 规格</a>
     </div>
   </section>
 
   <section class="card">
-    <h2>2. 正式规划时 AI 将自动核查的 4 大模块</h2>
+    <h2>2. 正式规划时 AI 将自动核查并构建的 5 大模块</h2>
     <ul>
-        <li>核查出行日天气预报、日落时间、核心景点最终入场/闭园时间</li>
-        <li>核查 NEXCO / 首都高官方逐小时拥堵预测、封路施工、ETC专用入口与纯现金收费站</li>
-        <li>设计新手防选错一键 Google Maps 分段接力导航＋1 秒选线核对＋零山路保底线</li>
-        <li>筛选 3 家当日营业餐厅（≥9 张本地实拍图＋9 条真实评价）并渲染防缓存微信长图</li>
+      <li>核查出行日天气预报、精确日落时间、景点最终入场时间与餐厅最后点单（<code>L.O.</code>）红线</li>
+      <li>核查 NEXCO / 首都高逐小时拥堵预测、ETC专用入口与纯现金收费站，配置<b>发车前防忘开地图收费高速锁扣</b></li>
+      <li>设计新手防选错一键 Google Maps 分段接力导航＋1 秒选线核对＋零山路保底线</li>
+      <li>配置 <code>TripCopilot</code> 实时护航：节点 GPS 围栏、1秒打卡、3套晚点自动重排方案与四通道手机强提醒（.ics日历闹钟 / 语音常亮 / Bark突破静音 / PWA通知）</li>
+      <li>筛选 3 家当日营业餐厅（≥9 张本地实拍图＋9 条真实评价）并渲染防缓存微信长图</li>
     </ul>
   </section>
 
@@ -100,23 +117,51 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 34px;bo
       <button class="btn pri" type="button" id="copy-ag">📋 复制 Antigravity 启动指令</button>
       <button class="btn warm" type="button" id="copy-ext">🌐 复制 ChatGPT / Claude 通用指令</button>
     </div>
-    <pre id="prompt-preview">/goal 按照 japan-self-drive-trip-planner 规格，根据 trips/template/brief.md 生成完整攻略页、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：
+    <pre id="prompt-preview">/goal 按照 japan-self-drive-trip-planner v2.0 规格，根据 trips/template/brief.md 生成完整攻略页（接入 copilot/trip-copilot.js 实时进度护航、发车防忘开ETC锁扣、餐厅L.O.排雷、晚点3套重排方案与.ics/Bark强提醒）、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：
 - 日期：YYYY-MM-DD（复制本文件夹改名后填写）
 - 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）
-- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）
+- 目的地＆住宿硬死线：填写核心景点与可选彩蛋 / 填写住宿酒店名（注明最晚入住/晚餐死线时间、停车条件）
 - 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）
-- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好</pre>
+- 偏好＆节奏：默认预留 1.2x 稳健车速缓冲；填写必看风景、SA/PA 名物偏好、午晚餐口味偏好</pre>
   </section>
 </main>
 
 <footer>
-  <div class="wrap">占位页：按 japan-self-drive-trip-planner 规格生成后将自动替换为完整交互导航页</div>
+  <div class="wrap">占位页：按 japan-self-drive-trip-planner v2.0 规格生成后将替换为完整交互导航与实时护航页</div>
 </footer>
 <div class="toast" id="toast">已复制！</div>
 
+<script src="../../copilot/trip-copilot.js"></script>
 <script>
-const AG_PROMPT = '/goal 按照 japan-self-drive-trip-planner 规格，根据 trips/template/brief.md 生成完整攻略页、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好';
-const EXT_PROMPT = '请先完整阅读并严格遵循这份日本自驾攻略规范：\nhttps://raw.githubusercontent.com/kenandxx/trip-planning/main/skills/japan-self-drive-trip-planner/SKILL.md\n\n然后按规范为我规划以下行程（产出单文件交互网页 index.html、微信文案、长图设计）：\n- 行程目录：trips/template/\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿：填写核心景点 / 顺路绝景公路（如箱根 / 日光 / 镰仓 / 那须 / 房总半岛） / 填写住宿酒店名（注明入住时间、停车条件、是否含早晚餐）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好：填写必看风景（海景/富士山/红叶/雪景）、SA/PA 名物偏好、晚餐口味偏好';
+TripCopilot.init({
+  tripId: 'template_demo_v2',
+  title: '示例温泉自驾（模板交互演示）',
+  date: '2027-03-20',
+  mountSelector: '#copilot-mount',
+  swPath: '../../sw.js',
+  defaultDepMin: 510,
+  defaultPaceFactor: 1.2,
+  sunsetMin: 1010,
+  nodes: [
+    { id: 'origin', name: '滝不動駅（出发）', shortName: '滝不動出发', role: 'origin', enabledByDefault: true, lat: 35.7368, lng: 140.0177, driveMin: 0, stayMin: 0 },
+    { id: 'sapa', name: '途经高速 SA 名物补给', shortName: '高速SA补给', role: 'optional', enabledByDefault: true, lat: 35.45, lng: 139.38, driveMin: 75, stayMin: 20, minStayMin: 10 },
+    { id: 'lunch', name: '当地特色午餐（3选1）', shortName: '特色午餐', role: 'meal', enabledByDefault: true, lat: 35.30, lng: 138.95, driveMin: 55, stayMin: 70, minStayMin: 45 },
+    { id: 'view', name: '核心绝景展望台', shortName: '绝景展望台', role: 'core', enabledByDefault: true, lat: 35.24, lng: 138.88, driveMin: 25, stayMin: 45, minStayMin: 25 },
+    { id: 'hotel', name: '温泉旅馆（日落＆晚餐前入住）', shortName: '温泉旅馆入住', role: 'destination', enabledByDefault: true, lat: 35.20, lng: 138.85, driveMin: 25, stayMin: 0 }
+  ],
+  deadlineSpec: {
+    destNodeId: 'hotel',
+    destName: '温泉旅馆',
+    targetArrMin: 1005,
+    hardArrMin: 1050
+  },
+  replayScenarios: [
+    { label: '🔴 演练示例：13:40 才到午餐店（晚点+85分，触发自动砍支线保日落前入住）', cls: 'err', nodeId: 'lunch', event: 'arr', timeMin: 820, tollsOn: false, resetEnabled: true, reason: '模板演练：忘开收费路导致午饭晚点+85分' }
+  ]
+});
+
+const AG_PROMPT = '/goal 按照 japan-self-drive-trip-planner v2.0 规格，根据 trips/template/brief.md 生成完整攻略页（接入 copilot/trip-copilot.js 实时进度护航、发车防忘开ETC锁扣、餐厅L.O.排雷、晚点3套重排方案与.ics/Bark强提醒）、本地9+实拍图、微信封面图与高清一图流长图，更新 trips/index.html 并推送上线：\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿硬死线：填写核心景点与可选彩蛋 / 填写住宿酒店名（注明最晚入住/晚餐死线时间、停车条件）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好＆节奏：默认预留 1.2x 稳健车速缓冲；填写必看风景、SA/PA 名物偏好、午晚餐口味偏好';
+const EXT_PROMPT = '请先完整阅读并严格遵循这份日本自驾攻略 v2.0 规范：\nhttps://raw.githubusercontent.com/kenandxx/trip-planning/main/skills/japan-self-drive-trip-planner/SKILL.md\n\n然后按 v2.0 规范为我规划以下行程（含行中实时护航与晚点3套重排配置、四通道手机强提醒、一键导航与长图设计）：\n- 行程目录：trips/template/\n- 日期：YYYY-MM-DD（复制本文件夹改名后填写）\n- 出发/接人：千叶滝不動駅（或改为你的实际出发地） / 无 / 或填写中途接人酒店（精确地址＋目标抵达时间）\n- 目的地＆住宿硬死线：填写核心景点与可选彩蛋 / 填写住宿酒店名（注明最晚入住/晚餐死线时间、停车条件）\n- 人数＆行李：共 X 人（注明大箱子/雪板/婴儿车等特殊行李）\n- 偏好＆节奏：默认预留 1.2x 稳健车速缓冲；填写必看风景、SA/PA 名物偏好、午晚餐口味偏好';
 function copyTxt(txt, msg){
   document.getElementById('prompt-preview').textContent = txt;
   if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(()=>{});
@@ -125,8 +170,8 @@ function copyTxt(txt, msg){
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2200);
 }
-document.getElementById('copy-ag').addEventListener('click', ()=>copyTxt(AG_PROMPT, '已复制 Antigravity 启动指令！'));
-document.getElementById('copy-ext').addEventListener('click', ()=>copyTxt(EXT_PROMPT, '已复制跨 AI 通用指令（含 SKILL.md 链接）！'));
+document.getElementById('copy-ag').addEventListener('click', ()=>copyTxt(AG_PROMPT, '已复制 Antigravity v2.0 启动指令！'));
+document.getElementById('copy-ext').addEventListener('click', ()=>copyTxt(EXT_PROMPT, '已复制跨 AI v2.0 通用指令（含 SKILL.md 链接）！'));
 </script>
 </body>
 </html>

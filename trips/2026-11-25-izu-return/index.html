@@ -266,6 +266,11 @@ details.more-nav summary{font-weight:700;font-size:13.5px;cursor:pointer;color:v
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;border-top:1px solid var(--line)}
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../copilot/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="../../copilot/trip-copilot.css">
 </head>
 <body>
 <img class="wx-thumb" src="og-cover.png?v=1125v3" alt="11/25 Plan B 细化版：湘南海岸美食＋4个20分钟彩蛋＋跨海海ほたる→新鎌ヶ谷直达成田">
@@ -285,7 +290,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
   <div class="wrap">
     <div class="kicker">
       <span>2026.11.25 今日周三・Plan B 定案</span>
-      <span class="sky">☀️ 雨后晴空・富士山＆东京湾绝佳</span>
+      <span class="sky">🛰️ 已搭载实时护航＆晚点重排 v2.0</span>
       <span class="ok">🎯 4个20分钟吃买看彩蛋</span>
     </div>
     <h1>湘南海岸美食 ＋ 跨海海ほたるPA 深度自驾手册</h1>
@@ -300,7 +305,8 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
 
 <nav>
   <div class="wrap">
-    <a href="#spots" class="on">🎯 20分钟彩蛋×4</a>
+    <a href="#copilot" class="on">🛰️ 实时护航·重排</a>
+    <a href="#spots">🎯 20分钟彩蛋×4</a>
     <a href="#nav">🧭 逐段导航＆Drive要点</a>
     <a href="#lunch">🐟 湘南美食3选1</a>
     <a href="#sim">⏱️ 自由勾点模拟器</a>
@@ -310,6 +316,15 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 0 36px;bo
 </nav>
 
 <main class="wrap">
+
+  <!-- SECTION 0: LIVE TRIP CO-PILOT, 4-CHANNEL STRONG ALERTS & DYNAMIC RE-PLANNER -->
+  <section id="copilot">
+    <div class="sec-head">
+      <div><div class="sec-k">LIVE CO-PILOT · 4-CHANNEL STRONG ALERTS &amp; AUTO RE-PLAN</div><h2>行中实时进度护航 ＆ 晚点自动重排副驾台</h2></div>
+      <span class="tag err">防忘开ETC・秒出3套新方案</span>
+    </div>
+    <div id="copilot-mount"></div>
+  </section>
 
   <!-- SECTION 1: 4 FUN 20-MINUTE EAT / BUY / SEE SPOTS ALONG PLAN B -->
   <section id="spots">
@@ -1169,6 +1184,185 @@ document.getElementById('copy-wx').addEventListener('click', () => {
 https://kenandxx.github.io/trip-planning/trips/2026-11-25-izu-return/`;
   if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
   showToast('已复制 Plan B 细化版微信群文案！');
+});
+</script>
+<script src="../../copilot/trip-copilot.js"></script>
+<script>
+TripCopilot.init({
+  tripId: 'izu_2026_11_25_v3',
+  title: '11/25 伊豆返程 Plan B：湘南美食＋跨海海ほたる → 新鎌ヶ谷零换乘送机',
+  date: '2026-11-25',
+  mountSelector: '#copilot-mount',
+  swPath: '../../sw.js',
+  defaultDepMin: 600,
+  sunsetMin: 988,
+  tollReminder: '点开导航预览蓝线必须显示「有料 / 收费」且首段约 85 分钟！<span class="danger-inline">切勿勾选「避开收费公路」，否则会被导进箱根山路限速慢行，直接晚点 1.5 小时以上！</span>',
+  etcCashReminder: '车载 ETC 读卡器确认绿灯（跨海アクアライン ETC ¥800 vs 现金 ¥3,140！）＋ 杯架备零钱 ¥300（伊豆中央道¥200＋逗葉新道¥100）',
+  nodes: [
+    {
+      id: 'origin',
+      name: '弘法の湯 長岡店（退房发车）',
+      shortName: '弘法の湯出发',
+      role: 'origin',
+      enabledByDefault: true,
+      lat: 35.0342, lng: 138.9329, radiusKm: 0.7,
+      driveMin: 0, stayMin: 0, minStayMin: 0,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E3%81%97%E3%82%89%E3%81%99%E3%82%84+%E8%85%B0%E8%B6%8A%E6%BC%81%E6%B8%AF%E5%89%8D%E5%BA%97&travelmode=driving',
+      navLabel: '导航去湘南餐厅'
+    },
+    {
+      id: 'spot1',
+      name: 'Spot ① 道の駅 湘南ちがさき',
+      shortName: '①茅ヶ崎道之驿',
+      role: 'optional',
+      enabledByDefault: false,
+      lat: 35.3249, lng: 139.3792, radiusKm: 0.6,
+      driveMin: 65, stayMin: 20, minStayMin: 12,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E9%81%93%E3%81%AE%E9%A7%85+%E6%B9%98%E5%8D%97%E3%81%A1%E3%81%8C%E3%81%95%E3%81%8D&travelmode=driving',
+      navLabel: '导航去茅ヶ崎道之驿'
+    },
+    {
+      id: 'lunch',
+      name: '湘南海岸美食 3 选 1（しらすや/珊瑚礁/ビーチェ）',
+      shortName: '湘南海岸午餐',
+      role: 'meal',
+      enabledByDefault: true,
+      lat: 35.3088, lng: 139.4932, radiusKm: 0.85,
+      driveMin: 20, stayMin: 75, minStayMin: 50,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E3%81%97%E3%82%89%E3%81%99%E3%82%84+%E8%85%B0%E8%B6%8A%E6%BC%81%E6%B8%AF%E5%89%8D%E5%BA%97&travelmode=driving',
+      navLabel: '导航去湘南しらすや'
+    },
+    {
+      id: 'spot2',
+      name: 'Spot ② MARLOWE 逗葉新道店（烧杯布丁）',
+      shortName: '②MARLOWE布丁',
+      role: 'optional',
+      enabledByDefault: true,
+      lat: 35.2804, lng: 139.5936, radiusKm: 0.6,
+      driveMin: 20, stayMin: 15, minStayMin: 10,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E3%83%9E%E3%83%BC%E3%83%AD%E3%82%A6+%E9%80%97%E8%91%89%E6%96%B0%E9%81%93%E5%BA%97&travelmode=driving',
+      navLabel: '导航去MARLOWE'
+    },
+    {
+      id: 'spot3',
+      name: 'Spot ③ 海ほたるPA（跨海人工岛）',
+      shortName: '③海ほたるPA',
+      role: 'core',
+      enabledByDefault: true,
+      lat: 35.4646, lng: 139.8744, radiusKm: 0.75,
+      driveMin: 45, stayMin: 35, minStayMin: 18,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%B5%B7%E3%81%BB%E3%81%9F%E3%82%8B%E3%83%91%E3%83%BC%E3%82%AD%E3%83%B3%E3%82%B0%E3%82%A8%E3%83%AA%E3%82%A2&travelmode=driving',
+      navLabel: '导航去海ほたるPA'
+    },
+    {
+      id: 'spot4',
+      name: 'Spot ④ Pasar幕張（上り）',
+      shortName: '④Pasar幕張',
+      role: 'optional',
+      enabledByDefault: false,
+      lat: 35.6626, lng: 140.0439, radiusKm: 0.6,
+      driveMin: 40, stayMin: 15, minStayMin: 10,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=Pasar%E5%B9%95%E5%BC%B5+%E4%B8%8A%E3%82%8A&travelmode=driving',
+      navLabel: '导航去Pasar幕張'
+    },
+    {
+      id: 'dest',
+      name: '新鎌ヶ谷駅（送迎区零换乘直达成田）',
+      shortName: '新鎌ヶ谷駅送机',
+      role: 'destination',
+      enabledByDefault: true,
+      lat: 35.7813, lng: 140.0046, radiusKm: 0.65,
+      driveMin: 22, stayMin: 0, minStayMin: 0,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%96%B0%E9%8E%8C%E3%83%B6%E8%B0%B7%E9%A7%85&travelmode=driving',
+      navLabel: '一键直航新鎌ヶ谷駅'
+    },
+    {
+      id: 'home',
+      name: '滝不動駅（ご自宅）',
+      shortName: '滝不動自宅',
+      role: 'after',
+      enabledByDefault: true,
+      lat: 35.7368, lng: 140.0177, radiusKm: 0.65,
+      driveMin: 15, stayMin: 0, minStayMin: 0,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=driving',
+      navLabel: '导航回滝不動自宅'
+    }
+  ],
+  directDriveMap: {
+    'origin->spot1': 65,
+    'spot1->lunch': 20,
+    'origin->lunch': 85,
+    'lunch->spot2': 20,
+    'spot2->spot3': 45,
+    'lunch->spot3': 60,
+    'spot3->spot4': 40,
+    'spot4->dest': 22,
+    'spot3->dest': 60,
+    'lunch->dest': 88,
+    'spot2->dest': 95,
+    'dest->home': 15
+  },
+  mealGuards: [
+    { name: '① しらすや 腰越漁港前店', loMin: 1290, closeMin: 1320, fast: true, note: '上菜极快・晚点救星！⚠️仅收现金' },
+    { name: '② モアナマカイ珊瑚礁', loMin: 870, closeMin: 930, fast: false, warnBeforeLoMin: 75, note: '⚠️14:30最后点单(LO)/15:30打烊！13:15后到店若有排队极易吃闭门羹' },
+    { name: '③ イル キャンティ ビーチェ', loMin: 1290, closeMin: 1350, fast: true, note: '196席大容量・满¥2,000免停2h，晚点亦稳妥' }
+  ],
+  deadlineSpec: {
+    destNodeId: 'dest',
+    destName: '新鎌ヶ谷駅',
+    transferBufferMin: 12,
+    targetArrMin: 953,
+    hardArrMin: 997,
+    trains: [
+      { dep: 902, arrT2: 921, arrT1: 923, name: '15:02 Skyliner 157号(15:21抵T2)', tag: '早班超裕' },
+      { dep: 929, arrT2: 969, arrT1: 973, name: '15:29 Access特急(16:09抵T2)', tag: '早班直达' },
+      { dep: 965, arrT2: 985, arrT1: 987, name: '16:05 Skyliner 163号(16:25抵T2)', tag: '⭐黄金首选' },
+      { dep: 969, arrT2: 1008, arrT1: 1011, name: '16:09 Access特急(16:48抵T2)', tag: '⭐17时前抵港线' },
+      { dep: 1009, arrT2: 1047, arrT1: 1050, name: '16:49 Access特急(17:27抵T2・底线)', tag: '⚠️最后安全底线' }
+    ],
+    emergencyDirect: {
+      title: '✈️ 应急兜底：放弃赶电车，高速直奔成田空港航站楼出发大厅',
+      driveFrom: { lunch: 110, spot2: 105, spot3: 68, spot4: 38 },
+      flightMin: 1160,
+      safeAirportArrMin: 1040,
+      homeAfterMin: 50,
+      navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%88%90%E7%94%B0%E5%9B%BD%E9%9A%9B%E7%A9%BA%E6%B8%AF+%E7%AC%AC2%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB&travelmode=driving',
+      navLabel: '✈️ 直航成田 T2/T3',
+      desc: '零换乘搬箱与候车耗损！午餐后直接上高速走湾岸线/东关东道直抵成田 T1/T2 出发层下车即值机，送完再开50分回滝不動。'
+    }
+  },
+  replayScenarios: [
+    {
+      label: '🔴 复盘 11/25 实况：13:30 才到第1家饭店（忘开ETC＋山路慢行，晚点+125分）',
+      cls: 'err',
+      nodeId: 'lunch',
+      event: 'arr',
+      timeMin: 810,
+      tollsOn: false,
+      resetEnabled: true,
+      reason: '11/25 实况复盘：忘开ETC＋山路低速＋停休，13:30 抵店'
+    },
+    {
+      label: '🟠 模拟早发现预警：11:35 才到茅ヶ崎（慢行+走错，滞后+30分）',
+      cls: 'warn',
+      nodeId: 'spot1',
+      event: 'arr',
+      timeMin: 695,
+      tollsOn: true,
+      resetEnabled: true,
+      enabledNodes: { spot1: true, spot2: true, spot3: true, spot4: false },
+      reason: '途中轻度滞后：11:35 抵茅ヶ崎道之驿'
+    }
+  ],
+  onApplyPlan: ({ enabledNodes }) => {
+    if (enabledNodes) {
+      s1El.checked = Boolean(enabledNodes.spot1);
+      s2El.checked = Boolean(enabledNodes.spot2);
+      s3El.checked = Boolean(enabledNodes.spot3);
+      s4El.checked = Boolean(enabledNodes.spot4);
+      renderSim();
+    }
+  }
 });
 </script>
 </body>

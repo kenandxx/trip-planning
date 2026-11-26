@@ -1,0 +1,24 @@
+{
+  "name": "日本自驾实时护航模板｜Trip Planning Hub",
+  "short_name": "自驾护航",
+  "description": "日本自驾实时进度监测、手机强提醒与晚点动态重排通用模板",
+  "start_url": "./?copilot=1",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f0e7",
+  "theme_color": "#213843",
+  "icons": [
+    {
+      "src": "../../copilot/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../../copilot/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

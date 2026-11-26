@@ -1,96 +1,109 @@
 ---
 name: japan-self-drive-trip-planner
-description: "Plan Japan self-drive trips to the full WeChat-shareable interactive web app specification — schedule feasibility & interactive timeline simulator, official highway congestion & road-closure risk analysis, novice-safe one-tap Google Maps navigation with anti-trap route verification, scenic drive & SA/PA specialty stops, 3 curated restaurants with 9+ real photos & 9 real reviews, high-DPI WeChat summary poster, and public GitHub Pages deployment. Use whenever the user asks to plan a road trip, self-drive itinerary, travel schedule, or says 按照老规格/自驾攻略模板规划行程."
+description: Plan Japan self-drive trips to the v2.0 WeChat-shareable interactive web app & Live Co-Pilot specification — pre-flight Google Maps ETC/toll anti-trap gate, realistic driving pace buffering (1.2x–1.35x), GPS geofence + 1-tap live progress check-in, 4-channel strong mobile alerts (.ics dual calendar alarms, WakeLock + Chinese TTS voice chime, iPhone Bark critical push, PWA notifications), 3-tier automatic delay replanning with restaurant L.O. guards & AI emergency prompt builder, novice-safe Google Maps navigation, 3 curated restaurants (9+ photos & 9 reviews), high-DPI WeChat poster, and GitHub Pages deployment. Use whenever the user asks to plan a road trip, self-drive itinerary, travel schedule, or says 按照老规格/自驾攻略模板规划行程.
 ---
+# Japan Self-Drive Trip Planner v2.0 (Interactive Guide + Live Co-Pilot & Auto-Replan Spec)
 
-# Japan Self-Drive Trip Planner (Full Interactive & WeChat-Shareable Spec)
-
-Follow this end-to-end specification whenever planning a self-drive trip for the user.
+Follow this end-to-end specification whenever planning or updating a self-drive trip for the user.
 
 ## 1. Defaults & User Profile (Override When Provided)
-- **Language**: Write all user-facing prose, web UI, posters, and WeChat copy in **Simplified Chinese (`zh-CN`)**, while preserving official Japanese place, road, IC/JCT, SA/PA, and restaurant names so the driver can match road signs and navigation screens.
+- **Language**: Write all user-facing prose, web UI, posters, `.ics` calendar alarms, voice alerts, and WeChat copy in **Simplified Chinese (`zh-CN`)**, while preserving official Japanese place, road, IC/JCT, SA/PA, and restaurant names so the driver can match road signs and navigation screens.
 - **Default Driver Context** (confirm or override if the user specifies otherwise):
   - Typical starting area: near **滝不動駅 (Chiba)** unless another origin is given.
   - Driving style: ~30,000 km experience, relies strictly on turn-by-turn navigation ("跟着导航开车"), prefers wide dual-lane roads, avoids narrow alleys, steep blind descents, confusing highway junctions, and unnecessary night mountain driving.
-- **Ask or Confirm Missing Inputs Only If Blocking**: Date(s), departure/pickup time anchor, pickup location(s), destination/lodging, group size/luggage constraints, scenic/food preferences.
+  - **Real-World Pace Reality (11/25 Post-Mortem Lesson)**: Never schedule tight chains on `1.00×` ideal Google Maps duration alone! Unplanned rest stops, missed turns, traffic, or cautious driving below speed limits on unfamiliar/mountain roads routinely add `20%–35%+`. Always model a **1.20× default realistic pace option** (`1.35×` for mountain/rain/snow) and wire up live dynamic replanning.
+- **Ask or Confirm Missing Inputs Only If Blocking**: Date(s), departure/pickup time anchor, pickup location(s), destination/lodging & **hard deadline** (e.g., ryokan kaiseki dinner cutoff `17:30`, airport train `16:05`, last Gondola), group size/luggage constraints, scenic/food preferences.
 
 ---
 
 ## 2. Mandatory Pre-Planning Research & Fact-Checking
 Before designing the timetable, verify real-world conditions via web search:
-1. **Weather & Daylight**: Forecast for each day (precipitation %, Mt. Fuji / scenic visibility), exact **sunset time**, and closing times (`最終入場` / `閉園`) of key outdoor spots.
+1. **Weather, Daylight & Hard Time Cutoffs**:
+   - Forecast for each day (precipitation %, Mt. Fuji / scenic visibility), exact **sunset time**, attraction closing / `最終入場` times, AND restaurant **Last Order (`L.O.`)** cutoffs (critical when lunch/dinner gets delayed by 60–90 min!).
 2. **Official Highway Traffic & Construction**:
    - Check NEXCO (East/Central/West), Shutoko, and prefectural road announcements for the exact date(s): hourly congestion forecast (km & peak hours), public holiday ETC discount exclusions, full/lane road closures, seasonal winter closures (`冬季通行止め`), and long-term construction zones.
-   - Check toll payment constraints: **ETC-only ramps (ETC専用)** vs **cash/ETCX-only toll roads** (where standard ETC does not work) and calculate exact cash needed.
+   - Check toll payment constraints: **ETC-only ramps (ETC専用)** vs **cash/Suica/ETCX-only toll roads** (where standard ETC does not work) and calculate exact cash coins needed in the cupholder.
    - For winter/mountain trips (Nov–Apr), check studless tire (`スタッドレスタイヤ`) and chain regulation (`チェーン規制`) zones.
 3. **Pickup & Parking Verification**:
    - Check curb/parking capacity at pickup hotels/stations; identify the nearest large flat backup parking lot (capacity, opening time, fee, height limit).
    - For sightseeing towns with narrow alleys, always target a verified wide, flat, attendant-guided perimeter parking lot — **never** route directly to a temple hall or narrow alley landmark.
 4. **Scenic Routes & Highway SA/PA Specialties (名物)**:
    - Evaluate scenic toll/skyline drives (viewpoints with free parking, toll payment method, safest downhill exit + engine braking reminder) AND prepare a **zero-mountain-road highway backup** for fog, snow, wind, or fatigue.
-   - Identify notable SA/PA food specialties along the exact direction (`下り` / `上り`) that fit naturally without detours.
-5. **Dining Research (3 Curated Picks)**:
-   - Select **3 distinct, verified-open restaurants** for the target meal (verify regular closing day `定休日` AND holiday schedule for the exact date, business hours & `L.O.`, distance/parking/walkability from lodging, phone reservation or mobile queue URL).
+   - Tag stops clearly by replan priority: `must` (origin, meal, hotel/airport drop-off), `core` (signature highlight that can be time-compressed first before skipping), and `optional` (20-min bonus pit stops that get auto-trimmed first if running behind).
+5. **Dining Research (3 Curated Picks + Late-Arrival Resilience)**:
+   - Select **3 distinct, verified-open restaurants** for the target meal (verify regular closing day `定休日` AND holiday schedule for the exact date, business hours & exact `L.O.` minute, service speed/queue risk, distance/parking/walkability, phone reservation or mobile queue URL).
+   - Ensure at least 1–2 of the 3 picks have **all-afternoon / late `L.O.` and fast turnover** so a `+90 min` highway/detour delay does not leave the group locked out of lunch or dinner.
    - Gather **at least 3 real photos per restaurant (≥ 9 photos total)** plus scenic/SA photos, and **3 real diner reviews per restaurant (9 reviews total)** with reviewer name/platform and actionable takeaways.
    - Download all images locally into that trip's `img/` folder inside the repo (verify each image renders cleanly and is not hotlink-blocked or broken).
 
 ---
 
-## 3. Novice-Safe One-Tap Google Maps Navigation Rules (Critical)
+## 3. Novice-Safe One-Tap Google Maps Navigation & Anti-Trap Rules (Critical)
 Every navigation link MUST follow official Google Maps URLs v1 (`https://www.google.com/maps/dir/?api=1&...` or `search/?api=1&...`):
-1. **Natural-Stop Relay Instead of Mid-Highway Waypoints**:
+1. **Pre-Flight Google Maps "Avoid Tolls = OFF" Gate (Mandatory 11/25 Anti-Trap Rule)**:
+   - Google Maps URLs v1 cannot override a user's sticky in-app **"Avoid tolls (避开收费公路)"** or **"Avoid highways"** toggle! If left ON, Google Maps silently routes drivers off Tomei/expressways onto steep, slow mountain roads, causing `+90 min` delays.
+   - Every trip page MUST display the **Pre-Flight 2-Lock Gate** at departure:
+     1. Confirm Google Maps Route Options has **「避开收费公路 / 避开高速公路」turned OFF**, and verify the preview blue line shows the **「有料 / 收费」** badge AND matches expected Leg 1 duration.
+     2. Confirm in-car **ETC card reader green light** + exact cash coins in cupholder for non-ETC toll gates.
+2. **Natural-Stop Relay Instead of Mid-Highway Waypoints**:
    - Do **not** insert intermediate waypoints on expressways/viaducts (mobile Google Maps pauses navigation at each waypoint requiring a manual "Continue" tap, and elevated coordinates snap to surface roads or opposite lanes).
    - Split the drive into legs ending at **real free parking stops / SA / viewpoints** so the co-pilot can tap the next leg safely.
-   - Optionally include a collapsible **"副驾专用：带安全经由点单线锁死版"** using ONLY real free parking lots/viewpoints as `waypoints=`.
-2. **Never Set Tunnel Entrances or Highway On-Ramps as Standalone Destinations**:
-   - Long tunnels lose GPS and ramp coordinates snap to surface overpasses. Instead, launch continuous navigation from the pickup point directly to the next SA/stop, and pair it with:
-     - `👀 预览蓝线` (`origin=<pickup>&destination=<next_stop>&travelmode=driving`)
-     - Verified exact coordinates (`search/?api=1&query=<lat>,<lng>`) for reference only
-     - Ground-road/zero-tunnel alternative using `&avoid=highways` where helpful.
-3. **Expressway SA/PA Links**:
-   - Use the expressway facility name + direction (e.g., `EXPASA海老名 下り`), **never** append the local street address (which can route drivers onto local roads / external Platt Park).
-4. **Every Navigation Card Must Contain**:
-   - **✅ 1秒选线核对**: Exact road name(s) to confirm on the blue line vs `❌` road(s) to reject.
+3. **Never Set Tunnel Entrances or Highway On-Ramps as Standalone Destinations**:
+   - Long tunnels lose GPS and ramp coordinates snap to surface overpasses. Launch continuous navigation from the pickup/current stop directly to the next SA/stop, paired with `👀 预览蓝线` and verified coordinates for reference only.
+4. **Expressway SA/PA Links**:
+   - Use the expressway facility name + direction (e.g., `EXPASA海老名 下り`, `Pasar幕張 上り`), **never** append the local street address.
+5. **Every Navigation Card Must Contain**:
+   - **✅ 1秒选线核对**: Exact road name(s) + `有料` badge + expected minutes to confirm on the blue line vs `❌` road(s) to reject.
    - **Lane / JCT Mnemonics**: Concrete visual cues (colored lanes, LED sign text, speed limits) for complex junctions.
-   - **WeChat Browser Escape Tip**: Remind users to tap `···` → "在默认浏览器（Safari / Chrome）中打开" if WeChat blocks deep-linking to Google Maps.
-   - Recommend **Yahoo!カーナビ** (free, `広い道優先` + 3D JCT lane diagrams) as a co-pilot backup.
+   - **WeChat Browser Escape Tip** & **Yahoo!カーナビ** (`広い道優先` + 3D JCT lane diagrams) co-pilot backup tip.
 
 ---
 
-## 4. Deliverables & Page Architecture
-Build a cohesive, mobile-first (390px+), dark-mode-ready, single-file web app (`index.html`) + WeChat share kit:
-
-1. **Interactive Web Page (`index.html`)**:
-   - **Hero**: Trip date, weather/sunset/key anchor badges, high-level route summary.
-   - **Sticky Section Nav**: One-tap jump between sections.
-   - **Section 1 — 新手一键导航控制台**: Route mode switcher (Scenic vs Zero-Mountain-Road backup), optional live pickup-point input override, sequential navigation cards, and a "复制微信群文案" button.
-   - **Section 2 — 绝景路段评估 & 沿途 SA/PA 名物**: Real photos (with tap-to-zoom lightbox), toll/cash tips, downhill driving advice, and must-eat SA items.
-   - **Section 3 — 精选餐厅 3 选 1**: 3 cards × (3 real photos + 3 real reviews + hours/parking/budget + walking/driving Google Maps nav + map pin + call/mobile-queue button).
-   - **Section 4 — 交互式行程时间轴模拟器**:
-     - Preset buttons comparing recommended, relaxed/backup, and risky/tight plans.
-     - Slider anchored to the user's key time constraint (departure or pickup time), route dropdown, traffic scenario selector (official forecast / smooth / +30m accident), and order toggle (e.g., sightsee before check-in).
-     - Live KPI cards, horizontal Gantt bar with **sunset red vertical line** (evenly padded ticks so edge labels never clip), and detailed leg-by-leg timetable.
-   - **Section 5 — 官方高速拥堵预测 & 风险避坑矩阵**: Hourly outbound vs return congestion bar chart + categorized High/Medium risk cards with concrete countermeasures.
-   - **Section 6 — 行前协同清单**: Interactive checkboxes persisted in `localStorage` (use a unique trip-scoped storage key per trip).
-
-2. **WeChat Share Assets**:
-   - `og-cover.png` (1200×630) referenced in `<meta property="og:image">` with a version query string (`?v=...`) to bust WeChat cache.
-   - High-DPI vertical summary poster PNG (440px logical width @ 2.5x) summarizing timelines, scenic/SA highlights, 3 dinner picks, and critical alerts. **Whenever regenerating the poster after edits, use a new versioned filename** (e.g., `poster_v2.png` or `poster_0900.png`) to prevent CDN/WeChat caching stale images.
-   - `wechat_share_kit.md` containing copy-pasteable WeChat group confirmation text, plain-text one-tap Google Maps link pack, and direct poster link.
+## 4. Live Trip Co-Pilot, 4-Channel Strong Alerts & Auto-Replan Engine (v2.0 Core)
+Every trip page under `trips/YYYY-MM-<slug>/` MUST include `manifest.webmanifest`, link `../../copilot/trip-copilot.css` & `../../copilot/trip-copilot.js` (backed by root `sw.js`), mount `#copilot` as the top interactive section + sticky bottom dock, and configure `TripCopilot.init({...})` with:
+1. **Dual-Mode Progress Tracking**:
+   - **GPS Auto Geofence & Slow-Road Detector**: Real `lat, lng, radiusKm` for every node so foreground GPS (`watchPosition`) auto-checks in arrivals within ~600m, estimates live remaining distance/ETA, learns observed pace factor, and warns if speed stays `< 32 km/h` on an expressway leg (catching accidental non-ETC surface routing early!).
+   - **1-Second Co-Pilot Check-in & Quick Bump Buttons**: Node selector + editable time (`取当前` or manual `HH:MM`) + `📍 我刚到这里` / `🚀 刚从这出发` + 1-tap `+15m 休息` / `+15m 走错路` / `+20m 堵车慢行`.
+2. **Restaurant `L.O.` Guard & 3-Tier Dynamic Re-Plan Engine**:
+   - Configure `directDriveMap` (exact expressway minutes when skipping optional/core stops), `mealGuards` (`loMin`, `closeMin`, fast-turnover flag), and `deadlineSpec` (`targetArrMin`, `hardArrMin`, train connections if any, and `emergencyDirect` ultimate fallback if applicable).
+   - Whenever delay `≥ 20 min` or a deadline is threatened, automatically present **3 concrete Re-Plan cards**:
+     - **Plan 1 (`🛡️ 稳救黄金死线版`)**: Compress meal to `minStayMin`, cut `optional` stops (and convert `core` stops to pass-through if needed) to rescue the primary target deadline.
+     - **Plan 2 (`🌉 保留核心体验速刷版`)**: Cut `optional` stops, keep `core` stop at compressed `minStayMin`, and show the exact fallback train/arrival margin.
+     - **Plan 3 (`✈️ 终极兜底直达版`)**: Direct expressway fallback (e.g., direct drive to airport terminal or zero-mountain direct hotel highway route).
+   - Include 1-tap `⚡ 套用此方案` (syncing with the Section 4 Gantt Simulator) + `📋 复制调整版微信群通知` + `🧪 实况痛点演练按钮` so users can pre-test delay scenarios before departure.
+3. **4-Channel Strong Mobile Alerts**:
+   - **Channel 1 — System Calendar `.ics` Dual Alarms**: 1-tap export of RFC 5545 `.ics` (`Asia/Tokyo`, `-PT15M` + `PT0M` dual `VALARM`s) for pre-flight gate, 1-hour highway check, and each stop's must-depart redline (re-exportable after replanning!).
+   - **Channel 2 — Foreground Co-Pilot Guard**: Screen `WakeLock` + Web Audio automotive dual-tone chime + Chinese `speechSynthesis` voice briefing + vibration + high-contrast fullscreen takeover modal.
+   - **Channel 3 — iPhone Bark Critical Push & Team `ntfy.sh` Topic**: Supports multi-device Bark Keys (`level=critical&volume=10&call=1` to ring through iPhone silent switch on severe risk, carrying 1-tap Google Maps URL) + `ntfy.sh` team channel + iOS Shortcuts auto-checkin URL (`?copilot=1&checkin=<nodeId>`).
+   - **Channel 4 — Home-Screen PWA & Tunnel Offline Cache**: `manifest.webmanifest` + root `sw.js` for iOS 16.4+/Android native notifications and zero-signal tunnel/mountain availability.
+4. **AI Deep Emergency Replan Drawer**:
+   - Auto-packages live timestamp, GPS coordinates, completed/remaining stops, observed pace multiplier, hard deadlines, and novice anti-trap Google Maps URL rules for 1-tap copy to ChatGPT/Claude/Gemini (plus optional local-storage-only API key inline generation).
+   - *(Note: When answering in an external web chat without repo access, inline an equivalent self-contained Live Check-in + `.ics` Export + 3-Plan Auto-Replan JS module directly inside the single `index.html`.)*
 
 ---
 
-## 5. Multi-Trip Monorepo & GitHub Pages Publishing Convention
-Use a single public repository (`kenandxx/trip-planning`) with one subfolder per trip instead of creating a new repo each time:
-- Keep existing published trip URLs intact (do **not** overwrite root `/` which hosts the live 2026-11-23 Izu trip).
-- Create each new trip under `trips/YYYY-MM-<slug>/` (e.g., `trips/2027-01-hakuba/`) containing `brief.md`, `index.html`, `img/`, `og-cover.png`, and versioned `poster_*.png`.
-- Update `trips/index.html` (the Trip Hub) to list the newly published trip with its status badge, date, and direct link (`https://kenandxx.github.io/trip-planning/trips/YYYY-MM-<slug>/`).
+## 5. Full Page Deliverables & Section Architecture
+Build a cohesive, mobile-first (390px+), dark-mode-ready web app (`index.html`) + PWA manifest + WeChat share kit:
+1. **Hero & Sticky Section Nav**: Trip date, weather/sunset/anchor badges, `#copilot` first tab + jump links.
+2. **Section 0 — 行中实时进度护航 ＆ 晚点自动重排副驾台 (`#copilot`)**: Powered by `TripCopilot.init(...)` + sticky bottom `.cp-dock`.
+3. **Section 1 — 沿途绝景 / 20分钟彩蛋 ＆ SA/PA 名物**: Real photos (with tap-to-zoom lightbox), priority tags (`核心` vs `可选弹性`), toll/cash tips, downhill advice.
+4. **Section 2 — 新手逐段一键导航 ＆ 老司机 Drive 要点**: Sequential relay cards, `1秒选线核对`, JCT lane mnemonics, zero-mountain backup, WeChat copy button.
+5. **Section 3 — 精选餐厅 3 选 1**: 3 cards × (3 real photos + 3 real reviews + exact `L.O.` badge + parking + driving/walking nav + `tel:` button).
+6. **Section 4 — 交互式行程时间轴模拟器 (`#sim`)**: Presets, departure/pickup slider, traffic/pace selector, optional-spot toggles (synced with `TripCopilot` `onApplyPlan`), KPI cards, horizontal Gantt bar with sunset/deadline lines, and leg-by-leg timetable.
+7. **Section 5 — 官方高速拥堵预测 ＆ 风险避坑矩阵**: Hourly congestion chart + High/Medium risk cards.
+8. **Section 6 — 行前协同清单**: Persisted in `localStorage` with a unique trip-scoped key.
+9. **WeChat Share Assets**:
+   - `og-cover.png` (1200×630) with cache-busting `?v=...`.
+   - Versioned high-DPI vertical summary poster PNG (440px logical width @ 2.5x, new filename on every edit e.g. `poster_v2.png`).
 
-## 6. Verification Checklist Before Finishing
-1. **Static Audit**: Confirm zero stale timestamps, zero broken/concatenated POI strings, zero street addresses in SA/PA queries, and 100% consistency across `index.html`, `wechat_share_kit.md`, `og-cover.png`, and the summary poster.
-2. **Playwright Mobile QA (390×844)**:
-   - Zero JS console/page errors and zero horizontal overflow (`scrollWidth <= innerWidth`).
-   - Test all mode tabs, simulator presets, traffic modes, and live inputs.
-   - Visually inspect screenshots of the hero, key nav cards, Gantt chart, OG cover, and poster PNG.
-3. **GitHub Pages Deployment**:
-   - Commit and push to `origin main` and verify `gh api repos/kenandxx/trip-planning/pages/builds/latest` reports `"status": "built"` for the pushed commit SHA.
+---
+
+## 6. Multi-Trip Monorepo & Verification Checklist
+1. **Monorepo Structure (`kenandxx/trip-planning`)**:
+   - Do **not** overwrite root `/` (hosts live 2026-11-23 Izu Day 1).
+   - Shared Co-Pilot runtime lives at `/copilot/trip-copilot.{css,js}`, `/copilot/icon-{192,512}.png`, and `/sw.js`.
+   - Create each new trip under `trips/YYYY-MM-<slug>/` (`brief.md`, `index.html`, `manifest.webmanifest`, `img/`, `og-cover.png`, `poster_*.png`) and update `trips/index.html` + `README.md`.
+2. **Playwright Mobile QA (390×844) Before Finishing**:
+   - Zero JS console/page errors and zero horizontal overflow (`scrollWidth <= innerWidth`), including when Co-Pilot replan cards, folds, and urgent modals are open!
+   - Test Pre-Flight Gate, 1-tap delay replay scenario (verifying 3 Re-Plan options & `L.O.` guard render and sync with Gantt simulator), `.ics` calendar builder, and AI emergency prompt preview.
+   - Commit, push to `origin main`, and verify GitHub Pages build status `"built"`.

@@ -3,10 +3,19 @@
 个人日本自驾攻略、新手防选错一键 Google Maps 导航页与微信分享长图归档仓库（单仓库多行程管理，共用同一套 GitHub Pages）。
 
 - **旅行总览目录（Trip Hub）**：https://kenandxx.github.io/trip-planning/trips/
-- **跨 AI 通用规划规范（SKILL.md）**：
+- **跨 AI 通用规划规范（SKILL.md v2.0・含行中实时护航＆晚点自动重排）**：
   - 仓库浏览：[skills/japan-self-drive-trip-planner/SKILL.md](skills/japan-self-drive-trip-planner/SKILL.md)
   - 直链 Raw（可直接喂给 ChatGPT / Claude / Gemini）：
     `https://raw.githubusercontent.com/kenandxx/trip-planning/main/skills/japan-self-drive-trip-planner/SKILL.md`
+
+---
+
+## 🛰️ v2.0 新特性：行中实时进度护航 ＆ 四通道强提醒 ＆ 晚点自动重排
+针对真实自驾痛点（忘关地图「避开收费站」误入山路、低于限速慢行、临时停休/走错路导致严重晚点），全套架构已升级支持：
+1. **发车前 2 项防呆锁扣＋真实车速折算系数（1.0× / 1.2× / 1.35×）**：强制核验 Google Maps「避开收费公路=关闭（蓝线带『有料』标）」与车载 ETC 绿灯，把慢速与休息缓冲提前算入排期。
+2. **GPS 自动围栏监测 ＋ 副驾 1 秒打卡**：进站 600m 自动打卡、实时侦测高速段低速偏航风险，也支持随时一键点按「刚到这 / 临时休息+15m / 走错路+15m / 堵车+20m」。
+3. **餐厅 `L.O.` 排雷 ＋ 毫秒级 3 套重排方案 ＋ AI 急救台**：一旦晚点 ≥20 分钟（如 11/25 实况 `13:30` 才抵湘南餐厅），离线秒算 **① 稳救黄金死线版 / ② 保核心体验速刷版 / ③ 终极直达兜底版**，并支持一键打包实时 GPS 与死线唤起 AI 深度改道。
+4. **手机四通道强提醒**：系统日历 `.ics` 双闹钟（锁屏/CarPlay 100% 弹窗）＋ 网页常亮语音护航（WakeLock + 双音警报 + 中文 TTS）＋ iPhone **Bark** 突破静音强推送（及 `ntfy.sh` 同车广播）＋ 主屏幕 PWA 原生通知与隧道离线缓存。
 
 ---
 
@@ -16,12 +25,12 @@
 |---|---|---|---|
 | ✅ 已上线 | **2026-11-23（Day 1）东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
 | ✅ 已上线（主推） | **2026-11-24（Day 2 新版）沼津深海避雨 / 虹之乡＆净莲瀑布（跳过修禅寺＆碧テラス）** | `trips/2026-11-24-izu-day2/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-izu-day2/ |
-| ✅ 已上线（最新） | **2026-11-25（Day 3 v3・Plan B定案）10:00出发 → 湘南美食＋4个20分彩蛋＋跨海海ほたる → 新鎌ヶ谷直达成田** | `trips/2026-11-25-izu-return/` | https://kenandxx.github.io/trip-planning/trips/2026-11-25-izu-return/ |
+| 🛰️ 已实装 v2.0 护航 | **2026-11-25（Day 3・含实时护航＆13:30晚点复盘重排）湘南＋海ほたる → 新鎌ヶ谷直达成田** | `trips/2026-11-25-izu-return/` | https://kenandxx.github.io/trip-planning/trips/2026-11-25-izu-return/ |
 | 📁 旧版归档 | **2026-11-24（Day 2 备查旧版・含修善寺）** | `trips/2026-11-24-nishi-izu/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/ |
 | 📝 占位 | **2027-01 冬季滑雪温泉自驾（白马 / 越后汤泽 / 苗场）** | `trips/2027-01-snow-trip/` | https://kenandxx.github.io/trip-planning/trips/2027-01-snow-trip/ |
 | 📝 占位 | **2027-03 富士五湖・河口湖绝景周末自驾** | `trips/2027-03-fuji-lakes/` | https://kenandxx.github.io/trip-planning/trips/2027-03-fuji-lakes/ |
 | 📝 占位 | **2027-05 轻井泽・草津高原温泉自驾** | `trips/2027-05-karuizawa-kusatsu/` | https://kenandxx.github.io/trip-planning/trips/2027-05-karuizawa-kusatsu/ |
-| 🧩 模板 | **通用空白新行程脚手架（复制即用）** | `trips/template/` | https://kenandxx.github.io/trip-planning/trips/template/ |
+| 🧩 v2.0 模板 | **通用空白新行程脚手架（内置实时护航＆强提醒演示）** | `trips/template/` | https://kenandxx.github.io/trip-planning/trips/template/ |
 
 ---
 
@@ -29,18 +38,20 @@
 
 ```text
 trip-planning/
+├── copilot/                                      # 🛰️ v2.0 通用行中实时护航＆强提醒＆自动重排引擎 (CSS + JS + PWA Icons)
+├── sw.js                                         # 根作用域 Service Worker（海底隧道离线缓存＋PWA原生系统通知）
 ├── index.html                                    # 2026-11-23 Day 1 伊豆攻略（已发微信群，保持根目录不失效）
 ├── img/                                          # 2026-11-23 Day 1 伊豆本地实拍图
 ├── og-cover.png                                  # 2026-11-23 Day 1 微信分享封面
 ├── izu_1123_wechat_poster_0900.png               # 2026-11-23 Day 1 微信一图流高清长图（09:00接人版）
-├── skills/japan-self-drive-trip-planner/SKILL.md # 跨 AI 通用规范（供复制 / Raw 链接调用）
-├── .agents/skills/japan-self-drive-trip-planner/ # 同款规范（本地 Agent 工具自动识别）
+├── skills/japan-self-drive-trip-planner/SKILL.md # 跨 AI 通用规范 v2.0（供复制 / Raw 链接调用）
+├── .agents/skills/japan-self-drive-trip-planner/ # 同款规范 v2.0（本地 Agent 工具自动识别）
 └── trips/
     ├── index.html                                # 旅行总览目录页（Trip Hub）
     ├── 2026-11-24-izu-day2/                      # 2026-11-24 Day 2 新版全天候攻略（跳过修禅寺＆碧テラス）
-    ├── 2026-11-25-izu-return/                    # 2026-11-25 Day 3 v3：Plan B细化版（湘南美食＋4彩蛋＋海ほたる→新鎌ヶ谷送机）
+    ├── 2026-11-25-izu-return/                    # 2026-11-25 Day 3（已实装 v2.0 实时护航＋13:30晚点自动重排复盘）
     ├── 2026-11-24-nishi-izu/                     # 2026-11-24 Day 2 历史备选归档
-    ├── template/                                 # 空白新行程模板（brief.md + index.html + img/）
+    ├── template/                                 # v2.0 空白新行程模板（brief.md + index.html + manifest + 护航演示）
     ├── 2027-01-snow-trip/                        # 冬季滑雪占位模板
     ├── 2027-03-fuji-lakes/                       # 富士五湖占位模板
     └── 2027-05-karuizawa-kusatsu/                # 轻井泽・草津占位模板
