@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)">
+<title>11/26 今晚实测｜池袋セクキャバ 40分×2 连刷 ＋ 电车 22:00 前稳抵滝不動</title>
+<meta name="description" content="2026年11月26日（周四・11–13℃晴转多云）v2.0 实时护航实战测试：池袋西口・北口徒歩3分圏 2家セクキャバ（40分×2）连刷、店内口袋盲操30分防自动延长强提醒、JR山手線→常磐線→京成松戸線 20:34黄金班次/20:53生死末班时刻表、晚点毫秒级3套自动重排方案与西口15分极速美食3选1。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kenandxx.github.io/trip-planning/trips/2026-11-26-ikebukuro-night/">
+<meta property="og:title" content="11/26 今晚实测｜池袋 40分×2 连刷 → 电车 22:00 前抵滝不動">
+<meta property="og:description" content="内置口袋30分防自动延长强震动/语音/Bark推送＋20:34本命/20:53末班红线监测＋晚点一键生成3套止损救援方案（砍第2轩/30分快闪/首都高タクシー）。">
+<meta property="og:image" content="https://kenandxx.github.io/trip-planning/trips/2026-11-26-ikebukuro-night/og-cover.png?v=1126v1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../copilot/icon-192.png">
+<link rel="stylesheet" href="../../copilot/trip-copilot.css?v=2.1">
+<style>
+:root{
+  --paper:#f4efe6; --card:#fcfaf5; --card2:#ede6d8; --ink:#191816; --soft:#655d52; --line:#dcd3c3;
+  --accent:#c24b2a; --accent-soft:#f7e1d8; --indigo:#1b3f60; --indigo-soft:#dce9f5;
+  --plum:#6b2d5c; --plum-soft:#f3e2ef;
+  --nav:#1a73e8; --nav-dark:#1558b0;
+  --ok:#1d6d48; --ok-bg:#dcf2e7; --warn:#9a5b06; --warn-bg:#f9ebd0; --err:#b91c1c; --err-bg:#fce2e2;
+  --shadow:0 1px 2px rgba(20,30,45,.06),0 6px 18px rgba(20,30,45,.05);
+  --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#12141a; --card:#1b1e26; --card2:#252934; --ink:#ede8df; --soft:#a39d93; --line:#323744;
+    --accent:#ee7b54; --accent-soft:#3a241d; --indigo:#86bfe0; --indigo-soft:#1b2e40;
+    --plum:#e091cb; --plum-soft:#331d2e;
+    --nav:#4c92f4; --nav-dark:#2f74d0;
+    --ok:#52b788; --ok-bg:#183226; --warn:#eab856; --warn-bg:#382a12; --err:#f27474; --err-bg:#3b1c1e;
+    --shadow:0 2px 12px rgba(0,0,0,.42);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+.wx-thumb{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* Hub strip */
+.hub-bar{background:#101a2b;color:rgba(255,255,255,.9);font-size:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.hub-bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 14px;flex-wrap:wrap}
+.hub-bar a{color:#cfe6ff;font-weight:600}
+.hub-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#131d33 0%,#233a5e 52%,#7a3248 100%);color:#fff;padding:22px 16px 18px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-45px;top:-45px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,205,165,.24),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding:0}
+.kicker{font:600 11.5px/1.2 var(--mono);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.kicker span{background:rgba(255,255,255,.15);padding:4px 9px;border-radius:99px}
+.kicker span.ok{background:rgba(82,183,136,.35);color:#e4fcef}
+.kicker span.hot{background:rgba(240,113,113,.36);color:#ffe8e8}
+.hero h1{margin:0;font:600 21px/1.32 var(--serif);letter-spacing:.01em}
+.hero .sub{margin:7px 0 0;font-size:13px;opacity:.93;line-height:1.55}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.hstat{background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:7px 9px;min-width:0}
+.hstat .l{font-size:11px;opacity:.84}
+.hstat .v{font:700 12.5px/1.3 var(--mono);margin-top:2px}
+
+/* Sticky Nav */
+nav{position:sticky;top:0;z-index:30;background:var(--paper);background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:12.5px;font-weight:700;color:var(--soft);padding:6px 11px;border-radius:99px;white-space:nowrap}
+nav a.on{background:var(--ink);color:var(--paper)}
+
+main{padding:16px 0 44px}
+section{margin-bottom:26px;scroll-margin-top:58px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.sec-k{font:700 11px/1 var(--mono);letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+h2{margin:3px 0 0;font:600 18.5px/1.3 var(--serif)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.card+.card{margin-top:10px}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.tag.err{background:var(--err-bg);color:var(--err)}
+.tag.blue{background:var(--indigo-soft);color:var(--indigo)}
+.tag.plum{background:var(--plum-soft);color:var(--plum)}
+
+.alert{border-radius:12px;padding:11px 13px;font-size:13px;border:1px solid;line-height:1.55}
+.alert.err{background:var(--err-bg);border-color:color-mix(in srgb,var(--err) 35%,transparent)}
+.alert.ok{background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.alert.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.alert ul{margin:6px 0 0;padding-left:18px}
+.alert li{margin:4px 0}
+
+/* Pocket 40-min Anti-Auto-Extension Timer */
+.pocket-timer{background:linear-gradient(155deg,#182238 0%,#231d33 100%);color:#f8f5ef;border-radius:16px;padding:14px;margin-bottom:12px;border:1.5px solid rgba(255,255,255,.14);box-shadow:var(--shadow)}
+.pt-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.pt-title{font:700 14.5px/1.3 var(--sans);display:flex;align-items:center;gap:6px}
+.pt-display{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.pt-clock{font:800 32px/1 var(--mono);letter-spacing:.03em;color:#6ee7b7}
+.pt-clock.warn{color:#fcd34d}
+.pt-clock.err{color:#fca5a5;animation:pulseRed 1s infinite}
+@keyframes pulseRed{0%,100%{opacity:1}50%{opacity:.55}}
+.pt-meta{min-width:0}
+.pt-status{font-size:12.5px;font-weight:700;line-height:1.35}
+.pt-sub{font-size:11.5px;color:rgba(255,255,255,.76);margin-top:2px;line-height:1.4}
+.pt-bar-bg{height:6px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden;margin-top:6px}
+.pt-bar-fill{height:100%;width:100%;background:#34d399;transition:width .4s,background .3s}
+.pt-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pt-btn{padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:#fff;font-size:12.5px;font-weight:700;text-align:center}
+.pt-btn.pri{background:#2563eb;border-color:#3b82f6}
+.pt-btn.plum{background:#9d174d;border-color:#be185d}
+.pt-btn.ok{background:#059669;border-color:#10b981}
+.pt-btn.test{background:rgba(245,158,11,.22);border-color:rgba(251,191,36,.5);color:#fde68a}
+.jp-strip{display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.16)}
+.jp-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.07);border-radius:9px;padding:7px 10px;font-size:12px}
+.jp-item b{color:#fde68a;display:block;font-size:11px}
+.jp-copy{flex:none;padding:4px 9px;border-radius:7px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700}
+
+/* Venue Cluster & Custom Input */
+.scenic-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.scenic-strip figure{margin:0;border-radius:11px;overflow:hidden;border:1px solid var(--line);background:var(--card2);position:relative}
+.scenic-strip img{width:100%;height:96px;object-fit:cover}
+.scenic-strip figcaption{font-size:10.5px;padding:4px 6px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.venue-binder{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:12px}
+.vb-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:7px}
+@media(min-width:560px){.vb-grid{grid-template-columns:1fr 1fr}}
+.vb-field label{display:block;font-size:11.5px;font-weight:700;color:var(--soft);margin-bottom:3px}
+.vb-field input{width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13px}
+
+.nav-card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.nav-card.s1{border-color:var(--plum);background:color-mix(in srgb,var(--plum) 4%,var(--card))}
+.nav-card.s2{border-color:var(--nav);background:color-mix(in srgb,var(--nav) 4%,var(--card))}
+.nav-card.rail{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 5%,var(--card))}
+.nav-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.leg-num{font:700 11.5px/1 var(--mono);background:var(--ink);color:var(--paper);padding:4px 8px;border-radius:6px}
+.nav-title{font:700 15.5px/1.35 var(--serif);margin:2px 0 6px}
+.nav-meta{font-size:12.5px;color:var(--soft);line-height:1.55;margin-bottom:9px}
+.nav-btns{display:flex;flex-wrap:wrap;gap:7px}
+.gmap-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--nav);color:#fff !important;font-weight:700;font-size:13px;padding:9px 13px;border-radius:10px;border:none;flex:1 1 190px;text-align:center}
+.gmap-btn.sec{background:var(--card2);color:var(--ink) !important;border:1px solid var(--line);flex:0 1 auto}
+
+/* Train Timetable */
+.rail-card{background:linear-gradient(180deg,color-mix(in srgb,var(--indigo) 8%,var(--card)),var(--card));border:1.5px solid color-mix(in srgb,var(--indigo) 45%,var(--line));border-radius:15px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.train-list{display:grid;gap:8px;margin-top:10px}
+.trow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;font-size:12.5px}
+.trow.gold{border:1.5px solid var(--ok);background:color-mix(in srgb,var(--ok) 9%,var(--card))}
+.trow.last{border:1.5px solid var(--err);background:color-mix(in srgb,var(--err) 8%,var(--card))}
+.ttime{font:800 14.5px/1.25 var(--mono);color:var(--ink)}
+.ttime span{color:var(--accent)}
+.tname{font-weight:700;font-size:12.5px;margin-top:3px}
+.tnote{font-size:11.5px;color:var(--soft);margin-top:2px;line-height:1.45}
+.tbadge{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.tdur{font:700 11.5px/1 var(--mono);color:var(--indigo)}
+
+/* Restaurants */
+.rest-card{background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.rest-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.rest-title{margin:0;font:700 16.5px/1.32 var(--serif)}
+.rest-info{font-size:12.5px;color:var(--soft);margin-bottom:9px;line-height:1.55}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.photo-grid figure{margin:0;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--card2)}
+.photo-grid img{width:100%;height:96px;object-fit:cover}
+.photo-grid figcaption{font-size:10.5px;padding:4px 5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rev-list{display:grid;gap:6px;margin:9px 0}
+.rev{background:var(--card2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:7px 10px;font-size:12px;line-height:1.5}
+.rev b{color:var(--indigo)}
+
+/* Interactive Sandbox Simulator */
+.sim-controls{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+@media(min-width:560px){.sim-controls{grid-template-columns:1fr 1fr}}
+.sim-box{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.sim-box label{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px}
+.sim-box input[type="range"]{width:100%;accent-color:var(--accent)}
+.seg-row{display:flex;gap:5px;flex-wrap:wrap}
+.seg-btn{flex:1 1 auto;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:12px;font-weight:700;text-align:center}
+.seg-btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tl-list{display:grid;gap:7px;margin-top:10px}
+.tl-row{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:baseline;padding:8px 10px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:12.5px}
+.tl-row code{font:700 12px/1.2 var(--mono);color:var(--accent)}
+.tl-row.crit{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--card))}
+.tl-row.over{border-color:var(--err);background:color-mix(in srgb,var(--err) 9%,var(--card))}
+
+/* Risk & Checklist */
+.risk-grid{display:grid;gap:8px}
+.risk-item{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:10px 12px;font-size:12.5px}
+.risk-item.red{border-left-color:var(--err)}
+.chk-list{display:grid;gap:7px}
+.chk-item{display:flex;align-items:flex-start;gap:9px;background:var(--card2);border-radius:10px;padding:9px 11px;font-size:13px;cursor:pointer}
+.chk-item input{width:18px;height:18px;margin-top:2px;accent-color:var(--ok);flex:none}
+
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:99px;font-size:12.5px;font-weight:700;max-width:min(90vw,360px);white-space:normal;text-align:center;opacity:0;pointer-events:none;transition:.25s;z-index:120;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 14px 36px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<img class="wx-thumb" src="og-cover.png?v=1126v1" alt="11/26 今晚实测｜池袋40分×2连刷→22:00前抵滝不動">
+
+<div class="hub-bar">
+  <div class="wrap">
+    <a href="../">← 返回攻略总览 (Trip Hub)</a>
+    <div class="hub-links">
+      <a href="poster_1126_v1.png" target="_blank" rel="noopener">🖼️ 微信一图流长图</a>
+      <a href="../2026-11-25-izu-return/">复盘 11/25</a>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">
+      <span class="ok">🧪 v2.0 实时护航今晚压测</span>
+      <span>2026.11.26 (木) 11–13℃ 曇り</span>
+      <span class="hot">🚨 22:00 滝不動死线</span>
+    </div>
+    <h1>池袋セクキャバ 40分×2 连刷 → 电车 22:00 前稳抵滝不動</h1>
+    <p class="sub">全程电车＋池袋西口徒歩3分圏！单店 <code>1セット 40分</code> 实算门到门 <b>50 分钟</b>（含入店核验4m＋结账电梯6m），内置<b>口袋30分防自动延长盲操闹钟</b>与<b>晚点 3 套自动重排救援台</b>。</p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="l">黄金开场 → 离池</div>
+        <div class="v">18:35 → 20:27</div>
+      </div>
+      <div class="hstat">
+        <div class="l">本命电车 → 滝不動</div>
+        <div class="v">20:34発→21:43</div>
+      </div>
+      <div class="hstat">
+        <div class="l">22:00 生死末班</div>
+        <div class="v">20:53発→21:57</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav aria-label="章节导航">
+  <div class="wrap">
+    <a href="#copilot" class="on">🛰️ 实时护航＆防加钟</a>
+    <a href="#venues">🥂 西口2轩动线＆防坑</a>
+    <a href="#transit">🚆 滝不動电车时刻表</a>
+    <a href="#food">🍜 15分极速美食3选</a>
+    <a href="#sim">📊 双店卡点沙盘</a>
+    <a href="#risk">⚠️ 排雷＆清单</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- SECTION 0: LIVE CO-PILOT + POCKET 40-MIN ANTI-EXTENSION TIMER -->
+  <section id="copilot">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">LIVE CO-PILOT &amp; ANTI-EXTENSION GUARD</div>
+        <h2>🛰️ 行中实时进度护航 ＆ 40分防加钟盲操表</h2>
+      </div>
+      <span class="tag err">专治等位/自动延长超时</span>
+    </div>
+
+    <!-- In-Pocket 40:00 Set Countdown Timer -->
+    <div class="pocket-timer" id="pocket-timer-card">
+      <div class="pt-head">
+        <div class="pt-title">⏱️ 店内防自动延长 40:00 口袋倒计时器</div>
+        <span class="tag warn" id="pt-shop-badge">待入座开表</span>
+      </div>
+      <div class="pt-display">
+        <div class="pt-clock" id="pt-clock">40:00</div>
+        <div class="pt-meta">
+          <div class="pt-status" id="pt-status">一落座（小姐到桌开表）立即点下方开表！</div>
+          <div class="pt-sub" id="pt-sub">剩 10:00（第30分钟）自动强震动＋语音＋Bark推送提醒「先会計・延長なし」！</div>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" id="pt-bar"></div></div>
+        </div>
+      </div>
+      <div class="pt-btns">
+        <button type="button" class="pt-btn plum" id="pt-start-1">▶️ 第1轩落座开表 (40m)</button>
+        <button type="button" class="pt-btn pri" id="pt-start-2">▶️ 第2轩落座开表 (40m)</button>
+        <button type="button" class="pt-btn test" id="pt-test-30">⚡ 5秒快测30分防加钟警报</button>
+        <button type="button" class="pt-btn ok" id="pt-checkout">✅ 结账出门＆同步打卡</button>
+      </div>
+      <div class="jp-strip">
+        <div class="jp-item">
+          <div>
+            <b>① 入店前台必说（锁死40分不自动加钟）</b>
+            <span>1セット40分、延長（えんちょう）なしでお願いします。</span>
+          </div>
+          <button type="button" class="jp-copy" data-copy="1セット40分、延長なしでお願いします。">复制</button>
+        </div>
+        <div class="jp-item">
+          <div>
+            <b>② 满30分闹钟响时必说（提前桌面结账省6分钟！）</b>
+            <span>次の電車があるので、延長なしで先会計（さきかいけい）お願いします。</span>
+          </div>
+          <button type="button" class="jp-copy" data-copy="次の電車があるので、延長なしで先会計お願いします。">复制</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Universal v2.0 Co-Pilot Mount -->
+    <div id="copilot-mount"></div>
+  </section>
+
+  <!-- SECTION 1: IKEBUKURO WEST/NORTH EXIT 3-MIN WALK CLUSTER & ANTI-TRAP PLAYBOOK -->
+  <section id="venues">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">WEST / NORTH EXIT 3-MIN CLUSTER</div>
+        <h2>🥂 池袋西口・北口「徒歩3分圏」2轩连刷动线</h2>
+      </div>
+      <span class="tag ok">严禁跨东西口！</span>
+    </div>
+
+    <div class="scenic-strip">
+      <figure>
+        <img src="img/ikebukuro-night-1.jpg" alt="池袋駅夜景">
+        <figcaption>池袋駅夜间站前动线</figcaption>
+      </figure>
+      <figure>
+        <img src="img/ikebukuro-westpark.jpg" alt="池袋西口公園">
+        <figcaption>西口公園（距ロマンス通り1分）</figcaption>
+      </figure>
+      <figure>
+        <img src="img/ikebukuro-night-2.jpg" alt="西池袋繁华街夜景">
+        <figcaption>西池袋1丁目〜池袋2丁目圈</figcaption>
+      </figure>
+    </div>
+
+    <div class="alert warn" style="margin-bottom:12px">
+      <b>🧭 连刷不晚点的第1铁律：两家店必须全部锁死在「池袋西口・北口（西池袋1丁目〜池袋2丁目）」！</b>
+      <ul>
+        <li>池袋セクキャバ 90% 集中在<b>西口ロマンス通り・西一番街・池袋2丁目トキワ通り入口</b>，两店互走仅需 <b>3–5 分钟</b>，打完第2轩走回 <b>JR池袋駅「北改札」</b>仅需 <b>4 分钟</b>！</li>
+        <li>若一东一西跨过池袋站地下通道，单程步行＋人潮立丢 <b>15 分钟</b>，直接断送 <code>20:53</code> 末班红线。</li>
+        <li><b>算账防宰参考：</b>看板写 <code>1セット40分 ¥4,800〜¥6,000</code> 通常另加 <b>TAX/サービス料 15–20%</b>（约 +¥1,000）、小姐饮料 <b>¥1,000–1,500</b>（可礼貌确认或限1杯）；单轩实付预算约 <b>¥6,500–¥8,500</b>，两轩合计备好 <b>¥16,000–¥20,000 现金</b>最省结账时间（刷卡常加收 10% 手续费且机器慢）。</li>
+      </ul>
+    </div>
+
+    <!-- Custom Shop Name Binder -->
+    <div class="venue-binder">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <b style="font-size:13px">📝 填入今晚锁定的2家店名/地址（自动同步下方一键步行导航！）</b>
+        <button type="button" class="tag blue" id="vb-reset" style="border:none;cursor:pointer">恢复西口默认坐标</button>
+      </div>
+      <div class="vb-grid">
+        <div class="vb-field">
+          <label for="vb-shop1">🥂 第1轩店名或地址（建议18:38入店享早割）</label>
+          <input type="text" id="vb-shop1" value="西池袋1-29-3 ロマンス通り（池袋西口）" placeholder="例：〇〇 池袋西口店">
+        </div>
+        <div class="vb-field">
+          <label for="vb-shop2">🥂 第2轩店名或地址（例：OLIVE 池袋西口店 池袋2-41-3）</label>
+          <input type="text" id="vb-shop2" value="東京都豊島区池袋2-41-3（池袋西口）" placeholder="例：OLIVE 池袋西口店">
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-card s1">
+      <div class="nav-top">
+        <span class="leg-num">STOP 1 · 18:38–19:28 (50m)</span>
+        <span class="tag plum">1セット40分 ＋ 受付/退店10分</span>
+      </div>
+      <div class="nav-title" id="leg1-title">第1轩：西池袋1丁目 ロマンス通り・西一番街エリア</div>
+      <div class="nav-meta">
+        • <b>黄金早割窗口：</b>19:00 前入店多数门店享早割价（约 ¥4,500–5,500/40分・飲み放題）。<br>
+        • <b>零等位口诀：</b>进门先问 <code>「今すぐ待ちなしで入れますか？」</code>（现在不用等能马上进吗？），若需在大厅干等超过 <b>7 分钟</b> 立即换隔壁备选店，绝不在待合室耗掉电车缓冲！
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" id="leg1-nav" href="https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E8%A5%BF%E6%B1%A0%E8%A2%8B1-29-3&travelmode=walking" target="_blank" rel="noopener">🚶 一键步行导航：去第1轩（约3分）</a>
+      </div>
+    </div>
+
+    <div class="nav-card s2">
+      <div class="nav-top">
+        <span class="leg-num">STOP 2 · 19:33–20:23 (50m)</span>
+        <span class="tag blue">20:13 闹钟响即喊「先会計」</span>
+      </div>
+      <div class="nav-title" id="leg2-title">第2轩：池袋2丁目 トキワ通り入口エリア（例：OLIVE 池袋西口店 B1）</div>
+      <div class="nav-meta">
+        • <b>换场步行仅 4–5 分钟：</b>沿西一番街北上至トキワ通り入口即达（例：実在店 <code>OLIVE 池袋西口店</code> 東京都豊島区池袋2-41-3 B1，18:00〜翌1:00，40分制）。<br>
+        • <b>死守 20:23 出门红线：</b>第2轩最怕结账等找零拖延！务必在第 30 分钟（约 <code>20:13</code>）趁还在桌上直接现金结清（<b>先会計</b>），到点立刻起身进电梯，4 分钟直插 <b>JR池袋駅 北改札</b>！
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" id="leg2-nav" href="https://www.google.com/maps/dir/?api=1&origin=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E8%A5%BF%E6%B1%A0%E8%A2%8B1-29-3&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-41-3&travelmode=walking" target="_blank" rel="noopener">🚶 第1轩 → 第2轩 步行导航（约5分）</a>
+      </div>
+    </div>
+
+    <div class="nav-card rail">
+      <div class="nav-top">
+        <span class="leg-num">FINAL LEG · 20:23–20:27 进站</span>
+        <span class="tag ok">走 20a/北口 直插 JR北改札</span>
+      </div>
+      <div class="nav-title">第2轩 → JR池袋駅「北改札」→ 7・8番線（山手線外回り 日暮里方面）</div>
+      <div class="nav-meta">
+        • <b>最快进站口：</b>别去西口中央大广场绕圈！直接从西一番街南端下 <b>池袋駅 北口楼梯 → JR北改札</b>，刷 IC 卡后右手即上 <b>7・8番線（山手線外回り・上野/日暮里方面）</b>，全程仅 4 分钟！
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" id="leg3-walk" href="https://www.google.com/maps/dir/?api=1&origin=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-41-3&destination=%E6%B1%A0%E8%A2%8B%E9%A7%85%E5%8C%97%E5%8F%A3&travelmode=walking" target="_blank" rel="noopener">🏃 步行回 JR池袋北口（4分）</a>
+        <a class="gmap-btn sec" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit" target="_blank" rel="noopener">🚆 池袋→滝不動 实时电车导航</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: VERIFIED TRAIN TIMETABLE & BACKUP TAXI SHORTCUTS -->
+  <section id="transit">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">VERIFIED WEEKDAY TIMETABLE</div>
+        <h2>🚆 今晚实测电车时刻表（池袋 → 滝不動）</h2>
+      </div>
+      <span class="tag blue">IC ¥692 · 换乘2次</span>
+    </div>
+
+    <div class="rail-card">
+      <div style="font-size:13px;line-height:1.55">
+        <b>最优固定换乘轴：</b><code>JR山手線外回り(12分)</code> → <b>日暮里駅</b> 换 <code>JR常磐線快速(16分)</code> → <b>松戸駅</b> 换 <code>京成松戸線(旧新京成線・松戸始発有座！28分)</code> → <b>滝不動駅</b>。
+      </div>
+
+      <div class="train-list">
+        <div class="trow">
+          <div>
+            <div class="ttime">20:11 池袋発 → <span>21:15 滝不動着</span></div>
+            <div class="tname">早班超裕（砍第2轩或18:10早开场适用）</div>
+            <div class="tnote">山手線 20:11→20:23 日暮里(换5m) 20:28 常磐線→20:44 松戸(换3m) 20:47 京成松戸線</div>
+          </div>
+          <div class="tbadge"><span class="tag blue">余 45分</span><span class="tdur">64m</span></div>
+        </div>
+
+        <div class="trow">
+          <div>
+            <div class="ttime">20:20 池袋発 → <span>21:29 滝不動着</span></div>
+            <div class="tname">稳妥早班（方案一砍第2轩主力班次）</div>
+            <div class="tnote">山手線 20:20→20:32 日暮里(换5m) 20:37 常磐快速→20:53 松戸(换8m从容买水) 21:01 発</div>
+          </div>
+          <div class="tbadge"><span class="tag ok">余 31分</span><span class="tdur">69m</span></div>
+        </div>
+
+        <div class="trow gold">
+          <div>
+            <div class="ttime">20:34 池袋発 → <span>21:43 滝不動着</span></div>
+            <div class="tname">⭐ 黄金本命班次（18:35开场 40分×2 完美衔接！）</div>
+            <div class="tnote">山手線 20:34→20:46 日暮里(换5m) 20:51 常磐快速(成田行)→21:07 松戸(换8m始発稳坐) 21:15 発</div>
+          </div>
+          <div class="tbadge"><span class="tag ok">⭐ 提前17分</span><span class="tdur">69m</span></div>
+        </div>
+
+        <div class="trow">
+          <div>
+            <div class="ttime">20:42 池袋発 → <span>21:57 滝不動着</span></div>
+            <div class="tname">次选缓冲班次（松戸换乘留足 11 分钟不跑楼梯）</div>
+            <div class="tnote">山手線 20:42→20:54 日暮里(换5m) 20:59 常磐線→21:18 松戸(换11m) 21:29 京成松戸線</div>
+          </div>
+          <div class="tbadge"><span class="tag warn">余 3分</span><span class="tdur">75m</span></div>
+        </div>
+
+        <div class="trow last">
+          <div>
+            <div class="ttime">20:53 池袋発 → <span>21:57 滝不動着</span></div>
+            <div class="tname">🚨 22:00前抵滝不動「绝对生死末班红线」</div>
+            <div class="tnote">最晚 <b>20:49</b> 刷进 JR北改札！20:53→21:05 日暮里(换5m) 21:10 常磐快速→21:26 松戸(<b>仅3m快步换乘！</b>) 21:29 発<br><b style="color:var(--err)">⚠️ 错过这班 → 下一趟松戸 21:45発 将于 22:12 才到滝不動（超时12分）！</b></div>
+          </div>
+          <div class="tbadge"><span class="tag err">🚨 压哨3分</span><span class="tdur">64m</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <b style="font-size:14px">🛟 万一 20:54 才冲进池袋站？两条「电车＋打车」救命捷径</b>
+        <span class="tag warn">应急锦囊</span>
+      </div>
+      <div style="font-size:12.5px;color:var(--soft);line-height:1.6">
+        1. <b>省钱半打车法（约 ¥1,800・20:58 池袋発仍能救回 22:00！）：</b>池袋搭山手線内回り 4 分钟到 <b>高田馬場駅</b> → 转 <code>東京メトロ東西線・東葉高速線直通快速</code> 直奔 <b>北習志野駅</b> → 出北口打出租车仅 <b>6 分钟（2.6km，约 ¥1,100）</b>直达滝不動駅！<br>
+        2. <b>全额钞能力首都高タクシー（约 ¥15,500・最晚 21:10 池袋上车）：</b>店门口用 <code>GO</code> App 叫车，走 <code>東池袋IC → 首都高5号 → 箱崎JCT → 7号小松川線 → 京葉道路 花輪IC → 滝不動駅</code>，夜间畅通约 <b>45 分钟</b>门到门直达！
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: 3 CURATED QUICK-BITE WEST EXIT RESTAURANTS (9 LOCAL PHOTOS + 9 REVIEWS) -->
+  <section id="food">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">15-MIN WEST EXIT QUICK DINING</div>
+        <h2>🍜 开场垫肚／解酒收尾：西口极速美食 3 选 1</h2>
+      </div>
+      <span class="tag ok">全在西口徒歩4分内</span>
+    </div>
+
+    <!-- Restaurant 1: Kizunaya -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag err">① 浓厚家系・空腹垫肚首推</span>
+          <h3 class="rest-title">輝道家直系 皇綱家（きづなや）池袋西口店</h3>
+        </div>
+        <span class="tag blue">JR西口徒歩2分 · 现金食券</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋1-18-1 五光ビル1F ｜ 🕒 11:00–15:45 / <b>17:30–23:45 (L.O.)</b> ｜ 💴 约 ¥950–¥1,300<br>
+        野方名店「輝道家」直系×「王道家」特注麺，出餐极快（落座 4 分钟上桌，15 分钟完食），饮酒前垫胃防醉神器。
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/kizunaya-1.jpg" alt="皇綱家 特製家系ラーメン"><figcaption>皇綱特製ラーメン（海苔・味玉）</figcaption></figure>
+        <figure><img src="img/kizunaya-2.jpg" alt="皇綱家 濃厚豚骨醤油スープ"><figcaption>濃厚豚骨醤油スープ＆燻製チャーシュー</figcaption></figure>
+        <figure><img src="img/kizunaya-3.jpg" alt="皇綱家 チャーシュー麺と王道家無限ニンニク"><figcaption>王道家刻みにんにく＆白飯絶配</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 Tsukasa.N：</b>「池袋駅西口からすぐ！輝道家直系の超濃厚豚骨醤油スープに燻製チャーシューの香りが抜群。回転も速くサクッと最高の一杯がキマる。」</div>
+        <div class="rev"><b>Retty 实名食客 T.Satou：</b>「しょう油強めの骨太な家系スープに王道家の短め中太麺が完全マッチ！卓上の無限ニンニクと海苔巻きライスが止まらない中毒性。」</div>
+        <div class="rev"><b>池袋グルメ实测口碑：</b>「晚间18点前半几乎零排队，买完食券5分钟上碗；汤头偏浓建议首次点『味ふつう（普通咸度）』。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E7%9A%87%E7%B6%B1%E5%AE%B6+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 皇綱家（西口2分）</a>
+      </div>
+    </article>
+
+    <!-- Restaurant 2: Tonchin -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag ok">② ロマンス通り隔壁・24時間営業零L.O.风险</span>
+          <h3 class="rest-title">東京豚骨拉麺 屯ちん（とんちん）池袋西口店</h3>
+        </div>
+        <span class="tag ok">ロマンス通り徒歩1分 · 24h营业</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋1-27-1 ｜ 🕒 <b>24時間営業（年中無休）</b> ｜ 💴 约 ¥920–¥1,150（大盛＆ライス無料）<br>
+        就在セクキャバ最密集的ロマンス通り旁边！无论开场空余 15 分钟还是砍掉第2轩后解酒收尾，0 秒绕路、绝无闭店风险。
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/tonchin-1.jpg" alt="屯ちん 東京豚骨ラーメン"><figcaption>招牌東京豚骨ラーメン</figcaption></figure>
+        <figure><img src="img/tonchin-2.jpg" alt="屯ちん 自家製ちぢれ麺"><figcaption>自家製手揉み中太ちぢれ麺</figcaption></figure>
+        <figure><img src="img/tonchin-3.jpg" alt="屯ちん 得入り豚骨ラーメン"><figcaption>丸得トッピング濃厚魚介豚骨</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 口コミ：</b>「池袋発祥の東京豚骨！こってりなのに後味すっきり、自家製のちぢれ麺がスープによく絡んで飲んだ前後に最高の一杯。」</div>
+        <div class="rev"><b>Retty 常客评价：</b>「24時間営業＆ロマンス通りすぐ横の立地が神。並・中・大盛同料金で提供スピードも3〜4分と爆速、電車の時間調整にも完璧！」</div>
+        <div class="rev"><b>西口夜游老手口碑：</b>「店员动作极麻利，从进门扫码/食券到吃完出门13分钟搞定，转身走2分钟就进JR北改札。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E5%B1%AF%E3%81%A1%E3%82%93+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3%E5%BA%97&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 屯ちん西口店（1分）</a>
+      </div>
+    </article>
+
+    <!-- Restaurant 3: Kitchen ABC -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag warn">③ 池袋昭和洋食灵魂・铁板秒出餐</span>
+          <h3 class="rest-title">キッチンABC 西池袋店</h3>
+        </div>
+        <span class="tag warn">西口徒歩4分 · LO 21:30</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋3-26-6 サンサーラ西池袋102 ｜ 🕒 11:00–22:00（<b>L.O. 21:30</b>） ｜ 💴 约 ¥950–¥1,250<br>
+        创业半世纪的池袋传奇洋食屋，名物「オリエンタルライス（秘制蒜香韭菜炒猪肉盖饭＋生蛋黄）」与「黒カレー」大火快炒 4 分钟上桌！
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/abc-1.jpg" alt="キッチンABC オリエンタルライス＆黒カレー"><figcaption>名物オリエンタルライス＆黒カレー</figcaption></figure>
+        <figure><img src="img/abc-2.jpg" alt="キッチンABC オムカレーセット"><figcaption>とろとろオム黒カレー＆ハンバーグ</figcaption></figure>
+        <figure><img src="img/abc-3.jpg" alt="キッチンABC からし焼肉定食"><figcaption>スタミナ満点！からし焼肉＆豚汁</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 口コミ：</b>「池袋西口といえばキッチンABC！ニンニクが効いたオリエンタルライスに卵黄を崩して食べるとレンゲが止まらない旨さ！」</div>
+        <div class="rev"><b>Retty 洋食好き评价：</b>「スパイシーな黒カレーと手ごねハンバーグのコンビが最高。注文から提供まで驚くほど早く、ガッツリ食べたい夜に頼れる名店。」</div>
+        <div class="rev"><b>注意 L.O. 红线：</b>「21:30 最后点单，适合 18:15 提前抵池袋吃饱再开刷两轩，不适合 21 点后赶末班时前往。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3ABC+%E8%A5%BF%E6%B1%A0%E8%A2%8B%E5%BA%97&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 キッチンABC（西口4分）</a>
+      </div>
+    </article>
+  </section>
+
+  <!-- SECTION 4: INTERACTIVE TIMELINE SANDBOX -->
+  <section id="sim">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">INTERACTIVE DEADLINE SANDBOX</div>
+        <h2>📊 交互式「40分×2 卡点沙盘」模拟器</h2>
+      </div>
+      <span class="tag blue">拖动滑块秒算死线</span>
+    </div>
+
+    <div class="card">
+      <div class="sim-controls">
+        <div class="sim-box">
+          <label><span>⌚ 池袋西口开场时间</span><b id="sb-start-lbl">18:35</b></label>
+          <input type="range" id="sb-start" min="1095" max="1175" step="5" value="1115">
+          <div style="font-size:11px;color:var(--soft);display:flex;justify-content:space-between"><span>18:15(早鸟)</span><span>18:35(黄金)</span><span>19:35(晚到)</span></div>
+        </div>
+
+        <div class="sim-box">
+          <label><span>⏱️ 单轩真实门到门耗时</span><b id="sb-stay-lbl">50分 (标准含出入10m)</b></label>
+          <div class="seg-row" id="sb-stay-seg">
+            <button type="button" class="seg-btn" data-stay="45">45分(极速)</button>
+            <button type="button" class="seg-btn on" data-stay="50">50分(实况标准)</button>
+            <button type="button" class="seg-btn" data-stay="65">65分(等位/微延)</button>
+          </div>
+        </div>
+
+        <div class="sim-box">
+          <label><span>🥂 第2轩策略</span><b id="sb-s2-lbl">满40分セット</b></label>
+          <div class="seg-row" id="sb-s2-seg">
+            <button type="button" class="seg-btn on" data-s2="full">满40分</button>
+            <button type="button" class="seg-btn" data-s2="short">30分快闪(门到门30m)</button>
+            <button type="button" class="seg-btn" data-s2="cut">果断砍第2轩</button>
+          </div>
+        </div>
+
+        <div class="sim-box">
+          <label><span>🍜 是否加 15 分西口拉面</span><b id="sb-ramen-lbl">不吃（专注双刷）</b></label>
+          <div class="seg-row" id="sb-ramen-seg">
+            <button type="button" class="seg-btn on" data-rm="0">不加拉面</button>
+            <button type="button" class="seg-btn" data-rm="17">加15分快食(+步行2m)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert ok" id="sb-verdict">正在计算…</div>
+      <div class="tl-list" id="sb-timeline"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: RISK MATRIX & PRE-TRIP CHECKLIST -->
+  <section id="risk">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">RISK MATRIX &amp; CHECKLIST</div>
+        <h2>⚠️ 夜游＋电车卡点 4 大排雷 ＆ 出发核对</h2>
+      </div>
+      <span class="tag err">防宰防超时必看</span>
+    </div>
+
+    <div class="risk-grid" style="margin-bottom:14px">
+      <div class="risk-item red">
+        <b>🚨 雷区1：黙って自動延長（店员不提醒直接按20/30分钟自动加钟，多花¥4,000且直接误车！）</b><br>
+        <b>破解：</b>许多セクキャバ在最后5分钟才口头问或默认续钟。务必一落座就点本页顶部<b>「▶️ 落座开表」</b>，第 30 分钟手机强震动时主动喊 <code>「延長なしで先会計お願いします」</code>！
+      </div>
+      <div class="risk-item red">
+        <b>🚨 雷区2：池袋西口・北口街头「客引き（黑衣拉客仔）」ぼったくり陷阱</b><br>
+        <b>破解：</b>西一番街与ロマンス通り路口大量拉客仔声称「40分3000円ポッキリ」，进店后加收天价入场费与强制酒水且拖延结账。<b>只进官网/正规案内所或本页核实过的明码标价门店，街头搭讪一律无视直走！</b>
+      </div>
+      <div class="risk-item">
+        <b>⚠️ 雷区3：松戸駅 21:26 → 21:29 末班换乘仅 3 分钟，微醺走错站台！</b><br>
+        <b>破解：</b>若压哨搭 <code>20:53</code> 池袋末班，在日暮里换常磐線快速时请上<b>车头前中部车厢（4–6号车）</b>，松戸下车正对换乘桥，快步跨过联络改札即是京成松戸線（7・8番線）。
+      </div>
+      <div class="risk-item">
+        <b>⚠️ 雷区4：手机在地下B1门店没信号 / 微信杀后台收不到提醒</b><br>
+        <b>破解：</b>开场前点上方「📲 手机四通道强提醒」一键导入 <b>.ics 系统日历双闹钟</b>（纯本地离线触发，地下B1无信号照样锁屏响铃！），iPhone 再配好 <b>Bark Critical 突破静音响铃</b>双保险。
+      </div>
+    </div>
+
+    <div class="card" id="prep">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <b style="font-size:15px">✅ 今晚开场前 30 秒核对清单</b>
+        <button type="button" class="gmap-btn sec" id="copy-wx-summary" style="padding:6px 11px;font-size:12px">📋 一键复制微信卡片文案</button>
+      </div>
+      <div class="chk-list">
+        <label class="chk-item"><input type="checkbox" data-chk="c1"><span>已点击上方 <b>「📅 一键导入 .ics 死线闹钟」</b> 写入系统日历（20:23离店＋20:49末班进站双响铃）</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c2"><span>Apple Pay / 实体 <b>Suica・PASMO</b> 余额 ≥ ¥1,500（松戸快速换乘免买票）＋ 备妥 <b>¥20,000 千元现金</b>加速先会計</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c3"><span>随身携带带年龄页证件（在留卡/护照/驾照，正规风俗店入店必查 18+ 年龄）</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c4"><span>已安装日本打车 App <code>GO</code>（万一玩嗨选方案三，21:05 出门一键叫首都高タクシー 45分直抵滝不動）</span></label>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div>kenandxx/trip-planning ｜ 2026-11-26 池袋40分×2连刷 → 22:00滝不動 v2.0 实时护航测试页</div>
+</footer>
+
+<div class="toast" id="toast">已更新！</div>
+
+<script src="../../copilot/trip-copilot.js?v=2.1"></script>
+<script>
+(function () {
+  'use strict';
+
+  const fmt = m => {
+    const x = ((Math.round(m) % 1440) + 1440) % 1440;
+    return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0');
+  };
+
+  const showToast = msg => {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove('show'), 2800);
+  };
+
+  // 1. Initialize Universal Trip Co-Pilot v2.0 in Transit Mode
+  const copilot = window.TripCopilot.init({
+    tripId: '2026-11-26-ikebukuro-night',
+    date: '2026-11-26',
+    title: '11/26 池袋40分×2连刷 → 22:00前抵滝不動',
+    mode: 'transit',
+    mountSelector: '#copilot-mount',
+    swPath: '../../sw.js',
+    defaultDepMin: 1115, // 18:35 start at Ikebukuro West/North Exit
+    defaultPaceFactor: 1.0,
+    gateLabels: {
+      readyTitle: '✅ 开场防坑核查已就位（Suica够钱＋严拒拉客＋30分先会計防加钟）',
+      lockedTitle: '🛑 开场前必勾 2 项防超时锁扣（严防被客引き坑店＆黙って自動延長！）',
+      lock1Title: '① 锁死西口3分圈 ＋ 绝不跟街头客引き走 ＋ Suica余额≥¥1,500：',
+      lock2Title: '② 进店必声明「40分延長なし」＋ 落座即开上方 30分「先会計」强震动表：',
+      paceTitle: '③ 预设换场步行＆等电梯节奏系数（微醺/找路建议切 1.25×）',
+      icsPreflightTitle: '确认Suica余额＋拒理客引き＋落座开40分防加钟表'
+    },
+    tollReminder: '两家店全选在西池袋1丁目〜池袋2丁目徒歩3分圏！<span class="danger-inline">街头黑衣拉客（客引き）100% 虚报低价且故意拖慢结账，一旦被缠住直接错过 20:53 末班红线！</span>',
+    etcCashReminder: '1セット40分实际含受付4m＋结账等电梯6m＝<b>50分钟</b>！第30分钟务必用千元现金提前桌面买单（先会計），到点秒撤。',
+    pacePresets: [
+      [1.0, '1.00× 熟路快步(推荐)', '西口3分圈零绕路'],
+      [1.25, '1.25× 常规夜行缓冲', '含等红灯/电梯慢'],
+      [1.5, '1.50× 微醺/找路大缓冲', '预留迷路容错']
+    ],
+    bumpPresets: [
+      [10, '待合室等位 +10分', '⏳ 大厅等位 +10m'],
+      [20, '加钟延长20分 +20分', '🥂 临时加钟 +20m'],
+      [8, '结账/等电梯慢 +8分', '🧾 结账拖延 +8m'],
+      [-5, '先会計秒撤追回 5分', '⚡ 先会計快撤 -5m']
+    ],
+    guardListTitle: '🍜 顺路快食＆门店时段实时排雷：',
+    modalTrapWarn: '⚠️ 警告：若继续去第2轩打满40分（门到门50m）将直接错过 20:53 池袋生死末班！请立即在下方3套方案中拍板！',
+    planAName: '🛡️ 方案一（首推稳保）：死守22:00铁律・果断砍第2轩从容搭电车',
+    planBName: '⚡ 方案二（极限双刷）：第2轩改30分ショート先会計・压哨冲20:53末班',
+    nodes: [
+      {
+        id: 'origin',
+        role: 'origin',
+        name: '池袋駅 西口・北口（集合开场）',
+        shortName: '池袋西口开场',
+        stayMin: 0,
+        lat: 35.7316,
+        lng: 139.7105,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%B1%A0%E8%A2%8B%E9%A7%85%E8%A5%BF%E5%8F%A3&travelmode=transit',
+        navLabel: '导航至池袋西口'
+      },
+      {
+        id: 'ramen_pre',
+        role: 'optional',
+        enabledByDefault: false,
+        name: '开场垫肚快食（皇綱家 / 屯ちん 15分）',
+        shortName: '开场拉面(15分)',
+        driveMin: 2,
+        stayMin: 15,
+        minStayMin: 12,
+        lat: 35.7313,
+        lng: 139.7093,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E7%9A%87%E7%B6%B1%E5%AE%B6+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3&travelmode=walking',
+        navLabel: '步行去皇綱家(2分)'
+      },
+      {
+        id: 'shop1',
+        role: 'meal',
+        name: '第1轩 セクキャバ（西口ロマンス通り・40分制）',
+        shortName: '第1轩(40分制)',
+        driveMin: 3,
+        stayMin: 50,
+        minStayMin: 40,
+        lat: 35.7324,
+        lng: 139.7098,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E8%A5%BF%E6%B1%A0%E8%A2%8B1-29-3&travelmode=walking',
+        navLabel: '步行去第1轩(ロマンス通り)'
+      },
+      {
+        id: 'shop2',
+        role: 'core',
+        enabledByDefault: true,
+        name: '第2轩 セクキャバ（池袋2丁目/西口・40分制）',
+        shortName: '第2轩(40分制)',
+        driveMin: 5,
+        stayMin: 50,
+        minStayMin: 30,
+        lat: 35.7336,
+        lng: 139.7082,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-41-3&travelmode=walking',
+        navLabel: '步行去第2轩(徒歩5分)'
+      },
+      {
+        id: 'ramen_post',
+        role: 'optional',
+        enabledByDefault: false,
+        name: '收尾解酒豚骨面（屯ちん池袋西口 24h）',
+        shortName: '解酒拉面(15分)',
+        driveMin: 3,
+        stayMin: 15,
+        minStayMin: 12,
+        lat: 35.7321,
+        lng: 139.7096,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E5%B1%AF%E3%81%A1%E3%82%93+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3%E5%BA%97&travelmode=walking',
+        navLabel: '步行去屯ちん(1分)'
+      },
+      {
+        id: 'jr_ike',
+        role: 'destination',
+        name: 'JR池袋駅 北改札（山手線外回り → 日暮里 → 松戸 → 滝不動）',
+        shortName: 'JR池袋北改札',
+        driveMin: 4,
+        stayMin: 0,
+        lat: 35.7318,
+        lng: 139.7111,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit',
+        navLabel: '开启池袋→滝不動电车乘换'
+      }
+    ],
+    directDriveMap: {
+      'origin->shop1': 3,
+      'origin->ramen_pre': 2,
+      'ramen_pre->shop1': 3,
+      'shop1->shop2': 5,
+      'shop1->jr_ike': 4,
+      'shop1->ramen_post': 2,
+      'shop2->jr_ike': 4,
+      'shop2->ramen_post': 3,
+      'ramen_post->jr_ike': 2
+    },
+    mealGuards: [
+      { name: '① 皇綱家 池袋西口店（家系ラーメン）', loMin: 1425, warnBeforeLoMin: 30, note: '夜营业至23:45 LO，现金食券4分出餐' },
+      { name: '② 屯ちん 池袋西口店（東京豚骨）', loMin: 1439, warnBeforeLoMin: 5, note: '24時間営業・ロマンス通り旁零L.O.风险' },
+      { name: '③ キッチンABC 西池袋店（名物洋食）', loMin: 1290, warnBeforeLoMin: 35, note: '21:30 L.O.，仅限开场前或早收尾前往' }
+    ],
+    deadlineSpec: {
+      destNodeId: 'jr_ike',
+      destName: 'JR池袋北改札',
+      finalDestLabel: '滝不動预计抵达',
+      missFinalArr: '22:12 (超时!)',
+      transferBufferMin: 4,
+      targetArrMin: 1230, // 20:30 at JR North Gate -> catches 20:34 train -> 21:43 Takifudo
+      hardArrMin: 1249,   // 20:49 at JR North Gate -> catches 20:53 train -> 21:57 Takifudo
+      trains: [
+        { dep: 1211, name: '20:11 山手線 → 21:15 抵滝不動 (早班超裕)', finalArr: '21:15', finalBadge: '滝不動 21:15' },
+        { dep: 1220, name: '20:20 山手線 → 21:29 抵滝不動 (稳妥余31m)', finalArr: '21:29', finalBadge: '滝不動 21:29' },
+        { dep: 1234, name: '20:34 山手線 ⭐黄金本命 → 21:43 抵滝不動', finalArr: '21:43', finalBadge: '滝不動 21:43' },
+        { dep: 1242, name: '20:42 山手線 → 21:57 抵滝不動 (松戸宽裕换乘)', finalArr: '21:57', finalBadge: '滝不動 21:57' },
+        { dep: 1253, name: '20:53 山手線 🚨22:00生死末班 → 21:57 抵滝不動', finalArr: '21:57', finalBadge: '滝不動 21:57' }
+      ],
+      emergencyDirect: {
+        includeRemainingCore: true,
+        keepFullStays: true,
+        isFinalHome: true,
+        fixedPace: 1.0,
+        safeAirportArrMin: 1320, // 22:00 hard arrival at Takifudo
+        driveFrom: { shop2: 45, shop1: 45, jr_ike: 45, origin: 45 },
+        title: '第2轩照玩满40分 ＋ 首都高タクシー直达滝不動駅（東池袋IC→花輪IC 約45分）',
+        desc: '不砍第2轩！满40分出门即上GO出租车走東池袋IC→首都高5号・7号→京葉道路花輪IC直抵滝不動',
+        cardName: '🚕 方案三（钞能力双满贯）：第2轩照玩满40分 ＋ 首都高出租车直达滝不動',
+        shortBadge: '首都高タクシー直达',
+        destBadgePrefix: '滝不動',
+        legCode: '首都高45m',
+        navUrl: 'https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85%E8%A5%BF%E5%8F%A3&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=driving',
+        navLabel: '查看首都高打车路线(45分)',
+        headlineFn: (arr, buf, dep) =>
+          buf >= 0
+            ? `🚕 首都高タクシー兜底：${dep} 出第2轩上车 → 预计 ${arr} 直抵滝不動駅（比22:00提前 ${buf} 分钟，约¥15,500）`
+            : `⚠️ 即使打出租车走首都高也将 ${arr} 才抵滝不動（超时 ${-buf} 分），请选方案一果断砍第2轩！`,
+        summaryFn: (arr, dep) =>
+          `第2轩不缩水照玩满40分！${dep} 店门口直接上 GO 出租车走首都高，预计 ${arr} 门到门直抵滝不動駅（约¥15,500）`,
+        pillsFn: arr => [
+          { cls: 'keep', txt: '🥂 第2轩满40分不缩水' },
+          { cls: 'keep', txt: `🚕 预计 ${arr} 抵滝不動` },
+          { cls: 'trim', txt: '💴 首都高打车约¥15,500' }
+        ],
+        legDescFn: (arr, dep) => `${dep} 上车走東池袋IC→首都高→花輪IC → ${arr} 直抵滝不動駅`,
+        wxEtaLineFn: arr => `• 预计抵滝不動駅：${arr}（首都高タクシー门到门直达，约¥15,500）`
+      }
+    },
+    replayScenarios: [
+      {
+        label: '🔴 演练痛点1：第1轩等位+微延，20:10 才出第1轩门（晚+42分！）',
+        cls: 'err',
+        nodeId: 'shop1',
+        event: 'dep',
+        timeMin: 1210,
+        paceFactor: 1.0,
+        resetEnabled: true,
+        reason: '演练：第1轩大厅等位+结账慢，20:10才出店门(滞后+42分)'
+      },
+      {
+        label: '🟠 演练痛点2：19:10 才抵池袋西口开场（晚开场+35分）',
+        cls: '',
+        nodeId: 'origin',
+        event: 'dep',
+        timeMin: 1150,
+        paceFactor: 1.0,
+        resetEnabled: true,
+        reason: '演练：电车晚到，19:10才从池袋西口开场(滞后+35分)'
+      }
+    ],
+    onApplyPlan: patch => {
+      if (patch && patch.enabledNodes) {
+        if (!patch.enabledNodes.shop2) {
+          setSandboxMode('cut');
+        } else if (patch.stayOverrides && patch.stayOverrides.shop2 && patch.stayOverrides.shop2 <= 35) {
+          setSandboxMode('short');
+        } else {
+          setSandboxMode('full');
+        }
+      }
+    }
+  });
+
+  window.ikeCopilot = copilot;
+
+  // 2. Pocket 40:00 Anti-Auto-Extension Countdown Timer
+  let ptTimer = null;
+  let ptRemSec = 2400;
+  let ptActiveShop = 'shop1';
+  let ptWarned10 = false;
+  let ptWarned0 = false;
+
+  const clockEl = document.getElementById('pt-clock');
+  const statusEl = document.getElementById('pt-status');
+  const subEl = document.getElementById('pt-sub');
+  const barEl = document.getElementById('pt-bar');
+  const badgeEl = document.getElementById('pt-shop-badge');
+
+  function renderPocketTimer() {
+    const mm = String(Math.floor(Math.max(0, ptRemSec) / 60)).padStart(2, '0');
+    const ss = String(Math.max(0, ptRemSec) % 60).padStart(2, '0');
+    clockEl.textContent = `${mm}:${ss}`;
+    const pct = Math.max(0, Math.min(100, (ptRemSec / 2400) * 100));
+    barEl.style.width = pct + '%';
+
+    if (ptRemSec <= 180) {
+      clockEl.className = 'pt-clock err';
+      barEl.style.background = '#ef4444';
+    } else if (ptRemSec <= 600) {
+      clockEl.className = 'pt-clock warn';
+      barEl.style.background = '#f59e0b';
+    } else {
+      clockEl.className = 'pt-clock';
+      barEl.style.background = '#34d399';
+    }
+  }
+
+  function startSetTimer(shopId, initialSec, labelTxt) {
+    clearInterval(ptTimer);
+    ptActiveShop = shopId;
+    ptRemSec = initialSec;
+    ptWarned10 = initialSec < 600;
+    ptWarned0 = false;
+    badgeEl.textContent = labelTxt;
+    badgeEl.className = 'tag ok';
+    statusEl.textContent = `${labelTxt}计时进行中（40分制）`;
+    subEl.textContent = '将于剩余 10:00 触发强震动＋语音＋Bark推送提醒「先会計」！';
+    if (copilot && copilot.playChime) copilot.playChime('ok');
+    renderPocketTimer();
+
+    ptTimer = setInterval(() => {
+      ptRemSec -= 1;
+      renderPocketTimer();
+
+      if (ptRemSec <= 600 && !ptWarned10) {
+        ptWarned10 = true;
+        statusEl.textContent = '⚠️ 仅剩 10 分钟！请立即喊店员「延長なしで先会計」！';
+        subEl.textContent = '现在现金结清省去退店排队6分钟，100%杜绝被自动延长！';
+        badgeEl.textContent = '⚠️ 立即先会計';
+        badgeEl.className = 'tag warn';
+        if (copilot) {
+          copilot.playChime('warn');
+          copilot.speakZh('注意！本轮40分钟仅剩最后10分钟，请立即对店员说延長なしで先会計，防止自动加钟晚点！');
+          copilot.dispatchPush(
+            '⏰ 剩10分！防自动延长警告',
+            '请立即对店员说：「延長なしで、先会計お願いします！」提前结账防误车！',
+            location.href,
+            'warn'
+          );
+          copilot.showUrgentModal(
+            'warn',
+            '⏰ 满30分钟！请立即声明「延長なしで先会計」',
+            '<p style="margin:0 0 8px">距离 40 分钟结束仅剩 <b>10 分钟</b>！为防止被自动加钟及收银台拥堵，请现在直接向店员出示或说出：</p>' +
+              '<div style="background:rgba(0,0,0,.08);padding:10px;border-radius:9px;font-weight:800;font-size:15px;margin-bottom:6px">「次の電車があるので、延長なしで先会計お願いします」</div>' +
+              '<p style="margin:0;font-size:12.5px">桌面结清后，一到 40 分钟即可直接起身进电梯！</p>',
+            null
+          );
+        }
+      }
+
+      if (ptRemSec <= 0 && !ptWarned0) {
+        ptWarned0 = true;
+        clearInterval(ptTimer);
+        ptTimer = null;
+        statusEl.textContent = '🚨 40:00 已到点！请立即起身离店并点「结账出门＆同步打卡」！';
+        badgeEl.textContent = '🚨 到点撤离';
+        badgeEl.className = 'tag err';
+        if (copilot) {
+          copilot.playChime('err');
+          copilot.speakZh('40分钟时间已到！请立即起身离店，前往下一站或JR池袋北改札！');
+          copilot.dispatchPush(
+            '🚨 40分钟已到点！立即离店！',
+            '请马上离开门店并点开页面一键同步打卡，核查下一班电车缓冲！',
+            location.href,
+            'err'
+          );
+        }
+      }
+    }, 1000);
+  }
+
+  document.getElementById('pt-start-1').addEventListener('click', () => {
+    startSetTimer('shop1', 2400, '🥂 第1轩');
+    showToast('⏱️ 第1轩 40:00 防加钟倒计时已开启！');
+  });
+  document.getElementById('pt-start-2').addEventListener('click', () => {
+    startSetTimer('shop2', 2400, '🥂 第2轩');
+    showToast('⏱️ 第2轩 40:00 防加钟倒计时已开启！');
+  });
+  document.getElementById('pt-test-30').addEventListener('click', () => {
+    startSetTimer(ptActiveShop || 'shop2', 604, '🧪 快测防加钟');
+    showToast('⚡ 已跳至 10:04，4秒后触发满30分「防自动延长」全通道强提醒！');
+  });
+  document.getElementById('pt-checkout').addEventListener('click', () => {
+    clearInterval(ptTimer);
+    ptTimer = null;
+    ptRemSec = 2400;
+    renderPocketTimer();
+    badgeEl.textContent = '已离店打卡';
+    badgeEl.className = 'tag ok';
+    statusEl.textContent = '已结账离店，进度已同步至下方实时护航台！';
+    const timeInp = document.getElementById('cp-time-input');
+    let curM = new Date().getHours() * 60 + new Date().getMinutes();
+    if (timeInp && /^\d{1,2}:\d{2}$/.test(timeInp.value)) {
+      const [h, m] = timeInp.value.split(':').map(Number);
+      curM = h * 60 + m;
+    }
+    if (copilot) {
+      copilot.recordCheckin(ptActiveShop, 'dep', curM, `结账离开${ptActiveShop === 'shop1' ? '第1轩' : '第2轩'}一键打卡`);
+    }
+  });
+
+  document.querySelectorAll('.jp-copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const txt = btn.dataset.copy;
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+      showToast('📋 已复制日语防坑话术！可直接给店员看');
+    });
+  });
+
+  // 3. Custom Venue Name & Walking Link Binder
+  const vb1 = document.getElementById('vb-shop1');
+  const vb2 = document.getElementById('vb-shop2');
+  const VB_KEY = 'ike_1126_custom_venues_v1';
+  try {
+    const savedVb = JSON.parse(localStorage.getItem(VB_KEY) || 'null');
+    if (savedVb) {
+      if (savedVb.s1) vb1.value = savedVb.s1;
+      if (savedVb.s2) vb2.value = savedVb.s2;
+    }
+  } catch (_) {}
+
+  function syncVenueLinks() {
+    const s1 = vb1.value.trim() || '東京都豊島区西池袋1-29-3';
+    const s2 = vb2.value.trim() || '東京都豊島区池袋2-41-3';
+    document.getElementById('leg1-title').textContent = `第1轩：${s1}`;
+    document.getElementById('leg2-title').textContent = `第2轩：${s2}`;
+    document.getElementById('leg1-nav').href =
+      `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s1)}&travelmode=walking`;
+    document.getElementById('leg2-nav').href =
+      `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s1)}&destination=${encodeURIComponent(s2)}&travelmode=walking`;
+    document.getElementById('leg3-walk').href =
+      `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s2)}&destination=${encodeURIComponent('池袋駅北口')}&travelmode=walking`;
+    try {
+      localStorage.setItem(VB_KEY, JSON.stringify({ s1, s2 }));
+    } catch (_) {}
+  }
+  vb1.addEventListener('input', syncVenueLinks);
+  vb2.addEventListener('input', syncVenueLinks);
+  document.getElementById('vb-reset').addEventListener('click', () => {
+    vb1.value = '西池袋1-29-3 ロマンス通り（池袋西口）';
+    vb2.value = '東京都豊島区池袋2-41-3（池袋西口）';
+    syncVenueLinks();
+    showToast('已恢复池袋西口默认坐标');
+  });
+  syncVenueLinks();
+
+  // 4. Interactive Deadline Sandbox Simulator
+  const sbState = { start: 1115, stay: 50, s2: 'full', ramen: 0 };
+  const trains = [
+    { dep: 1211, ike: '20:11', taki: '21:15', tag: '早班超裕（余45分）' },
+    { dep: 1220, ike: '20:20', taki: '21:29', tag: '稳妥早班（余31分）' },
+    { dep: 1234, ike: '20:34', taki: '21:43', tag: '⭐黄金本命（余17分）' },
+    { dep: 1242, ike: '20:42', taki: '21:57', tag: '次选缓冲（余3分）' },
+    { dep: 1253, ike: '20:53', taki: '21:57', tag: '🚨生死末班（压哨余3分）' }
+  ];
+
+  function renderSandbox() {
+    document.getElementById('sb-start-lbl').textContent = fmt(sbState.start);
+    let t = sbState.start;
+    const rows = [];
+
+    rows.push({ time: fmt(t), txt: '📍 池袋駅 西口・北口集合开场', cls: '' });
+    if (sbState.ramen > 0) {
+      rows.push({ time: `${fmt(t + 2)}–${fmt(t + sbState.ramen)}`, txt: '🍜 西口极速拉面垫肚（皇綱家 / 屯ちん 15分）', cls: '' });
+      t += sbState.ramen;
+    }
+    const s1Arr = t + 3;
+    const s1Dep = s1Arr + sbState.stay;
+    rows.push({ time: `${fmt(s1Arr)}–${fmt(s1Dep)}`, txt: `🥂 第1轩 セクキャバ（40分セット・门到门${sbState.stay}m）`, cls: '' });
+    t = s1Dep;
+
+    if (sbState.s2 !== 'cut') {
+      const s2Stay = sbState.s2 === 'short' ? 30 : sbState.stay;
+      const s2Arr = t + 5;
+      const s2Dep = s2Arr + s2Stay;
+      rows.push({
+        time: `${fmt(s2Arr)}–${fmt(s2Dep)}`,
+        txt: sbState.s2 === 'short' ? '⚡ 第2轩 30分ショート＋先会計快闪（门到门30m）' : `🥂 第2轩 セクキャバ（40分セット・门到门${s2Stay}m）`,
+        cls: ''
+      });
+      t = s2Dep;
+    } else {
+      rows.push({ time: '已砍掉', txt: '✂️ 果断跳过第2轩（死守 22:00 铁律）', cls: '' });
+    }
+
+    const gateArr = t + 4;
+    const matched = trains.find(tr => tr.dep >= gateArr + 4);
+    const verdictEl = document.getElementById('sb-verdict');
+
+    if (matched) {
+      rows.push({
+        time: `${fmt(gateArr)} 进改札`,
+        txt: `🚆 衔接 ${matched.ike} JR山手線 → 日暮里 → 松戸 → ${matched.taki} 抵滝不動！`,
+        cls: 'crit'
+      });
+      verdictEl.className = matched.dep <= 1234 ? 'alert ok' : 'alert warn';
+      verdictEl.innerHTML = `<b>${matched.dep <= 1234 ? '✅ 节奏极佳' : '⚠️ 压哨卡点'}：</b>预计 <b>${fmt(gateArr)}</b> 刷进 JR池袋北改札（留足 ${matched.dep - gateArr} 分钟上站台），搭 <b>${matched.ike} 山手線</b> → <b>${matched.taki} 抵达滝不動駅</b>（${matched.tag}）！`;
+    } else {
+      const taxiArr = t + 45;
+      rows.push({
+        time: `${fmt(gateArr)} 才进站`,
+        txt: `🚨 已错过 20:53 末班红线！下一班电车将 22:12 才到滝不動（超时）｜🚕 改叫首都高出租车预计 ${fmt(taxiArr)} 抵滝不動`,
+        cls: 'over'
+      });
+      verdictEl.className = 'alert err';
+      verdictEl.innerHTML = `<b>🚨 电车超时警报：</b>预计 <b>${fmt(gateArr)}</b> 才到 JR池袋北改札，已错过 <code>20:53</code> 末班红线！请立即切为<b>「30分快闪」</b>、<b>「砍第2轩」</b>，或启用<b>方案三首都高タクシー（预计 ${fmt(taxiArr)} 抵滝不動）</b>！`;
+    }
+
+    document.getElementById('sb-timeline').innerHTML = rows
+      .map(r => `<div class="tl-row ${r.cls}"><code>${r.time}</code><span>${r.txt}</span></div>`)
+      .join('');
+  }
+
+  function setSandboxMode(m) {
+    sbState.s2 = m;
+    document.querySelectorAll('#sb-s2-seg .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.s2 === m));
+    document.getElementById('sb-s2-lbl').textContent =
+      m === 'cut' ? '果断砍第2轩' : m === 'short' ? '30分ショート快闪' : '满40分セット';
+    renderSandbox();
+  }
+
+  document.getElementById('sb-start').addEventListener('input', e => {
+    sbState.start = Number(e.target.value);
+    renderSandbox();
+  });
+  document.querySelectorAll('#sb-stay-seg .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sbState.stay = Number(btn.dataset.stay);
+      document.querySelectorAll('#sb-stay-seg .seg-btn').forEach(b => b.classList.toggle('on', b === btn));
+      document.getElementById('sb-stay-lbl').textContent = btn.textContent;
+      renderSandbox();
+    });
+  });
+  document.querySelectorAll('#sb-s2-seg .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => setSandboxMode(btn.dataset.s2));
+  });
+  document.querySelectorAll('#sb-ramen-seg .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sbState.ramen = Number(btn.dataset.rm);
+      document.querySelectorAll('#sb-ramen-seg .seg-btn').forEach(b => b.classList.toggle('on', b === btn));
+      document.getElementById('sb-ramen-lbl').textContent = sbState.ramen ? '加15分快食' : '不吃（专注双刷）';
+      renderSandbox();
+    });
+  });
+  renderSandbox();
+
+  // 5. Checklist persistence & WeChat Summary Copy
+  const CHK_KEY = 'ike_1126_chk_v1';
+  let chkMap = {};
+  try {
+    chkMap = JSON.parse(localStorage.getItem(CHK_KEY) || '{}');
+  } catch (_) {}
+  document.querySelectorAll('[data-chk]').forEach(el => {
+    const k = el.dataset.chk;
+    el.checked = Boolean(chkMap[k]);
+    el.addEventListener('change', () => {
+      chkMap[k] = el.checked;
+      try {
+        localStorage.setItem(CHK_KEY, JSON.stringify(chkMap));
+      } catch (_) {}
+    });
+  });
+
+  document.getElementById('copy-wx-summary').addEventListener('click', () => {
+    const msg = [
+      '🥂【11/26 今晚实测｜池袋 40分×2 连刷 → 22:00前稳抵滝不動】',
+      '• 黄金动线：18:35 池袋西口开场 → 18:38-19:28 第1轩(40分) → 徒歩5m → 19:33-20:23 第2轩(40分・20:13先会計) → 20:27 进JR北改札',
+      '• ⭐本命电车：20:34 JR山手線 → 日暮里 20:51 常磐快速 → 松戸 21:15 京成松戸線 → 21:43 抵滝不動（余17m）',
+      '• 🚨生死末班：20:53 JR池袋発（最晚20:49进改札）→ 21:57 抵滝不動',
+      '• 🛰️ 内置30分防自动延长口袋闹钟＋晚点3套自动重排（砍第2轩 / 30分快闪 / 首都高タクシー21:50直达）：',
+      location.href
+    ].join('\n');
+    if (navigator.clipboard) navigator.clipboard.writeText(msg).catch(() => {});
+    showToast('📋 已复制今晚实测微信摘要！');
+  });
+
+  // Sticky nav highlight on scroll
+  const navLinks = Array.from(document.querySelectorAll('nav a'));
+  const secs = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 95;
+    let cur = secs[0];
+    secs.forEach(s => {
+      if (s.offsetTop <= y) cur = s;
+    });
+    if (cur) {
+      navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur.id));
+    }
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

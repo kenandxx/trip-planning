@@ -89,7 +89,7 @@
       osc.stop(now + offset + dur + 0.02);
     });
 
-    if (navigator.vibrate) {
+    if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) {
       navigator.vibrate(level === 'err' ? [320, 120, 320, 120, 500] : [200, 100, 200]);
     }
   }
@@ -275,11 +275,12 @@
       const timeline = [];
       let t = anchor.timeMin + (anchor.extraDelayMin || 0);
 
-      // Emergency direct-to-airport override from current anchor
+      // Emergency direct override (e.g. direct expressway drive to airport OR late-night Shutoko taxi rescue!)
       if (emergency && config.deadlineSpec && config.deadlineSpec.emergencyDirect) {
         const em = config.deadlineSpec.emergencyDirect;
         const anchorNode = activeNodes[anchorIdx];
         let startDep = t;
+        let lastNodeId = anchorNode.id;
         if (anchor.event === 'arr') {
           const stay = stays[anchorNode.id] != null ? stays[anchorNode.id] : Math.min(anchorNode.stayMin || 0, 55);
           timeline.push({
@@ -292,19 +293,36 @@
           });
           startDep = t + stay;
         }
-        const baseDirect = (em.driveFrom && em.driveFrom[anchorNode.id]) || 105;
-        const drvMin = Math.round(baseDirect * pace);
-        const airportArr = startDep + drvMin;
-        const homeArr = airportArr + 15 + (em.homeAfterMin || 50);
+        if (em.includeRemainingCore) {
+          activeNodes.slice(anchorIdx + 1).forEach(cn => {
+            if (cn.role === 'core') {
+              const w = getDriveMin(lastNodeId, cn.id, 1.0);
+              const cArr = startDep + w;
+              const cStay = stays[cn.id] != null ? stays[cn.id] : (cn.stayMin || 45);
+              timeline.push({ node: cn, arr: cArr, dep: cArr + cStay, stay: cStay, drive: w, status: 'upcoming' });
+              startDep = cArr + cStay;
+              lastNodeId = cn.id;
+            }
+          });
+        }
+        const baseDirect = (em.driveFrom && em.driveFrom[lastNodeId]) || (em.driveFrom && em.driveFrom[anchorNode.id]) || 48;
+        const drvMin = Math.round(baseDirect * (em.fixedPace || pace));
+        const finalArr = startDep + drvMin;
+        const homeArr = em.isFinalHome ? finalArr : finalArr + 15 + (em.homeAfterMin || 50);
+        const safeLim = em.safeAirportArrMin || (config.deadlineSpec.hardArrMin || 1320);
+        const headline = em.headlineFn
+          ? em.headlineFn(fmtTime(finalArr), safeLim - finalArr, fmtTime(startDep))
+          : `✈️ 驾车直送成田航站楼：预计 ${fmtTime(finalArr)} 抵出发大厅（距 ${fmtTime(em.flightMin || 1160)} 起飞留足 ${Math.round(((em.flightMin || 1160) - finalArr) / 60 * 10) / 10} 小时）`;
         return {
           emergency: true,
           timeline,
-          destArr: airportArr,
+          emStartDep: startDep,
+          destArr: finalArr,
           homeArr,
           matchedTrain: null,
-          bufferMin: (em.safeAirportArrMin || 1040) - airportArr,
-          riskLevel: airportArr <= (em.safeAirportArrMin || 1040) ? 'ok' : 'warn',
-          headline: `✈️ 驾车直送成田航站楼：预计 ${fmtTime(airportArr)} 抵出发大厅（距 ${fmtTime(em.flightMin || 1160)} 起飞留足 ${Math.round(((em.flightMin || 1160) - airportArr) / 60 * 10) / 10} 小时）`,
+          bufferMin: safeLim - finalArr,
+          riskLevel: finalArr <= safeLim ? 'ok' : 'warn',
+          headline,
           emSpec: em
         };
       }
@@ -445,11 +463,15 @@
           emergencyMode: false
         });
 
+        const isTransit = config.mode === 'transit';
         const targetArr = (config.deadlineSpec && config.deadlineSpec.targetArrMin) || 953;
         if (simA.destArr > targetArr && remainingCore.length) {
           remainingCore.forEach(n => {
             enA[n.id] = false;
-            pills.push({ cls: 'cut', txt: `🌉 ${n.shortName || n.name} 改为车窗直穿不停车` });
+            pills.push({
+              cls: 'cut',
+              txt: isTransit ? `✂️ 果断砍掉 ${n.shortName || n.name}` : `🌉 ${n.shortName || n.name} 改为车窗直穿不停车`
+            });
           });
           simA = simulateSchedule({
             enabledNodes: enA,
@@ -459,18 +481,18 @@
           });
         } else {
           remainingCore.forEach(n => {
-            pills.push({ cls: 'trim', txt: `⏱️ ${n.shortName || n.name} 速刷 ${stA[n.id]}分` });
+            pills.push({ cls: 'trim', txt: `⏱️ ${n.shortName || n.name} 压至 ${stA[n.id]}分` });
           });
         }
 
-        pills.push({ cls: 'keep', txt: '🛣️ 全程开启ETC走高速' });
+        pills.push({ cls: 'keep', txt: isTransit ? '🚆 严守换乘死线・零延长' : '🛣️ 全程开启ETC走高速' });
 
         proposals.push({
           id: 'rescue_gold',
           rec: true,
-          name: '🛡️ 方案一（首推）：稳救黄金死线・砍支线直穿版',
+          name: config.planAName || (isTransit ? '🛡️ 方案一（首推）：稳保22:00铁律・砍第2轩从容归宅版' : '🛡️ 方案一（首推）：稳救黄金死线・砍支线直穿版'),
           summary: simA.matchedTrain
-            ? `确保 ${fmtTime(simA.destArr)} 抵站，逆风救回【${simA.matchedTrain.name}】（缓冲 ${simA.bufferMin} 分钟）！`
+            ? `确保 ${fmtTime(simA.destArr)} 抵${config.deadlineSpec.destName || '站'}，稳赶【${simA.matchedTrain.name}】（缓冲 ${simA.bufferMin} 分钟）！`
             : simA.headline,
           pills,
           sim: simA,
@@ -478,8 +500,9 @@
         });
       }
 
-      // Plan B: Keep Core Highlight Stop (e.g. Umihotaru 15m quick stop), accept fallback deadline/train
+      // Plan B: Keep Core Highlight Stop (compressed to minStayMin), accept fallback deadline/train
       if (remainingCore.length) {
+        const isTransit = config.mode === 'transit';
         const enB = Object.assign({}, state.enabledNodes);
         const stB = {};
         const pillsB = [];
@@ -491,13 +514,13 @@
           pillsB.push({ cls: 'cut', txt: '✂️ 砍掉可选小站' });
         }
         if (mealNode && (state.anchor.nodeId !== mealNode.id || state.anchor.event === 'arr')) {
-          stB[mealNode.id] = Math.max(42, (mealNode.minStayMin || 50) - 5);
-          pillsB.push({ cls: 'trim', txt: `🍽️ 速吃午餐 ${stB[mealNode.id]}分` });
+          stB[mealNode.id] = Math.max(isTransit ? 38 : 42, (mealNode.minStayMin || 50) - 5);
+          pillsB.push({ cls: 'trim', txt: `⏱️ ${mealNode.shortName || '前站'}压至 ${stB[mealNode.id]}分` });
         }
         remainingCore.forEach(n => {
           enB[n.id] = true;
-          stB[n.id] = Math.min(15, n.minStayMin || 15);
-          pillsB.push({ cls: 'keep', txt: `✨ 保留 ${n.shortName || n.name} (${stB[n.id]}分快闪)` });
+          stB[n.id] = n.minStayMin || 15;
+          pillsB.push({ cls: 'keep', txt: `✨ 保留 ${n.shortName || n.name} (${stB[n.id]}分短缩快闪)` });
         });
 
         let paceB = rescuePace;
@@ -510,7 +533,7 @@
         const hardArr = (config.deadlineSpec && config.deadlineSpec.hardArrMin) || 997;
         if (simB.destArr > hardArr && paceB > 1.0) {
           paceB = 1.0;
-          pillsB.push({ cls: 'trim', txt: '🛣️ 需全程高速零耽搁' });
+          pillsB.push({ cls: 'trim', txt: isTransit ? '🏃 提前买单＋快步进改札' : '🛣️ 需全程高速零耽搁' });
           simB = simulateSchedule({
             enabledNodes: enB,
             stayOverrides: stB,
@@ -521,15 +544,17 @@
 
         const summaryB =
           simB.riskLevel === 'err'
-            ? `⚠️ 风险提示：即使快闪停留也将 ${fmtTime(simB.destArr)} 才抵终点（超出安全底线），强烈建议选方案一或方案三！`
+            ? `⚠️ 风险提示：即使短缩快闪也将 ${fmtTime(simB.destArr)} 才抵终点（超出安全底线），强烈建议选方案一或方案三！`
             : simB.matchedTrain
-            ? `预计 ${fmtTime(simB.destArr)} 抵站 → 改搭【${simB.matchedTrain.name}】（缓冲 ${simB.bufferMin} 分钟，踩底线需紧凑！）`
+            ? `预计 ${fmtTime(simB.destArr)} 抵${config.deadlineSpec.destName || '站'} → 压哨改搭【${simB.matchedTrain.name}】（缓冲 ${simB.bufferMin} 分钟，零容错！）`
             : simB.headline;
 
         proposals.push({
           id: 'keep_core',
           rec: false,
-          name: `🌉 方案二：快闪核心站（${remainingCore.map(x => x.shortName || x.name).join('+')} 15分）`,
+          name:
+            config.planBName ||
+            `🌉 方案二：快闪核心站（${remainingCore.map(x => `${x.shortName || x.name} ${stB[x.id]}分`).join('+')}）`,
           summary: summaryB,
           pills: pillsB,
           sim: simB,
@@ -537,10 +562,11 @@
         });
       }
 
-      // Plan C: Emergency Direct-to-Airport (if configured) OR Relaxed Zero-Mountain Fallback
+      // Plan C: Emergency Direct Fallback (Airport direct drive OR Late-night Shutoko Taxi rescue!)
       if (config.deadlineSpec && config.deadlineSpec.emergencyDirect) {
+        const em = config.deadlineSpec.emergencyDirect;
         const stC = {};
-        if (mealNode) stC[mealNode.id] = 55;
+        if (mealNode && !em.keepFullStays) stC[mealNode.id] = mealNode.stayMin ? Math.min(mealNode.stayMin, 55) : 55;
         const simC = simulateSchedule({
           enabledNodes: state.enabledNodes,
           stayOverrides: stC,
@@ -550,13 +576,15 @@
         proposals.push({
           id: 'emergency_direct',
           rec: false,
-          name: '✈️ 方案三（终极兜底）：不赶电车・高速直送成田航站楼出发层',
-          summary: config.deadlineSpec.emergencyDirect.desc,
-          pills: [
-            { cls: 'keep', txt: '🧳 门到门零搬箱换乘' },
-            { cls: 'keep', txt: `✈️ 预计 ${fmtTime(simC.destArr)} 抵航站楼` },
-            { cls: 'trim', txt: '🏠 送完开50分回滝不動' }
-          ],
+          name: em.cardName || '✈️ 方案三（终极兜底）：不赶电车・高速直送成田航站楼出发层',
+          summary: em.summaryFn ? em.summaryFn(fmtTime(simC.destArr), fmtTime(simC.emStartDep || simC.destArr)) : em.desc,
+          pills: em.pillsFn
+            ? em.pillsFn(fmtTime(simC.destArr))
+            : [
+                { cls: 'keep', txt: '🧳 门到门零搬箱换乘' },
+                { cls: 'keep', txt: `✈️ 预计 ${fmtTime(simC.destArr)} 抵航站楼` },
+                { cls: 'trim', txt: '🏠 送完开50分回滝不動' }
+              ],
           sim: simC,
           patch: { stayOverrides: stC, paceFactor: rescuePace, emergencyMode: true }
         });
@@ -603,6 +631,7 @@
       };
 
       const events = [];
+      const isTransit = config.mode === 'transit';
 
       // 1. Pre-flight check 10m before origin departure
       const depMin = config.defaultDepMin || 600;
@@ -610,7 +639,9 @@
         uid: `${config.tripId}-preflight@trip-copilot`,
         start: depMin - 10,
         end: depMin,
-        summary: `🚨【发车防呆】关Google Maps避开收费站＋确认ETC绿灯`,
+        summary: isTransit
+          ? `🚨【开场防呆】${(config.gateLabels && config.gateLabels.icsPreflightTitle) || 'Suica余额核查＋拒理客引き＋准备开40分表'}`
+          : `🚨【发车防呆】关Google Maps避开收费站＋确认ETC绿灯`,
         desc: `${config.tollReminder || ''}\\n${config.etcCashReminder || ''}\\n打开实时护航页：${baseUrl}?copilot=1`,
         url: `${baseUrl}?copilot=1`
       });
@@ -618,15 +649,17 @@
       // 2. Key checkpoints & must-depart redlines from current active schedule
       sim.timeline.forEach((item, idx) => {
         if (item.node.role === 'origin') {
-          // Add mid-way highway checkpoint 60 min after origin departure
-          events.push({
-            uid: `${config.tripId}-midcheck@trip-copilot`,
-            start: item.dep + 60,
-            end: item.dep + 70,
-            summary: `📍【进度核查】发车1小时检查：是否已顺畅在高速主线上？`,
-            desc: `若此时仍在地面道路/山路或预计晚点超25分钟，请副驾立即点开链接一键重排后续行程：${baseUrl}?copilot=1`,
-            url: `${baseUrl}?copilot=1`
-          });
+          if (!isTransit) {
+            // Add mid-way highway checkpoint 60 min after origin departure
+            events.push({
+              uid: `${config.tripId}-midcheck@trip-copilot`,
+              start: item.dep + 60,
+              end: item.dep + 70,
+              summary: `📍【进度核查】发车1小时检查：是否已顺畅在高速主线上？`,
+              desc: `若此时仍在地面道路/山路或预计晚点超25分钟，请副驾立即点开链接一键重排后续行程：${baseUrl}?copilot=1`,
+              url: `${baseUrl}?copilot=1`
+            });
+          }
           return;
         }
         if (item.node.role === 'after') return;
@@ -637,8 +670,10 @@
             uid: `${config.tripId}-dep-${item.node.id}@trip-copilot`,
             start: item.dep - 5,
             end: item.dep + 5,
-            summary: `⏰【发车死线 ${fmtTime(item.dep)}】请准备离开 ${item.node.shortName || item.node.name}`,
-            desc: `计划 ${fmtTime(item.arr)} 到达，最晚建议 ${fmtTime(item.dep)} 发车前往下一站，确保终局目标不晚点！\\n晚点一键重算：${checkUrl}`,
+            summary: isTransit
+              ? `⏰【离店防加钟死线 ${fmtTime(item.dep)}】立即结账离开 ${item.node.shortName || item.node.name}`
+              : `⏰【发车死线 ${fmtTime(item.dep)}】请准备离开 ${item.node.shortName || item.node.name}`,
+            desc: `计划 ${fmtTime(item.arr)} 到达，最晚必须 ${fmtTime(item.dep)} 离店/出发前往下一站，严防超时错过末班死线！\\n晚点一键重算：${checkUrl}`,
             url: checkUrl
           });
         } else if (item.node.role === 'destination') {
@@ -646,7 +681,7 @@
             uid: `${config.tripId}-dest-${item.node.id}@trip-copilot`,
             start: item.arr,
             end: item.arr + 15,
-            summary: `🎯【终点目标 ${fmtTime(item.arr)}】抵达 ${item.node.shortName || item.node.name}`,
+            summary: `🎯【终点死线 ${fmtTime(item.arr)}】抵达 ${item.node.shortName || item.node.name}`,
             desc: `${sim.headline}\\n打开护航控制台：${baseUrl}?copilot=1`,
             url: `${baseUrl}?copilot=1`
           });
@@ -659,7 +694,7 @@
         'PRODID:-//kenandxx//Trip Planning Live CoPilot v2//CN',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
-        `X-WR-CALNAME:🚗 ${config.title || '自驾实时护航死线闹钟'}`,
+        `X-WR-CALNAME:${isTransit ? '🚆' : '🚗'} ${config.title || '行程实时护航死线闹钟'}`,
         'X-WR-TIMEZONE:Asia/Tokyo',
         'BEGIN:VTIMEZONE',
         'TZID:Asia/Tokyo',
@@ -818,7 +853,7 @@
       const box = modal.querySelector('.cp-modal-box');
       box.className = 'cp-modal-box' + (level === 'warn' ? ' warn' : '');
       modal.querySelector('.cp-modal-kicker').textContent =
-        level === 'err' ? '🚨 严重延误・强提醒接管' : '⚠️ 行车进度风险提醒';
+        level === 'err' ? '🚨 严重延误・强提醒接管' : config.mode === 'transit' ? '⚠️ 节点与死线强提醒' : '⚠️ 行车进度风险提醒';
       modal.querySelector('h3').textContent = title;
       modal.querySelector('.cp-modal-body').innerHTML = bodyHtml;
 
@@ -1048,7 +1083,12 @@
           `晚点 +${delay} 分钟！原计划将危及关键死线`,
           `<p style="margin:0 0 8px">${sim.headline}</p>` +
             (!state.preFlight.tollsOn
-              ? `<p style="margin:0 0 8px;color:var(--cp-err);font-weight:700">⚠️ 请优先检查 Google Maps 是否误开了「避开收费公路」（未走ETC高速）！</p>`
+              ? `<p style="margin:0 0 8px;color:var(--cp-err);font-weight:700">${
+                  config.modalTrapWarn ||
+                  (config.mode === 'transit'
+                    ? '⚠️ 切记：下一家若等位 >5 分钟或被自动延长将直接错过末班安全电车！'
+                    : '⚠️ 请优先检查 Google Maps 是否误开了「避开收费公路」（未走ETC高速）！')
+                }</p>`
               : '') +
             (best ? `<p style="margin:0"><b>💡 推荐一键救援：</b>${best.summary}</p>` : ''),
           best
@@ -1109,8 +1149,12 @@
       ];
       if (sim.emergency && sim.emSpec) {
         lines.push(`• 路线调整：${sim.emSpec.desc}`);
-        lines.push(`• 预计抵成田航站楼：${fmtTime(sim.destArr)}（下车直接办值机！）`);
-        lines.push(`• 一键导航成田：${sim.emSpec.navUrl}`);
+        lines.push(
+          sim.emSpec.wxEtaLineFn
+            ? sim.emSpec.wxEtaLineFn(fmtTime(sim.destArr))
+            : `• 预计抵成田航站楼：${fmtTime(sim.destArr)}（下车直接办值机！）`
+        );
+        lines.push(`• 一键导航终点：${sim.emSpec.navUrl}`);
       } else {
         sim.timeline.forEach(item => {
           const n = item.node;
@@ -1132,9 +1176,10 @@
 
     // Build Context-Rich Prompt for AI Deep Replanning
     function buildAiEmergencyPrompt(sim, delayMin, customWish) {
+      const isTransit = config.mode === 'transit';
       const aNode = config.nodes.find(n => n.id === state.anchor.nodeId) || config.nodes[0];
       const gpsStr = state.gpsInfo
-        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，车速 ${state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'}`
+        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，移动速度 ${state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'}`
         : `打卡节点「${aNode.name}」（坐标约 ${aNode.lat}, ${aNode.lng}）`;
 
       const doneList = config.nodes
@@ -1146,25 +1191,35 @@
         .map(x => `${fmtTime(x.arr)} ${x.node.shortName || x.node.name}${x.stay ? `(停${x.stay}m)` : ''}`)
         .join(' → ');
 
+      const constraints = isTransit
+        ? [
+            `- 交通画像：全程电车＋步行（兜底可叫首都高/近站出租车），严禁推荐容易迷路的跨站地下长通道换乘！`,
+            `- 夜生活/门店防坑铁律：严禁跟随街头客引き（拉客），严控单店 1セット 40分（入座即定30分闹钟喊「延長なしで先会計」防自动加钟）！`,
+            `- 导航与乘换格式：每段必须附带可直接点击的 Google Maps 官方 URL（travelmode=walking 或 travelmode=transit），并注明精确站台/改札口与最晚发车时刻！`
+          ]
+        : [
+            `- 驾驶画像：严格跟着导航开，只走宽阔双车道/高速（已开启ETC），绝对避开狭窄小巷、陡坡山路、复杂掉头！`,
+            `- 停车铁律：若推荐替代餐厅/咖啡/休息站，必须核实今日营业、未过 L.O. 且有宽敞平地停车场（或高速SA/PA）。`,
+            `- 导航链接格式：每一段必须附带可直接点击的 Google Maps 官方 URL（https://www.google.com/maps/dir/?api=1&destination=...&travelmode=driving），禁止把隧道口/高速匝道设为终点，SA/PA 只写设施名+上下行方向绝不带门牌号！`
+          ];
+
       return [
-        `你现在是我的【日本自驾行中实时副驾救急专家】。请基于我们当前的真实延误与位置，立即给出最优后续调整方案：`,
+        `你现在是我的【${isTransit ? '日本电车换乘＆严卡死线实时护航救急专家' : '日本自驾行中实时副驾救急专家'}】。请基于我们当前的真实延误与位置，立即给出最优后续调整方案：`,
         ``,
         `1. 【当前实况】`,
         `- 日期与行程：${config.date}｜${config.title}`,
-        `- 当前真实时间锚点：${fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0))}（状态：${state.anchor.event === 'arr' ? '刚到达' : '刚出发'}「${aNode.shortName || aNode.name}」，较原计划偏差 ${delayMin >= 0 ? '+' + delayMin : delayMin} 分钟）`,
+        `- 当前真实时间锚点：${fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0))}（状态：${state.anchor.event === 'arr' ? '刚到达' : '刚离开'}「${aNode.shortName || aNode.name}」，较原计划偏差 ${delayMin >= 0 ? '+' + delayMin : delayMin} 分钟）`,
         `- 当前位置：${gpsStr}`,
-        `- 实测/设定行车节奏系数：${state.observedPace ? `前半段实测 ${state.observedPace}x / ` : ''}后续设定 ${state.paceFactor}x`,
+        `- 实测/设定节奏系数：${state.observedPace ? `前半段实测 ${state.observedPace}x / ` : ''}后续设定 ${state.paceFactor}x`,
         `- 已走进度：${doneList}`,
         `- 当前推演剩余时间线：${remList}`,
         `- 系统风险判定：${sim.headline}`,
-        customWish ? `- 💬 我们的临时新诉求：${customWish}` : `- 💬 诉求：在绝不耽误核心硬死线的前提下，给出最舒服、不绕路、好停车的后续取舍与替代建议`,
+        customWish ? `- 💬 我们的临时新诉求：${customWish}` : `- 💬 诉求：在绝不耽误核心硬死线的前提下，给出最省时、不踩雷、零容错的后续取舍与替代建议`,
         ``,
         `2. 【绝对硬约束（必须遵守）】`,
-        `- 驾驶画像：严格跟着导航开，只走宽阔双车道/高速（已开启ETC），绝对避开狭窄小巷、陡坡山路、复杂掉头！`,
-        `- 停车铁律：若推荐替代餐厅/咖啡/休息站，必须核实今日营业、未过 L.O. 且有宽敞平地停车场（或高速SA/PA）。`,
-        `- 导航链接格式：每一段必须附带可直接点击的 Google Maps 官方 URL（https://www.google.com/maps/dir/?api=1&destination=...&travelmode=driving），禁止把隧道口/高速匝道设为终点，SA/PA 只写设施名+上下行方向绝不带门牌号！`,
+        ...constraints,
         ``,
-        `请直接输出：① 一句话止损结论；② 精确到分钟的新时间表；③ 每段一键 Google Maps 链接与 1 秒选线防错核对。`
+        `请直接输出：① 一句话止损结论；② 精确到分钟的新时间表；③ 每段一键 Google Maps 链接与 1 秒防错核对。`
       ].join('\n');
     }
 
@@ -1323,40 +1378,42 @@
         <div class="cp-shell state-${delayBadgeCls}">
           ${replayHtml}
 
-          <!-- 1. Pre-Flight Anti-Trap Gate (solves forgetting Google Maps ETC/Tolls & mountain-road pace!) -->
+          <!-- 1. Pre-Flight Anti-Trap Gate -->
           <div class="cp-gate ${allLockedReady ? 'ready' : 'locked'} ${state.preFlight.collapsed ? 'collapsed' : ''}" id="cp-gate-box">
             <div class="cp-gate-hd" id="cp-gate-toggle">
               <b>${
                 allLockedReady
-                  ? '✅ 发车防呆核查已通过（收费高速开启＋ETC就位）'
-                  : '🛑 发车前必做 2 项防呆锁扣（严防忘开地图ETC误入山路！）'
+                  ? (config.gateLabels && config.gateLabels.readyTitle) || '✅ 发车防呆核查已通过（收费高速开启＋ETC就位）'
+                  : (config.gateLabels && config.gateLabels.lockedTitle) || '🛑 发车前必做 2 项防呆锁扣（严防忘开地图ETC误入山路！）'
               }</b>
               <span class="tag ${allLockedReady ? 'ok' : 'warn'}">${state.preFlight.collapsed ? '展开 ▼' : '收起 ▲'}</span>
             </div>
             <div class="cp-gate-body">
               <label class="cp-lock-item">
                 <input type="checkbox" id="cp-chk-tolls" ${state.preFlight.tollsOn ? 'checked' : ''}>
-                <span><b>① 已关闭 Google Maps「避开收费公路 / 避开高速公路」：</b>${
+                <span><b>${(config.gateLabels && config.gateLabels.lock1Title) || '① 已关闭 Google Maps「避开收费公路 / 避开高速公路」：'}</b>${
                   config.tollReminder ||
                   '点开导航蓝线必须看到「有料/收费」标志！<span class="danger-inline">若未开启收费路，导航会把你导进限速低、弯急危险的山路并直接晚点 1.5 小时！</span>'
                 }</span>
               </label>
               <label class="cp-lock-item">
                 <input type="checkbox" id="cp-chk-etc" ${state.preFlight.etcReady ? 'checked' : ''}>
-                <span><b>② 车载 ETC 绿灯亮起 ＋ 零钱硬币放杯架：</b>${
+                <span><b>${(config.gateLabels && config.gateLabels.lock2Title) || '② 车载 ETC 绿灯亮起 ＋ 零钱硬币放杯架：'}</b>${
                   config.etcCashReminder || '启动车辆确认 ETC 读卡器绿灯提示音，纯现金收费站零钱提前备妥。'
                 }</span>
               </label>
               <div>
                 <div style="font-size:12px;font-weight:700;color:var(--cp-soft);margin-bottom:4px">
-                  ③ 预设真实行车节奏系数（把低于限速慢行、短暂歇脚缓冲提前算进时间表！）
+                  ${(config.gateLabels && config.gateLabels.paceTitle) || '③ 预设真实行车节奏系数（把低于限速慢行、短暂歇脚缓冲提前算进时间表！）'}
                 </div>
                 <div class="cp-pace-row">
-                  ${[
-                    [1.0, '1.00× 理想畅通', '纯高速老手基准'],
-                    [1.2, '1.20× 稳健实况(推荐)', '含慢行/短暂歇脚'],
-                    [1.35, '1.35× 谨慎/山路/雨雾', '低速防堵大缓冲']
-                  ]
+                  ${(
+                    config.pacePresets || [
+                      [1.0, '1.00× 理想畅通', '纯高速老手基准'],
+                      [1.2, '1.20× 稳健实况(推荐)', '含慢行/短暂歇脚'],
+                      [1.35, '1.35× 谨慎/山路/雨雾', '低速防堵大缓冲']
+                    ]
+                  )
                     .map(
                       ([val, t1, t2]) =>
                         `<button type="button" class="cp-pace-btn ${Math.abs(state.paceFactor - val) < 0.03 ? 'on' : ''}" data-pace="${val}"><b>${t1}</b>${t2}</button>`
@@ -1375,18 +1432,30 @@
               <div class="s">${escapeHtml(state.anchor.reason || '基准计划')}</div>
             </div>
             <div class="cp-stat ${sim.riskLevel}">
-              <div class="k">终点预计抵达</div>
-              <div class="v">${fmtTime(sim.destArr)}</div>
+              <div class="k">${escapeHtml((config.deadlineSpec && config.deadlineSpec.finalDestLabel) || '终点预计抵达')}</div>
+              <div class="v">${
+                sim.emergency
+                  ? fmtTime(sim.destArr)
+                  : sim.matchedTrain && sim.matchedTrain.finalArr
+                  ? escapeHtml(sim.matchedTrain.finalArr)
+                  : !sim.matchedTrain && config.deadlineSpec && config.deadlineSpec.missFinalArr
+                  ? escapeHtml(config.deadlineSpec.missFinalArr)
+                  : fmtTime(sim.destArr)
+              }</div>
               <div class="s">${
                 sim.emergency
-                  ? '直抵成田出发层'
+                  ? escapeHtml((sim.emSpec && sim.emSpec.shortBadge) || '直抵成田出发层')
                   : sim.matchedTrain
-                  ? `赶 ${sim.matchedTrain.name.split(' ')[0]} (余${sim.bufferMin}m)`
+                  ? sim.matchedTrain.finalArr
+                    ? `${fmtTime(sim.destArr)}进站 → ${sim.matchedTrain.name.split(' ')[0]}発`
+                    : `赶 ${sim.matchedTrain.name.split(' ')[0]} (余${sim.bufferMin}m)`
+                  : config.deadlineSpec && config.deadlineSpec.missFinalArr
+                  ? `${fmtTime(sim.destArr)}才到站・已失守末班`
                   : `缓冲 ${sim.bufferMin} 分钟`
               }</div>
             </div>
             <div class="cp-stat">
-              <div class="k">车速折算系数</div>
+              <div class="k">${config.mode === 'transit' ? '步行/换乘系数' : '车速折算系数'}</div>
               <div class="v">${state.paceFactor.toFixed(2)}×</div>
               <div class="s">${
                 state.observedPace ? `前半段实测 ${state.observedPace}×` : '可随时按实况切换'
@@ -1431,24 +1500,33 @@
             </div>
 
             <div class="cp-quick-bumps">
-              <button type="button" class="cp-bump" data-bump="15" data-why="临时停车休息 +15分">☕ 临时休息 +15m</button>
-              <button type="button" class="cp-bump" data-bump="15" data-why="走错路口重导 +15分">🔄 走错路 +15m</button>
-              <button type="button" class="cp-bump" data-bump="20" data-why="拥堵/低速慢行 +20分">🐢 堵车慢行 +20m</button>
-              <button type="button" class="cp-bump" data-bump="-10" data-why="路段顺畅追回 10分">⚡ 顺畅追回 -10m</button>
+              ${(
+                config.bumpPresets || [
+                  [15, '临时停车休息 +15分', '☕ 临时休息 +15m'],
+                  [15, '走错路口重导 +15分', '🔄 走错路 +15m'],
+                  [20, '拥堵/低速慢行 +20分', '🐢 堵车慢行 +20m'],
+                  [-10, '路段顺畅追回 10分', '⚡ 顺畅追回 -10m']
+                ]
+              )
+                .map(
+                  ([bMin, bWhy, bTxt]) =>
+                    `<button type="button" class="cp-bump" data-bump="${bMin}" data-why="${escapeAttr(bWhy)}">${escapeHtml(bTxt)}</button>`
+                )
+                .join('')}
             </div>
 
             <div class="cp-gps-strip">
               <div>
                 ${
                   state.gpsInfo
-                    ? `🛰️ 实时定位：距下一站约 <b>${state.gpsInfo.remKm ?? '--'}km</b>｜车速 <b>${
+                    ? `🛰️ 实时定位：距下一站约 <b>${state.gpsInfo.remKm ?? '--'}km</b>｜速度 <b>${
                         state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '测算中'
                       }</b>｜邻近 ${escapeHtml(state.gpsInfo.nearestName)}${
-                        state.gpsInfo.slowRoadWarn
+                        state.gpsInfo.slowRoadWarn && config.mode !== 'transit'
                           ? '<br><b style="color:var(--cp-err)">⚠️ 车速持续低于32km/h！请核查是否未上ETC收费高速或遇严重拥堵！</b>'
                           : ''
                       }`
-                    : `🛰️ 自动监测：开启后进站 600m 自动打卡，并实时侦测慢速/偏航风险`
+                    : `🛰️ 自动监测：开启后进站自动打卡，并实时测算剩余时间与死线风险`
                 }
               </div>
               <button type="button" class="cp-gps-toggle ${state.gpsActive ? 'on' : ''}" id="cp-gps-btn">
@@ -1472,7 +1550,9 @@
             ${
               mealAlerts.length && (delayMin >= 20 || mealAlerts.some(m => m.isRisk))
                 ? `<div class="cp-lo-list">
-                    <div style="font-size:12px;font-weight:700;margin-top:3px">🍽️ 餐厅营业与最后点单（L.O.）实时排雷：</div>
+                    <div style="font-size:12px;font-weight:700;margin-top:3px">${escapeHtml(
+                      config.guardListTitle || '🍽️ 餐厅营业与最后点单（L.O.）实时排雷：'
+                    )}</div>
                     ${mealAlerts
                       .map(
                         m =>
@@ -1505,7 +1585,13 @@
                         <div class="cp-plan-card ${state.activePlanId === p.id ? 'active' : p.rec ? 'rec' : ''}">
                           <div class="cp-plan-top">
                             <div class="cp-plan-name">${escapeHtml(p.name)}</div>
-                            <span class="cp-plan-eta">终点 ${fmtTime(p.sim.destArr)}</span>
+                            <span class="cp-plan-eta">${
+                              p.sim.matchedTrain && p.sim.matchedTrain.finalBadge
+                                ? escapeHtml(p.sim.matchedTrain.finalBadge)
+                                : p.sim.emergency && p.sim.emSpec && p.sim.emSpec.destBadgePrefix
+                                ? `${escapeHtml(p.sim.emSpec.destBadgePrefix)} ${fmtTime(p.sim.destArr)}`
+                                : `终点 ${fmtTime(p.sim.destArr)}`
+                            }</span>
                           </div>
                           <div class="cp-plan-summary">${escapeHtml(p.summary)}</div>
                           <div class="cp-plan-pills">
@@ -1514,9 +1600,23 @@
                           <div class="cp-plan-legs">
                             ${
                               p.sim.emergency
-                                ? `<div class="cp-plan-leg"><code>直达航站楼</code><span>${fmtTime(
-                                    p.sim.destArr
-                                  )} 抵成田出发大厅 → 送完约 ${fmtTime(p.sim.homeArr)} 回自宅</span></div>`
+                                ? p.sim.timeline
+                                    .map(
+                                      lg =>
+                                        `<div class="cp-plan-leg"><code>${fmtTime(lg.arr)}${
+                                          lg.stay ? '–' + fmtTime(lg.dep) : ''
+                                        }</code><span>${escapeHtml(lg.node.shortName || lg.node.name)}${
+                                          lg.stay ? `（停${lg.stay}m）` : ''
+                                        }</span></div>`
+                                    )
+                                    .join('') +
+                                  `<div class="cp-plan-leg"><code>${escapeHtml(
+                                    (p.sim.emSpec && p.sim.emSpec.legCode) || '直达航站楼'
+                                  )}</code><span>${escapeHtml(
+                                    p.sim.emSpec && p.sim.emSpec.legDescFn
+                                      ? p.sim.emSpec.legDescFn(fmtTime(p.sim.destArr), fmtTime(p.sim.emStartDep || p.sim.destArr))
+                                      : `${fmtTime(p.sim.destArr)} 抵成田出发大厅 → 送完约 ${fmtTime(p.sim.homeArr)} 回自宅`
+                                  )}</span></div>`
                                 : p.sim.timeline
                                     .map(
                                       lg =>
@@ -1908,7 +2008,7 @@
     // Intercept Leg 1 navigation clicks softly if Pre-Flight Anti-Trap Gate isn't confirmed yet
     document.querySelectorAll('a[href*="google.com/maps/dir"]').forEach(link => {
       link.addEventListener('click', () => {
-        if (!state.preFlight.tollsOn) {
+        if (!state.preFlight.tollsOn && config.mode !== 'transit') {
           showPageToast('⚠️ 切记确认 Google Maps 未勾选「避开收费公路」且显示「有料」高速！');
         }
       });
@@ -1947,7 +2047,11 @@
       getState: () => state,
       simulate: () => simulateSchedule({}),
       recordCheckin,
-      downloadIcs: () => downloadIcs(simulateSchedule({}))
+      downloadIcs: () => downloadIcs(simulateSchedule({})),
+      playChime,
+      speakZh,
+      dispatchPush: dispatchStrongNotifications,
+      showUrgentModal
     };
   }
 
