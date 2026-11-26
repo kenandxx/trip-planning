@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trip-copilot-v2.8';
+const CACHE_NAME = 'trip-copilot-v2.9';
 const CORE_ASSETS = [
   './',
   './copilot/trip-copilot.css',

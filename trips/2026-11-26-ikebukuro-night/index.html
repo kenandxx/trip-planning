@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://kenandxx.github.io/trip-planning/trips/2026-11-26-ikebukuro-night/og-cover.png?v=1126v1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="../../copilot/icon-192.png">
-<link rel="stylesheet" href="../../copilot/trip-copilot.css?v=2.8">
+<link rel="stylesheet" href="../../copilot/trip-copilot.css?v=2.9">
 <style>
 :root{
   --paper:#f4efe6; --card:#fcfaf5; --card2:#ede6d8; --ink:#191816; --soft:#655d52; --line:#dcd3c3;
@@ -673,7 +673,7 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 14px 36px
 
 <div class="toast" id="toast">已更新！</div>
 
-<script src="../../copilot/trip-copilot.js?v=2.8"></script>
+<script src="../../copilot/trip-copilot.js?v=2.9"></script>
 <script>
 (function () {
   'use strict';
@@ -805,6 +805,18 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 14px 36px
         lng: 139.7111,
         navUrl: 'https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit',
         navLabel: '开启池袋→滝不動电车乘换'
+      },
+      {
+        id: 'takifudo',
+        role: 'after',
+        name: '滝不動駅（京成松戸線・22:00前ゴール）',
+        shortName: '滝不動駅',
+        driveMin: 68,
+        stayMin: 0,
+        lat: 35.7235,
+        lng: 140.0131,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit',
+        navLabel: '导航至滝不動駅'
       }
     ],
     directDriveMap: {
@@ -816,7 +828,11 @@ footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 14px 36px
       'shop1->ramen_post': 2,
       'shop2->jr_ike': 4,
       'shop2->ramen_post': 3,
-      'ramen_post->jr_ike': 2
+      'ramen_post->jr_ike': 2,
+      'jr_ike->takifudo': 68,
+      'shop1->takifudo': 72,
+      'shop2->takifudo': 72,
+      'origin->takifudo': 70
     },
     mealGuards: [
       { name: '① 皇綱家 池袋西口店（家系ラーメン）', loMin: 1425, warnBeforeLoMin: 30, note: '夜营业至23:45 LO，现金食券4分出餐' },
