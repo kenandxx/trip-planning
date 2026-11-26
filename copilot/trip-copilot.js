@@ -976,6 +976,8 @@
         pos => {
           state.gpsLastFixAt = Date.now();
           state.gpsLastError = null;
+          gpsTrail.push({ t: Date.now(), lat: pos.coords.latitude, lng: pos.coords.longitude });
+          while (gpsTrail.length && Date.now() - gpsTrail[0].t > 5 * 60000) gpsTrail.shift();
           handleGpsPosition(pos.coords);
         },
         err => {
@@ -1451,15 +1453,23 @@
       }
     }
 
-    // ===== Live reverse planner ("此刻导航") =====
+    // ===== Live reverse planner ("此刻导航") with user-editable deadline tags =====
     // Assumes nothing went to plan: starts from where we are NOW (GPS, or the last check-in place),
-    // works back from the final deadline, and searches every combination of the remaining stops.
+    // works back from "be at PLACE by TIME" deadlines, searches every keep/shorten/skip combination
+    // of the remaining stops, and turns the result into live tips and alerts.
     const STOP_ROLES_EXCLUDED = ['origin', 'destination', 'after'];
+    const LIVE_SAFE_MIN = 5; // recommended plans keep at least this much buffer when possible
+    const LEAVE_ALERTS = [15, 5, 0]; // minutes before the latest departure
     const stopNodes = () => config.nodes.filter(n => !STOP_ROLES_EXCLUDED.includes(n.role));
     const destNode = () =>
       config.nodes.find(n => n.id === ((config.deadlineSpec && config.deadlineSpec.destNodeId) || 'dest')) ||
       config.nodes.filter(n => n.role === 'destination').pop() ||
       config.nodes[config.nodes.length - 1];
+
+    let lastNowCard = null;
+    let deadlineEdit = null; // { id, nodeId, time, label } while the edit form is open
+    const leaveAlertPrev = {}; // deadline id -> minutes-to-leave at the previous refresh
+    const gpsTrail = []; // recent fixes [{ t, lat, lng }] for "moving away" detection
 
     function liveStatus(n) {
       const st = state.live.status[n.id];
@@ -1467,6 +1477,41 @@
       return n.role === 'meal' || state.enabledNodes[n.id] ? 'want' : 'skip';
     }
 
+    // ---- Deadline tags ----
+    function defaultDeadlines() {
+      const d = config.deadlineSpec || {};
+      const dest = destNode();
+      if (d.trains && d.trains.length) {
+        const buf = d.transferBufferMin || 10;
+        const last = d.trains[d.trains.length - 1];
+        return [{ id: 'cfg', nodeId: dest.id, time: last.dep - buf, label: `赶 ${fmtTime(last.dep)} 末班`, fromConfig: true }];
+      }
+      return [{ id: 'cfg', nodeId: dest.id, time: d.hardArrMin || 1080, label: '最晚红线', fromConfig: true }];
+    }
+    const getDeadlines = () => (state.live.deadlines || defaultDeadlines()).slice().sort((a, b) => a.time - b.time);
+    function deadlinePlace(dl) {
+      if (dl.nodeId) return config.nodes.find(n => n.id === dl.nodeId) || destNode();
+      return { id: null, name: dl.placeName || '自定位置', shortName: dl.placeName || '自定位置', lat: dl.lat, lng: dl.lng, navUrl: dl.lat != null
+        ? `https://www.google.com/maps/dir/?api=1&destination=${dl.lat},${dl.lng}&travelmode=${config.mode === 'transit' ? 'transit' : 'driving'}` : null };
+    }
+    // Wanted stops that come before this deadline in the plan order (all of them for a free-form place)
+    const nodeOrder = id => config.nodes.findIndex(n => n.id === id);
+    function stopsBefore(dl, list) {
+      if (!dl.nodeId) return list;
+      const k = nodeOrder(dl.nodeId);
+      return list.filter(n => n.id !== dl.nodeId && nodeOrder(n.id) < k);
+    }
+
+    function activeDeadline(now) {
+      const list = getDeadlines();
+      return list.find(d => d.time >= now - 5) || list[list.length - 1];
+    }
+    function saveDeadlines(list) {
+      state.live.deadlines = list;
+      saveState();
+    }
+
+    // ---- Travel time ----
     function estimateLegMin(km) {
       const pace = state.paceFactor || 1;
       let m;
@@ -1474,8 +1519,6 @@
       else m = 3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60;
       return Math.max(1, Math.round(m * pace));
     }
-
-    // Minutes from a to b. a/b are nodes or { lat, lng } points.
     function legMin(a, b) {
       if (a.id && b.id) {
         if (a.id === b.id) return 0;
@@ -1484,19 +1527,8 @@
         if (base != null) return Math.max(1, Math.round(base * (state.paceFactor || 1)));
       }
       if (a.lat == null || b.lat == null) return 15;
+      if (a.lat === b.lat && a.lng === b.lng) return 0;
       return estimateLegMin(haversineKm(a.lat, a.lng, b.lat, b.lng));
-    }
-
-    function deadlineFor(destArr) {
-      const d = config.deadlineSpec || {};
-      if (d.trains && d.trains.length) {
-        const buf = d.transferBufferMin || 10;
-        const last = d.trains[d.trains.length - 1];
-        const train = d.trains.find(tr => tr.dep >= destArr + buf) || null;
-        return { hard: last.dep - buf, target: d.targetArrMin || last.dep - buf, train, hardLabel: `赶 ${fmtTime(last.dep)} 末班` };
-      }
-      const hard = d.hardArrMin || 1080;
-      return { hard, target: d.targetArrMin || hard, train: null, hardLabel: `${fmtTime(hard)} 最晚红线` };
     }
 
     // Where are we, and are we in the middle of a stop?
@@ -1507,19 +1539,12 @@
       const gps = isGpsFresh() ? { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng } : null;
       const nearAnchor = !gps || aNode.lat == null || haversineKm(gps.lat, gps.lng, aNode.lat, aNode.lng) <= (aNode.radiusKm || 0.35);
       const inStop =
-        a.event === 'arr' && !STOP_ROLES_EXCLUDED.includes(aNode.role) && liveStatus(aNode) !== 'done' && liveStatus(aNode) !== 'skip' && nearAnchor;
-      return {
-        here: inStop ? aNode : null,
-        hereArr: inStop ? aTime : null,
-        pos: inStop ? aNode : gps || aNode,
-        source: gps ? 'gps' : 'checkin',
-        aNode,
-        aTime,
-        aEvent: a.event
-      };
+        a.event === 'arr' && !STOP_ROLES_EXCLUDED.includes(aNode.role) && !['done', 'skip'].includes(liveStatus(aNode)) && nearAnchor;
+      return { here: inStop ? aNode : null, hereArr: inStop ? aTime : null, pos: inStop ? aNode : gps || aNode,
+        source: gps ? 'gps' : 'checkin', aNode, aTime };
     }
 
-    function simulateLive(start, now, stops, stayMode, hereMode) {
+    function simulateLive(start, now, stops, stayMode, hereMode, dl) {
       const legs = [];
       let t = now;
       let pos = start.pos;
@@ -1537,10 +1562,14 @@
         t = arr + stay;
         pos = n;
       });
-      const dest = destNode();
-      const destArr = t + legMin(pos, dest);
-      const dl = deadlineFor(destArr);
-      return { legs, lastDep: t, lastNode: pos, destArr, slack: dl.hard - destArr, dl, stops, stayMode, hereMode };
+      const place = deadlinePlace(dl);
+      const destArr = t + legMin(pos, place);
+      let train = null;
+      const d = config.deadlineSpec || {};
+      if (dl.fromConfig && d.trains && d.trains.length) {
+        train = d.trains.find(tr => tr.dep >= destArr + (d.transferBufferMin || 10)) || null;
+      }
+      return { legs, lastDep: t, lastNode: pos, destArr, slack: dl.time - destArr, train, place, dl, stops, stayMode, hereMode };
     }
 
     function routeScore(r) {
@@ -1557,25 +1586,25 @@
         else if (r.hereMode === 'min') s += 10;
         else if (h.dep - h.arr >= minStay) s += 10;
       }
-      if (r.destArr <= r.dl.target) s += 0.5;
+      const tgt = config.deadlineSpec && r.dl.fromConfig ? config.deadlineSpec.targetArrMin : null;
+      if (tgt && r.destArr <= tgt) s += 0.5;
       return s;
     }
+    const sameRoute = (a, b) =>
+      a && b && a.stayMode === b.stayMode && a.hereMode === b.hereMode && a.stops.map(s => s.id).join() === b.stops.map(s => s.id).join();
 
     function computeLive() {
       const now = nowLocalMin();
+      const dl = activeDeadline(now);
       const start = liveStart(now);
-      const want = stopNodes().filter(n => liveStatus(n) === 'want' && (!start.here || n.id !== start.here.id));
-      const plannedStay = state.live.stayMode || 'full';
-      const plannedHere = start.here ? state.live.hereMode || 'full' : null;
-      const planned = simulateLive(start, now, want, plannedStay, plannedHere);
+      const wantAll = stopNodes().filter(n => liveStatus(n) === 'want' && (!start.here || n.id !== start.here.id));
+      const want = stopsBefore(dl, wantAll);
+      const planned = simulateLive(start, now, want, state.live.stayMode || 'full', start.here ? state.live.hereMode || 'full' : null, dl);
 
       const cands = [];
-      const n = want.length;
-      for (let mask = 0; mask < 1 << n; mask++) {
+      for (let mask = 0; mask < 1 << want.length; mask++) {
         const sub = want.filter((_, i) => mask & (1 << i));
-        ['full', 'min'].forEach(sm => {
-          (start.here ? ['full', 'min', 'now'] : [null]).forEach(hm => cands.push(simulateLive(start, now, sub, sm, hm)));
-        });
+        ['full', 'min'].forEach(sm => (start.here ? ['full', 'min', 'now'] : [null]).forEach(hm => cands.push(simulateLive(start, now, sub, sm, hm, dl))));
       }
       const pick = list => list.slice().sort((x, y) => routeScore(y) - routeScore(x) || y.slack - x.slack)[0];
       const safe = cands.filter(r => r.slack >= LIVE_SAFE_MIN);
@@ -1583,27 +1612,43 @@
       const bestSafe = safe.length ? pick(safe) : null;
       const bestTight = ok.length ? pick(ok) : null;
       const best = bestSafe || bestTight || cands.slice().sort((x, y) => y.slack - x.slack)[0];
-      // Offer the tight option too when it buys more than the safe one
       const tight = bestTight && bestSafe && routeScore(bestTight) > routeScore(bestSafe) ? bestTight : null;
 
-      // Money-for-time fallback (e.g. taxi): keep the planned stops, go direct from the last one.
+      // Money-for-time fallback (e.g. taxi) only for the plan's own deadline
       let fallback = null;
       const em = config.deadlineSpec && config.deadlineSpec.emergencyDirect;
-      if (em && planned.slack < 0) {
+      if (em && dl.fromConfig && planned.slack < 0) {
         const fromId = planned.lastNode && planned.lastNode.id;
         const drv = Math.round(((em.driveFrom && (em.driveFrom[fromId] || Object.values(em.driveFrom)[0])) || 45) * (em.fixedPace || 1));
         const arr = planned.lastDep + drv;
         const lim = em.safeAirportArrMin || (config.deadlineSpec.hardArrMin || 1320);
-        fallback = { name: em.cardName || em.title || '直达兜底', badge: em.shortBadge || '直达兜底', arr, slack: lim - arr, navUrl: em.navUrl };
+        fallback = { name: em.cardName || em.title || '直达兜底', arr, slack: lim - arr, navUrl: em.navUrl };
       }
-      return { now, start, want, planned, best, tight, fallback, bestIsPlanned: sameRoute(best, planned) };
-    }
 
-    function sameRoute(a, b) {
-      return (
-        a && b && a.stayMode === b.stayMode && a.hereMode === b.hereMode &&
-        a.stops.map(s => s.id).join() === b.stops.map(s => s.id).join()
-      );
+      // Later deadlines: chain from the active one's place, visiting the wanted stops in between
+      const chain = [];
+      const stayAt = (n, at) => (n.id && wantAll.some(w => w.id === n.id) ? at + (n.stayMin || 0) : at);
+      let prevPlace = planned.place;
+      let prevT = stayAt(planned.place, planned.destArr);
+      const done = new Set(want.map(n => n.id).concat(dl.nodeId ? [dl.nodeId] : []));
+      getDeadlines().filter(d => d.time > dl.time).forEach(d => {
+        const p = deadlinePlace(d);
+        stopsBefore(d, wantAll).filter(n => !done.has(n.id)).forEach(n => {
+          prevT = prevT + legMin(prevPlace, n);
+          prevT += (state.live.stayMode === 'min' ? n.minStayMin : 0) || n.stayMin || 0;
+          prevPlace = n;
+          done.add(n.id);
+        });
+        const arr = prevT + legMin(prevPlace, p);
+        chain.push({ dl: d, place: p, arr, slack: d.time - arr });
+        if (d.nodeId) done.add(d.nodeId);
+        prevPlace = p;
+        prevT = stayAt(p, arr);
+      });
+
+      // Latest moment to leave where we are, keeping the current plan
+      const leaveBy = planned.slack >= 0 ? (planned.legs[0] && planned.legs[0].here ? planned.legs[0].dep : now) + planned.slack : null;
+      return { now, dl, start, want, planned, best, tight, fallback, chain, leaveBy, bestIsPlanned: sameRoute(best, planned) };
     }
 
     function describeRoute(r) {
@@ -1613,26 +1658,107 @@
           ? `${nm(l.node)}${r.hereMode === 'now' ? '（马上走）' : `（待到 ${fmtTime(l.dep)}）`}`
           : `${nm(l.node)}${r.stayMode === 'min' ? `（缩短到 ${l.stay} 分）` : ''}`
       );
-      const dest = destNode();
-      if (!r.stops.length && !r.legs.some(l => l.here)) parts.push('不去店了，直接去');
-      parts.push(`${nm(dest)} <b>${fmtTime(r.destArr)}</b>`);
-      const train = r.dl.train ? ` → ${escapeHtml(r.dl.train.finalBadge || r.dl.train.name)}` : '';
-      return parts.join(' → ') + train;
+      const placeIsStop = r.place.id && !STOP_ROLES_EXCLUDED.includes(r.place.role);
+      if (!r.stops.length && !r.legs.some(l => l.here) && !placeIsStop && stopsBefore(r.dl, stopNodes()).length) parts.push('不去店了，直接去');
+      parts.push(`${nm(r.place)} <b>${fmtTime(r.destArr)}</b>`);
+      return parts.join(' → ') + (r.train ? ` → ${escapeHtml(r.train.finalBadge || r.train.name)}` : '');
     }
 
+    // ---- Live tips ----
+    function buildTips(L) {
+      const tips = [];
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const { now, planned, leaveBy, start, dl } = L;
+      const placeName = nm(planned.place);
+
+      if (planned.slack < 0) {
+        tips.push({ lvl: 'err', html: `按现在的安排会<b>晚 ${-planned.slack} 分钟</b>到「${placeName}」，请从下面选一个改法` });
+      } else {
+        const m = leaveBy - now;
+        const where = start.here ? `离开「${nm(start.here)}」` : '出发';
+        if (m <= 0) tips.push({ lvl: 'err', html: `⏰ <b>现在就${where}！</b>` });
+        else if (m <= 5) tips.push({ lvl: 'err', html: `⏰ <b>${m} 分钟内必须${where}</b>（最晚 ${fmtTime(leaveBy)}）` });
+        else if (m <= 15) tips.push({ lvl: 'warn', html: `⌛ 还有 ${m} 分钟要${where}：先结账、去洗手间` });
+        else tips.push({ lvl: 'ok', html: `最晚 <b>${fmtTime(leaveBy)}</b> ${where}（还有 ${m} 分钟）` });
+      }
+
+      // Train context for the plan's own deadline
+      const d = config.deadlineSpec || {};
+      if (planned.train && dl.fromConfig) {
+        const buf = d.transferBufferMin || 10;
+        const margin = planned.train.dep - buf - planned.destArr;
+        tips.push({ lvl: 'ok', html: `🚃 能赶 ${escapeHtml(planned.train.name)}${margin <= 10 ? `；<b>再晚 ${margin} 分钟</b>就赶不上这班` : ''}` });
+      }
+
+      // Ahead: room to add back a skipped stop?
+      if (planned.slack >= 15) {
+        stopNodes()
+          .filter(n => liveStatus(n) === 'skip' && stopsBefore(dl, [n]).length)
+          .forEach(n => {
+            if (tips.filter(t => t.add).length >= 2) return;
+            const order = config.nodes.map(x => x.id);
+            const stops = planned.stops.concat([n]).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+            const r = simulateLive(start, now, stops, planned.stayMode, planned.hereMode, dl);
+            if (r.slack >= LIVE_SAFE_MIN) {
+              tips.push({ lvl: 'ok', add: true, html: `时间还多：可以加上「${nm(n)}」（加了还剩 ${r.slack} 分）<button type="button" class="cp-now-mini" data-addback="${escapeAttr(n.id)}">＋加上</button>` });
+            }
+          });
+      }
+
+      // Moving away from the deadline place?
+      const place = planned.place;
+      if (isGpsFresh() && place.lat != null && !start.here && gpsTrail.length >= 2) {
+        const cur = gpsTrail[gpsTrail.length - 1];
+        const old = gpsTrail.find(p => cur.t - p.t >= 90000) || gpsTrail[0];
+        const dNow = haversineKm(cur.lat, cur.lng, place.lat, place.lng);
+        const dOld = haversineKm(old.lat, old.lng, place.lat, place.lng);
+        if (dNow - dOld >= 0.15) {
+          tips.push({ lvl: 'warn', html: `⚠️ 你正在远离「${nm(place)}」（比 ${Math.max(1, Math.round((cur.t - old.t) / 60000))} 分钟前远了 ${Math.round((dNow - dOld) * 1000)}m）` });
+        }
+      }
+
+      if (!state.gpsActive) tips.push({ lvl: 'info', html: '📍 打开 GPS，位置和倒推会自动更新' });
+      else if (!isGpsFresh()) tips.push({ lvl: 'warn', html: '📍 GPS 信号中断：暂按最后打卡的位置计算' });
+
+      L.chain.forEach(c => {
+        tips.push({ lvl: c.slack < 0 ? 'err' : c.slack < 10 ? 'warn' : 'ok',
+          html: `下一个死线 ${fmtTime(c.dl.time)}「${nm(c.place)}」：预计 ${fmtTime(c.arr)} 到，${c.slack >= 0 ? `余裕 ${c.slack} 分` : `<b>晚 ${-c.slack} 分</b>`}` });
+      });
+      return tips;
+    }
+
+    // Toast + chime + vibration when the latest departure gets close (once per threshold)
+    function fireLeaveAlerts(L) {
+      if (L.leaveBy == null) return;
+      const m = L.leaveBy - L.now;
+      const key = `${L.dl.id}@${L.dl.time}`;
+      const prev = leaveAlertPrev[key];
+      leaveAlertPrev[key] = m;
+      if (prev == null) return;
+      const th = LEAVE_ALERTS.find(x => prev > x && m <= x);
+      if (th == null) return;
+      const place = L.planned.place.shortName || L.planned.place.name;
+      const msg = th === 0 ? `现在就出发去「${place}」！` : `${th} 分钟后必须出发去「${place}」（${L.dl.label || fmtTime(L.dl.time)}）`;
+      playChime(th === 0 ? 'err' : 'warn');
+      try { navigator.vibrate && navigator.vibrate([250, 120, 250]); } catch (_) {}
+      showPageToast(`⏰ ${msg}`);
+      if (globalPrefs.autoBark) dispatchStrongNotifications('⏰ 死线提醒', msg, L.planned.place.navUrl || location.href, 'warn');
+    }
+
+    // ---- Actions ----
     function applyLiveRoute(r) {
       const keep = new Set(r.stops.map(s => s.id));
-      stopNodes().forEach(n => {
-        if (liveStatus(n) === 'want' && !keep.has(n.id) && !(r.legs[0] && r.legs[0].here && r.legs[0].node.id === n.id)) {
-          state.live.status[n.id] = 'skip';
-        }
+      const hereId = r.legs[0] && r.legs[0].here ? r.legs[0].node.id : null;
+      // Only touch stops that belong before this deadline; later ones stay as they are
+      stopsBefore(r.dl, stopNodes()).forEach(n => {
+        if (liveStatus(n) === 'want' && !keep.has(n.id) && n.id !== hereId) state.live.status[n.id] = 'skip';
       });
       state.live.stayMode = r.stayMode;
       state.live.hereMode = r.hereMode || 'full';
       state.live.appliedAt = nowLocalMin();
       saveState();
       playChime('ok');
-      showPageToast(`✅ 已启动重算方案：${fmtTime(r.destArr)} 到终点，余裕 ${r.slack} 分`);
+      showPageToast(`✅ 已启动：${fmtTime(r.destArr)} 到「${r.place.shortName || r.place.name}」，余裕 ${r.slack} 分`);
       render();
     }
 
@@ -1641,7 +1767,6 @@
       if (!n) return;
       const start = liveStart(nowLocalMin());
       if (start.here && start.here.id === id) {
-        // here → done (we just left)
         state.live.status[id] = 'done';
         recordCheckin(id, 'dep', nowLocalMin(), '手动标记离开');
         return;
@@ -1656,8 +1781,46 @@
       render();
     }
 
-    let lastNowCard = null;
-    const LIVE_SAFE_MIN = 5; // recommended plans keep at least this much buffer when possible
+    // ---- Rendering ----
+    function deadlineTagsHtml(L) {
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const tags = getDeadlines()
+        .map(d => {
+          const p = deadlinePlace(d);
+          const isActive = d.id === L.dl.id;
+          const sl = isActive ? L.planned.slack : (L.chain.find(c => c.dl.id === d.id) || {}).slack;
+          const past = d.time < L.now - 5;
+          const cls = past ? 'past' : sl == null ? '' : sl < 0 ? 'err' : sl < 10 ? 'warn' : 'ok';
+          return `<button type="button" class="cp-dl-tag ${cls} ${isActive ? 'active' : ''}" data-dl-edit="${escapeAttr(d.id)}">
+              ⏰ <b>${fmtTime(d.time)}</b> 前到「${nm(p)}」${d.label ? `<span class="cp-dl-lbl">${escapeHtml(d.label)}</span>` : ''}${
+                past ? '<span class="cp-dl-st">已过</span>' : sl != null ? `<span class="cp-dl-st">${sl >= 0 ? `余裕 ${sl} 分` : `晚 ${-sl} 分`}</span>` : ''
+              }<span class="cp-dl-edit">改</span>
+            </button>`;
+        })
+        .join('');
+      return `<div class="cp-dl-tags">${tags}<button type="button" class="cp-dl-add" data-dl-edit="__new">＋ 加死线</button></div>${deadlineFormHtml()}`;
+    }
+
+    function deadlineFormHtml() {
+      if (!deadlineEdit) return '';
+      const e = deadlineEdit;
+      const opts = config.nodes
+        .map(n => `<option value="${escapeAttr(n.id)}" ${e.nodeId === n.id ? 'selected' : ''}>${escapeHtml(n.shortName || n.name)}</option>`)
+        .join('');
+      const gpsOpt = state.gpsInfo ? `<option value="__gps" ${e.nodeId === '__gps' ? 'selected' : ''}>📍 我现在的位置</option>` : '';
+      const customOpt = e.lat != null && e.nodeId === '__custom' ? `<option value="__custom" selected>${escapeHtml(e.placeName || '自定位置')}</option>` : '';
+      return `<div class="cp-dl-form" id="cp-dl-form">
+          <label>几点前<input type="time" id="cp-dl-time" value="${fmtTime(e.time)}"></label>
+          <label>必须到<select id="cp-dl-place">${opts}${gpsOpt}${customOpt}</select></label>
+          <label>备注<input type="text" id="cp-dl-label" value="${escapeAttr(e.label || '')}" placeholder="例：赶末班 / 约了朋友"></label>
+          <div class="cp-dl-form-btns">
+            <button type="button" class="cp-plan-apply" id="cp-dl-save">保存</button>
+            ${e.id !== '__new' ? '<button type="button" class="cp-now-mini" id="cp-dl-del">删除</button>' : ''}
+            <button type="button" class="cp-now-mini" id="cp-dl-cancel">取消</button>
+            ${state.live.deadlines ? '<button type="button" class="cp-now-mini" id="cp-dl-reset">恢复计划默认</button>' : ''}
+          </div>
+        </div>`;
+    }
 
     function buildNowCard() {
       const L = computeLive();
@@ -1665,64 +1828,28 @@
       const nm = x => escapeHtml(x.shortName || x.name);
       const slack = planned.slack;
       const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
-      const big = slack >= 0 ? `余裕 ${slack} 分钟` : `落后 ${-slack} 分钟`;
-      const dl = planned.dl;
-      const dest = destNode();
 
-      // Where
       let whereTxt;
       if (start.here) whereTxt = `在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到）`;
       else if (start.source === 'gps') whereTxt = `GPS 定位中（最近的站点：${escapeHtml(state.gpsInfo.nearestName)}）`;
-      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）`;
-      if (start.source !== 'gps') whereTxt += `<span class="cp-now-sub">${state.gpsActive ? 'GPS 信号中断，' : ''}不对的话点下面的站标「我在这」，或打开 GPS</span>`;
+      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）<span class="cp-now-sub">不对的话点下面的站标「我在这」，或打开 GPS</span>`;
 
-      // Plan label
-      const planLbl = state.live.appliedAt != null ? `重算方案（${fmtTime(state.live.appliedAt)} 启动）` : '原定计划（按现在位置重算）';
-
-      // Next action
       const first = planned.legs.find(l => !l.here);
-      let doTxt;
-      let navNode;
-      if (planned.legs[0] && planned.legs[0].here) {
-        const h = planned.legs[0];
-        const nextName = first ? nm(first.node) : nm(dest);
-        navNode = first ? first.node : dest;
-        doTxt =
-          h.dep <= now
-            ? `<b>现在离开</b>「${nm(h.node)}」，去「${nextName}」`
-            : `在「${nm(h.node)}」待到 <b>${fmtTime(h.dep)}</b>（还剩 ${h.dep - now} 分），然后去「${nextName}」`;
-        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚可拖到 ${fmtTime(h.dep + slack)} 再走</span>`;
-      } else if (first) {
-        navNode = first.node;
-        doTxt = `去「${nm(first.node)}」，约 <b>${fmtTime(first.arr)}</b> 到`;
-        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚 ${fmtTime(now + slack)} 前出发都来得及</span>`;
-      } else {
-        navNode = dest;
-        doTxt = `去「${nm(dest)}」，约 <b>${fmtTime(planned.destArr)}</b> 到${dl.train ? `，坐 ${escapeHtml(dl.train.name)}` : ''}`;
-        if (slack > 0) doTxt += `<span class="cp-now-sub">最晚 ${fmtTime(now + slack)} 前出发</span>`;
-      }
+      const navNode = first ? first.node : planned.place;
       const navBtn = navNode && navNode.navUrl
-        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>`
-        : '';
+        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>` : '';
 
-      // Stop chips
-      const chips = stopNodes()
-        .map(n => {
-          const isHere = start.here && start.here.id === n.id;
-          const st = isHere ? 'here' : liveStatus(n);
-          const lbl = { here: '📍 在这', want: '要去', done: '✔ 已去', skip: '不去' }[st];
-          return `<button type="button" class="cp-now-chip ${st}" data-stop="${escapeAttr(n.id)}"><b>${nm(n)}</b> ${lbl}</button>`;
-        })
+      const tips = buildTips(L)
+        .map(t => `<li class="${t.lvl}">${t.html}</li>`)
         .join('');
 
-      // Alternative
       let altHtml = '';
       if (slack < 0 || !L.bestIsPlanned) {
         if (best && best.slack >= 0 && !L.bestIsPlanned) {
-          altHtml = `<div class="cp-now-rec">
+          altHtml += `<div class="cp-now-rec">
               <div><b>${slack < 0 ? '来不及！改成这样：' : '更稳的走法：'}</b></div>
               <div class="cp-now-route">${describeRoute(best)}</div>
-              <div class="cp-now-rec-sum">余裕 ${best.slack} 分钟${best.destArr <= best.dl.target ? '（赶得上理想班次）' : ''}</div>
+              <div class="cp-now-rec-sum">余裕 ${best.slack} 分钟</div>
               <button type="button" class="cp-plan-apply" data-live-apply="best">▶ 启动这个方案</button>
             </div>`;
           if (tight && !sameRoute(tight, planned)) {
@@ -1734,7 +1861,8 @@
             </div>`;
           }
         } else if (slack < 0) {
-          altHtml = `<div class="cp-now-rec"><b>所有走法都来不及${dl.hardLabel}</b>，最好的是：<div class="cp-now-route">${describeRoute(best)}</div></div>`;
+          altHtml += `<div class="cp-now-rec"><b>所有走法都来不及</b>，最接近的是：<div class="cp-now-route">${describeRoute(best)}</div>
+            <div class="cp-now-rec-sum">仍晚 ${-best.slack} 分钟。可以把死线改晚，或考虑下面的花钱方案</div></div>`;
         }
         if (fallback) {
           altHtml += `<div class="cp-now-rec">
@@ -1745,25 +1873,136 @@
         }
       }
 
+      const chips = stopNodes()
+        .map(n => {
+          const st = start.here && start.here.id === n.id ? 'here' : liveStatus(n);
+          const lbl = { here: '📍 在这', want: '要去', done: '✔ 已去', skip: '不去' }[st];
+          return `<button type="button" class="cp-now-chip ${st}" data-stop="${escapeAttr(n.id)}"><b>${nm(n)}</b> ${lbl}</button>`;
+        })
+        .join('');
+
+      const planLbl = state.live.appliedAt != null ? `重算方案（${fmtTime(state.live.appliedAt)} 启动）` : '原定安排（按现在位置重算）';
       const html = `<div class="cp-now ${lvl}" id="cp-now">
           <div class="cp-now-hd"><span>🧭 此刻导航</span><span class="cp-now-clock">现在 ${fmtTime(now)}</span></div>
-          <div class="cp-now-prog">${big}</div>
-          <div class="cp-now-why">从终点倒推：${escapeHtml(dl.hardLabel)}，最晚 ${fmtTime(dl.hard)} 到「${nm(dest)}」</div>
-          <div class="cp-now-row"><span class="k">方案</span><span>${planLbl}<span class="cp-now-route">${describeRoute(planned)}</span></span></div>
-          <div class="cp-now-row"><span class="k">位置</span><span>${whereTxt}</span></div>
-          <div class="cp-now-row"><span class="k">现在做</span><span>${doTxt}</span></div>
+          ${deadlineTagsHtml(L)}
+          <div class="cp-now-prog">${slack >= 0 ? `余裕 ${slack} 分钟` : `落后 ${-slack} 分钟`}</div>
+          <ul class="cp-now-tips">${tips}</ul>
           <div class="cp-now-btns">${navBtn}</div>
           ${altHtml}
+          <div class="cp-now-row"><span class="k">路线</span><span>${planLbl}<span class="cp-now-route">${describeRoute(planned)}</span></span></div>
+          <div class="cp-now-row"><span class="k">位置</span><span>${whereTxt}</span></div>
           <div class="cp-now-row"><span class="k">各站</span><span class="cp-now-chips">${chips}<span class="cp-now-sub">点一下切换：要去 → 📍在这 → ✔已去 → 不去</span></span></div>
         </div>`;
       return { html, L };
     }
 
+    // Re-render only the card (used by the 30 s ticker; keeps the rest of the page untouched)
+    function refreshNowCard() {
+      const wrap = document.getElementById('cp-now-wrap');
+      if (!wrap) return null;
+      const card = buildNowCard();
+      lastNowCard = card;
+      wrap.innerHTML = card.html;
+      bindNowCard(wrap);
+      fireLeaveAlerts(card.L);
+      const dockBadge = document.getElementById('cp-dock-badge');
+      const dockSub = document.getElementById('cp-dock-sub');
+      const ls = card.L.planned.slack;
+      if (dockBadge) {
+        dockBadge.className = `cp-dock-badge ${ls < 0 ? 'err' : ls < 10 ? 'warn' : 'ok'}`;
+        dockBadge.textContent = ls >= 0 ? `${ls < 10 ? '🟡' : '🟢'} 余裕 ${ls} 分` : `🔴 落后 ${-ls} 分・点看改法`;
+      }
+      if (dockSub) {
+        const p = card.L.planned;
+        dockSub.textContent = `⏰ ${fmtTime(card.L.dl.time)} 前到「${p.place.shortName || p.place.name}」· 预计 ${fmtTime(p.destArr)}`;
+      }
+      return card;
+    }
+
+    function bindNowCard(root) {
+      root.querySelectorAll('[data-stop]').forEach(btn => btn.addEventListener('click', () => cycleStopStatus(btn.dataset.stop)));
+      root.querySelectorAll('[data-live-apply]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const r = lastNowCard && (btn.dataset.liveApply === 'tight' ? lastNowCard.L.tight : lastNowCard.L.best);
+          if (r) applyLiveRoute(r);
+        })
+      );
+      root.querySelectorAll('[data-addback]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          state.live.status[btn.dataset.addback] = 'want';
+          saveState();
+          render();
+        })
+      );
+      root.querySelectorAll('[data-dl-edit]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.dlEdit;
+          if (id === '__new') {
+            const last = getDeadlines().slice(-1)[0];
+            deadlineEdit = { id: '__new', nodeId: destNode().id, time: (last ? last.time : nowLocalMin()) + 30, label: '' };
+          } else {
+            const d = getDeadlines().find(x => x.id === id);
+            if (!d) return;
+            deadlineEdit = Object.assign({}, d, { nodeId: d.nodeId || '__custom' });
+          }
+          refreshNowCard();
+        })
+      );
+      const form = root.querySelector('#cp-dl-form');
+      if (!form) return;
+      const keepDraft = () => {
+        const tv = form.querySelector('#cp-dl-time').value;
+        if (/^\d{1,2}:\d{2}$/.test(tv)) {
+          const [h, m] = tv.split(':').map(Number);
+          deadlineEdit.time = h * 60 + m;
+        }
+        deadlineEdit.nodeId = form.querySelector('#cp-dl-place').value;
+        deadlineEdit.label = form.querySelector('#cp-dl-label').value.slice(0, 40);
+      };
+      form.querySelectorAll('input,select').forEach(el => el.addEventListener('input', keepDraft));
+      form.querySelector('#cp-dl-cancel').addEventListener('click', () => { deadlineEdit = null; refreshNowCard(); });
+      form.querySelector('#cp-dl-reset')?.addEventListener('click', () => {
+        deadlineEdit = null;
+        saveDeadlines(null);
+        render();
+      });
+      form.querySelector('#cp-dl-del')?.addEventListener('click', () => {
+        const list = getDeadlines().filter(d => d.id !== deadlineEdit.id);
+        deadlineEdit = null;
+        if (!list.length) { showPageToast('至少要保留一个死线'); refreshNowCard(); return; }
+        saveDeadlines(list);
+        render();
+      });
+      form.querySelector('#cp-dl-save').addEventListener('click', () => {
+        keepDraft();
+        const e = deadlineEdit;
+        const entry = { id: e.id === '__new' ? `dl${Date.now().toString(36)}` : e.id, time: e.time, label: e.label || '' };
+        if (e.nodeId === '__gps' && state.gpsInfo) {
+          Object.assign(entry, { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng, placeName: '设定时的位置' });
+        } else if (e.nodeId === '__custom') {
+          Object.assign(entry, { lat: e.lat, lng: e.lng, placeName: e.placeName });
+        } else {
+          entry.nodeId = e.nodeId;
+        }
+        // Keep the plan's train logic only while its own deadline keeps its place
+        const orig = getDeadlines().find(d => d.id === e.id);
+        if (orig && orig.fromConfig && entry.nodeId === orig.nodeId) entry.fromConfig = true;
+        const list = getDeadlines().filter(d => d.id !== entry.id).concat([entry]);
+        deadlineEdit = null;
+        saveDeadlines(list);
+        showPageToast(`⏰ 死线已设：${fmtTime(entry.time)} 前到「${deadlinePlace(entry).shortName || deadlinePlace(entry).name}」`);
+        render();
+      });
+    }
+
+    // 30 s heartbeat so the countdown, tips and alerts stay live without any tap
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && !deadlineEdit) refreshNowCard();
+    }, 30000);
+
     // Main Render
     function render() {
       lastRenderedGpsFresh = isGpsFresh();
-      const nowCard = buildNowCard();
-      lastNowCard = nowCard;
       const sim = simulateSchedule({});
       const delayMin = getDelayVsBaseline();
       const showReplan = sim.riskLevel !== 'ok' || delayMin >= 20 || state.activePlanId !== 'current' || state.emergencyMode;
@@ -1788,15 +2027,6 @@
       const dockBadge = document.getElementById('cp-dock-badge');
       const dockSub = document.getElementById('cp-dock-sub');
       const dockGuard = document.getElementById('cp-dock-guard');
-      if (dockBadge) {
-        const ls = nowCard.L.planned.slack;
-        dockBadge.className = `cp-dock-badge ${ls < 0 ? 'err' : ls < 10 ? 'warn' : 'ok'}`;
-        dockBadge.textContent = ls >= 0 ? `${ls < 10 ? "🟡" : "🟢"} 余裕 ${ls} 分` : `🔴 落后 ${-ls} 分・点看改法`;
-      }
-      if (dockSub) {
-        const lp = nowCard.L.planned;
-        dockSub.textContent = `按现在位置倒推：约 ${fmtTime(lp.destArr)} 到终点（${lp.dl.hardLabel}）`;
-      }
       if (dockGuard) {
         dockGuard.className = 'cp-dock-btn' + (state.guardActive ? ' guard-on' : '');
         dockGuard.textContent = state.guardActive ? '🛡️ 护航中' : '🛡️ 开启护航';
@@ -1823,7 +2053,7 @@
 
       mount.innerHTML = `
         <div class="cp-shell state-${delayBadgeCls}">
-          ${nowCard.html}
+          <div id="cp-now-wrap"></div>
           ${replayHtml}
 
           <!-- 1. Pre-Flight Anti-Trap Gate -->
@@ -2352,15 +2582,7 @@
       document.getElementById('cp-gps-btn')?.addEventListener('click', toggleGpsMode);
 
       // Apply proposal & copy WeChat buttons
-      mount.querySelectorAll('[data-stop]').forEach(btn => {
-        btn.addEventListener('click', () => cycleStopStatus(btn.dataset.stop));
-      });
-      mount.querySelectorAll('[data-live-apply]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const r = lastNowCard && (btn.dataset.liveApply === 'tight' ? lastNowCard.L.tight : lastNowCard.L.best);
-          if (r) applyLiveRoute(r);
-        });
-      });
+      refreshNowCard();
       mount.querySelectorAll('[data-plan-idx]').forEach(btn => {
         btn.addEventListener('click', () => {
           const prop = proposals[Number(btn.dataset.planIdx)];
