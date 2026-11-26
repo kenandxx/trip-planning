@@ -1430,6 +1430,109 @@
       }
     }
 
+    // "此刻导航" card: one place that answers
+    //   which plan am I on / where am I / ahead or late / what do I do now / is there a backup?
+    function buildNowCard(sim, delayMin, proposals) {
+      const now = nowLocalMin();
+      const nm = n => escapeHtml(n.shortName || n.name);
+      const tl = sim.timeline || [];
+      const here = tl.find(x => x.status === 'at' || x.status === 'current');
+      const last = tl.find(x => x.status === 'departed');
+      const next = tl.find(x => x.status === 'upcoming');
+
+      // Live overrun: the plan says we should already have left / arrived, but no check-in says so.
+      let overrun = 0;
+      let overrunWhy = '';
+      if (here && now > here.dep) {
+        overrun = now - here.dep;
+        overrunWhy = `计划 ${fmtTime(here.dep)} 离开「${nm(here.node)}」`;
+      } else if (!here && next && now > next.arr) {
+        overrun = now - next.arr;
+        overrunWhy = `计划 ${fmtTime(next.arr)} 到「${nm(next.node)}」`;
+      }
+      const eff = Math.max(delayMin, overrun);
+      const lvl = sim.riskLevel === 'err' || eff >= 25 ? 'err' : sim.riskLevel === 'warn' || eff >= 10 ? 'warn' : 'ok';
+      const progressTxt = eff >= 3 ? `晚 ${eff} 分钟` : eff <= -3 ? `提前 ${-eff} 分钟` : '准点';
+
+      // Which plan
+      const activeProp = state.activePlanId !== 'current' ? proposals.find(p => p.id === state.activePlanId) : null;
+      const planName = activeProp ? activeProp.name : config.basePlanName || '原定计划';
+
+      // Where am I
+      let whereTxt;
+      if (isGpsFresh()) {
+        whereTxt = here
+          ? `GPS：在「${nm(here.node)}」附近${next && state.gpsInfo.remKm != null ? `，距下一站「${nm(next.node)}」约 ${state.gpsInfo.remKm} km` : ''}`
+          : next && state.gpsInfo.remKm != null
+          ? `GPS：距「${nm(next.node)}」约 ${state.gpsInfo.remKm} km`
+          : `GPS：在 ${escapeHtml(state.gpsInfo.nearestName)} 附近`;
+      } else {
+        const a = config.nodes.find(n => n.id === state.anchor.nodeId);
+        const aTime = fmtTime(state.anchor.timeMin + (state.anchor.extraDelayMin || 0));
+        whereTxt = `按最后打卡推算：${aTime} ${state.anchor.event === 'arr' ? '到达' : '离开'}「${a ? nm(a) : '--'}」${
+          state.gpsActive ? '（GPS 信号中断）' : '（打开 GPS 可自动更新）'
+        }`;
+      }
+
+      // What to do now
+      let doTxt;
+      let navNode = null;
+      if (here) {
+        navNode = next ? next.node : null;
+        doTxt = now <= here.dep
+          ? `在「${nm(here.node)}」，可以待到 <b>${fmtTime(here.dep)}</b>（还有 ${here.dep - now} 分钟）${next ? `，然后去「${nm(next.node)}」` : ''}`
+          : `<b>该走了！</b>${next ? `现在出发去「${nm(next.node)}」` : '行程已到最后一站'}`;
+      } else if (next && overrun >= 10) {
+        navNode = next.node;
+        doTxt = `本应 ${fmtTime(next.arr)} 到「${nm(next.node)}」。<b>已经到了</b>就按下面的按钮更新；还没到就继续前往`;
+      } else if (next) {
+        navNode = next.node;
+        doTxt = `前往「${nm(next.node)}」，计划 <b>${fmtTime(next.arr)}</b> 到${next.stay ? `，停留 ${next.stay} 分钟` : ''}`;
+      } else {
+        doTxt = last ? `已离开「${nm(last.node)}」，行程到这里结束` : '行程已结束';
+      }
+      const navBtn = navNode && navNode.navUrl
+        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>`
+        : '';
+      const syncNode = here ? here.node : next ? next.node : null;
+      const syncBtn = overrun >= 10 && syncNode
+        ? `<button type="button" class="cp-now-sync" data-now-sync="${escapeAttr(syncNode.id)}" data-now-ev="${here ? 'dep' : 'arr'}">⏱ 按现在 ${fmtTime(now)} 更新：我刚${here ? '离开' : '到'}「${nm(syncNode)}」</button>`
+        : '';
+
+      // Backup
+      let backupHtml;
+      const recIdx = proposals.findIndex(p => p.rec && p.id !== state.activePlanId);
+      const rec = recIdx >= 0 ? proposals[recIdx] : null;
+      if (lvl === 'ok') {
+        backupHtml = `<div class="cp-now-row"><span class="k">备选</span><span>✅ 不需要，按当前方案走就行</span></div>`;
+      } else if (rec) {
+        backupHtml = `<div class="cp-now-rec">
+            <div><b>建议改用：</b>${escapeHtml(rec.name)}</div>
+            <div class="cp-now-rec-sum">${escapeHtml(rec.summary)}</div>
+            <button type="button" class="cp-plan-apply" data-plan-idx="${recIdx}">⚡ 一键改用这个方案</button>
+            <a class="cp-now-more" href="#cp-plans-anchor">看全部 ${proposals.length} 个备选 ↓</a>
+          </div>`;
+      } else {
+        backupHtml = `<div class="cp-now-row"><span class="k">备选</span><span>${
+          overrun >= 10 ? '先按上面的按钮更新进度，备选方案会按最新时间重算' : '已是推荐方案；更多选择见下方「重排方案」'
+        }</span></div>`;
+      }
+
+      return `<div class="cp-now ${lvl}" id="cp-now">
+          <div class="cp-now-hd"><span>🧭 此刻导航</span><span class="cp-now-clock">现在 ${fmtTime(now)}</span></div>
+          <div class="cp-now-prog">${progressTxt}</div>
+          ${overrun >= 3 && overrun >= delayMin ? `<div class="cp-now-why">${overrunWhy}，还没打卡</div>` : ''}
+          <div class="cp-now-row"><span class="k">方案</span><span>${escapeHtml(planName)}</span></div>
+          <div class="cp-now-row"><span class="k">位置</span><span>${whereTxt}</span></div>
+          <div class="cp-now-row"><span class="k">现在做</span><span>${doTxt}</span></div>
+          <div class="cp-now-btns">${navBtn}${syncBtn}</div>
+          ${backupHtml}
+          <div class="cp-now-foot">${
+            overrun >= 10 ? '⏳ 终点时间要等更新进度后才准' : escapeHtml(sim.headline)
+          }</div>
+        </div>`;
+    }
+
     // Main Render
     function render() {
       lastRenderedGpsFresh = isGpsFresh();
@@ -1495,6 +1598,7 @@
 
       mount.innerHTML = `
         <div class="cp-shell state-${delayBadgeCls}">
+          ${buildNowCard(sim, delayMin, proposals)}
           ${replayHtml}
 
           <!-- 1. Pre-Flight Anti-Trap Gate -->
@@ -1689,7 +1793,7 @@
           <!-- 5. Dynamic 3-Option Re-Plan Engine (auto-appears whenever delayed >=20m or at risk!) -->
           ${
             proposals.length
-              ? `<div class="cp-plans-wrap">
+              ? `<div class="cp-plans-wrap" id="cp-plans-anchor">
                   <div class="cp-plans-hd">
                     <h3>🧭 动态重排引擎：为您定制的 ${proposals.length} 套后续更优方案</h3>
                     <span class="tag ${sim.riskLevel === 'err' ? 'err' : 'warn'}">点选即刻更新全页路线与提醒</span>
@@ -2022,6 +2126,11 @@
       document.getElementById('cp-gps-btn')?.addEventListener('click', toggleGpsMode);
 
       // Apply proposal & copy WeChat buttons
+      mount.querySelectorAll('[data-now-sync]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          recordCheckin(btn.dataset.nowSync, btn.dataset.nowEv, nowLocalMin(), '按现在时间更新进度');
+        });
+      });
       mount.querySelectorAll('[data-plan-idx]').forEach(btn => {
         btn.addEventListener('click', () => {
           const prop = proposals[Number(btn.dataset.planIdx)];

@@ -875,3 +875,32 @@ body.has-cp-dock .toast {
 @media (prefers-reduced-motion: reduce) {
   .cp-gps-pill .cp-gps-dot { animation: none; }
 }
+
+/* 此刻导航: plan / position / progress / next action / backup in one card */
+.cp-now {
+  --now: var(--cp-ok);
+  border: 2px solid var(--now);
+  background: color-mix(in srgb, var(--now) 7%, var(--cp-card));
+  border-radius: 14px;
+  padding: 12px 13px;
+  margin-bottom: 12px;
+}
+.cp-now.warn { --now: var(--cp-warn); }
+.cp-now.err { --now: var(--cp-err); }
+.cp-now-hd { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--cp-soft); }
+.cp-now-prog { font-size: 28px; font-weight: 800; color: var(--now); line-height: 1.2; margin: 2px 0 2px; }
+.cp-now-why { font-size: 12px; color: var(--now); font-weight: 600; margin-bottom: 4px; }
+.cp-now-row { display: flex; gap: 8px; font-size: 14px; line-height: 1.45; padding: 4px 0; border-top: 1px dashed var(--cp-line); }
+.cp-now-row .k { flex: none; width: 3.6em; color: var(--cp-soft); font-size: 12px; padding-top: 2px; }
+.cp-now-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.cp-now-btns:empty { display: none; }
+.cp-now-nav, .cp-now-sync {
+  display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 10px;
+  font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer;
+}
+.cp-now-nav { background: var(--cp-nav); color: #fff; border: 0; }
+.cp-now-sync { background: var(--cp-card); color: var(--cp-ink); border: 1.5px solid var(--now); }
+.cp-now-rec { margin-top: 6px; padding: 9px 10px; border-radius: 10px; background: var(--cp-card); border: 1.5px solid var(--now); font-size: 14px; }
+.cp-now-rec-sum { font-size: 12px; color: var(--cp-soft); margin: 4px 0 8px; }
+.cp-now-more { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--cp-nav); }
+.cp-now-foot { margin-top: 6px; font-size: 12px; color: var(--cp-soft); }
