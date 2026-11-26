@@ -832,3 +832,13 @@ body.has-cp-dock .toast {
   background: var(--cp-card2);
   color: var(--cp-ink);
 }
+
+/* GPS freshness line: last fix age + accuracy */
+.cp-gps-fresh {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cp-gps-fresh.ok { color: var(--cp-ok); }
+.cp-gps-fresh.wait { color: var(--cp-indigo); }
+.cp-gps-fresh.warn { color: var(--cp-warn); }

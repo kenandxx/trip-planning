@@ -155,11 +155,16 @@
       guardActive: false,
       gpsActive: false,
       gpsInfo: null, // { lat, lng, speedKmh, accuracy, nearestId, remKm, liveDeltaMin, slowRoadWarn }
+      gpsLastFixAt: null, // ms timestamp of the last position received from watchPosition
+      gpsLastError: null, // last non-fatal error message (timeout / unavailable) while still watching
       observedPace: savedState.observedPace || null,
       lastAlertSig: ''
     };
 
     let watchId = null;
+    let gpsFreshTimer = null;
+    const GPS_STALE_SEC = 30; // no new fix for this long → show "signal lost"
+    const GPS_POOR_ACCURACY_M = 100; // accuracy worse than this → show "poor accuracy"
     let wakeLockSentinel = null;
     let guardTimer = null;
     let swReg = null;
@@ -949,10 +954,7 @@
         return;
       }
       if (state.gpsActive) {
-        if (watchId != null) navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-        state.gpsActive = false;
-        state.gpsInfo = null;
+        stopGps();
         showPageToast('已停止实时 GPS 监测');
         render();
         return;
@@ -960,20 +962,87 @@
 
       unlockAudio();
       state.gpsActive = true;
+      state.gpsLastFixAt = null;
+      state.gpsLastError = null;
       showPageToast('🛰️ 正在连接手机 GPS 定位监测…');
       render();
+      startGpsFreshTicker();
 
       watchId = navigator.geolocation.watchPosition(
         pos => {
+          state.gpsLastFixAt = Date.now();
+          state.gpsLastError = null;
           handleGpsPosition(pos.coords);
         },
         err => {
-          state.gpsActive = false;
-          showPageToast(`定位未授权或不可用（${err.message}），可直接使用下方 1 秒打卡`);
-          render();
+          // PERMISSION_DENIED (1) is fatal: stop watching.
+          // POSITION_UNAVAILABLE (2) / TIMEOUT (3) are transient (tunnel, subway, indoors):
+          // the browser keeps the watch alive, so keep the UI "on" and show the stale state instead.
+          if (err.code === 1) {
+            stopGps();
+            showPageToast('定位权限被拒绝：请在 设置 → 隐私与安全性 → 定位服务 → Safari 网站 中允许，并打开「精确位置」。现在可先用下方 1 秒打卡');
+            render();
+            return;
+          }
+          const firstError = !state.gpsLastError;
+          state.gpsLastError = err.code === 3 ? '定位超时' : '暂时无法定位';
+          if (firstError) showPageToast(`🛰️ GPS 信号弱（${state.gpsLastError}），继续搜索中…可先用下方 1 秒打卡`);
+          updateGpsFreshness();
         },
         { enableHighAccuracy: true, maximumAge: 15000, timeout: 15000 }
       );
+    }
+
+    function stopGps() {
+      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
+      gpsFreshTimer = null;
+      state.gpsActive = false;
+      state.gpsInfo = null;
+      state.gpsLastFixAt = null;
+      state.gpsLastError = null;
+    }
+
+    function startGpsFreshTicker() {
+      if (gpsFreshTimer) clearInterval(gpsFreshTimer);
+      gpsFreshTimer = setInterval(updateGpsFreshness, 5000);
+    }
+
+    // Returns { level: 'wait'|'ok'|'warn', text } describing how fresh/trustworthy the GPS fix is.
+    function gpsFreshness() {
+      if (!state.gpsLastFixAt) {
+        return state.gpsLastError
+          ? { level: 'warn', text: `⚠️ 尚未取得定位（${state.gpsLastError}），继续搜索中` }
+          : { level: 'wait', text: '⏳ 正在获取首次定位…' };
+      }
+      const ageSec = Math.max(0, Math.round((Date.now() - state.gpsLastFixAt) / 1000));
+      const ageTxt = ageSec < 60 ? `${ageSec} 秒前` : `${Math.floor(ageSec / 60)} 分钟前`;
+      const acc = state.gpsInfo ? state.gpsInfo.accuracy : null;
+      const accTxt = acc != null ? `精度 ±${acc}m` : '精度未知';
+      if (ageSec >= GPS_STALE_SEC) {
+        const gapTxt = ageSec < 60 ? `${ageSec} 秒` : `${Math.floor(ageSec / 60)} 分钟`;
+        return { level: 'warn', text: `⚠️ 已 ${gapTxt}无新定位（地下/室内，或曾锁屏、切到后台）｜上次${accTxt}` };
+      }
+      if (acc != null && acc > GPS_POOR_ACCURACY_M) {
+        return { level: 'warn', text: `🟡 最后更新 ${ageTxt}｜${accTxt}（精度较差，围栏打卡可能不准）` };
+      }
+      return { level: 'ok', text: `🟢 最后更新 ${ageTxt}｜${accTxt}` };
+    }
+
+    function gpsFreshHtml() {
+      if (!state.gpsActive) return '';
+      const f = gpsFreshness();
+      return `<div class="cp-gps-fresh ${f.level}" id="cp-gps-fresh">${escapeHtml(f.text)}</div>`;
+    }
+
+    // Lightweight update of only the freshness line (no full re-render every few seconds).
+    function updateGpsFreshness() {
+      const el = document.getElementById('cp-gps-fresh');
+      if (!el || !state.gpsActive) return;
+      const f = gpsFreshness();
+      el.className = `cp-gps-fresh ${f.level}`;
+      el.textContent = f.text;
     }
 
     function handleGpsPosition(coords) {
@@ -998,12 +1067,23 @@
       let remKm = null;
       let liveDeltaMin = null;
       let slowRoadWarn = false;
+      const nearestName = nearest ? `${nearest.shortName || nearest.name} (${minDist.toFixed(1)}km)` : '--';
 
       if (nextItem && nextItem.node.lat != null) {
         remKm = Math.round(haversineKm(lat, lng, nextItem.node.lat, nextItem.node.lng) * 10) / 10;
         // Geofence auto check-in if within radiusKm
         const rad = nextItem.node.radiusKm || 0.65;
         if (remKm <= rad && state.anchor.nodeId !== nextItem.node.id) {
+          state.gpsInfo = {
+            lat: lat.toFixed(4),
+            lng: lng.toFixed(4),
+            speedKmh,
+            accuracy: Math.round(accuracy || 0),
+            nearestName,
+            remKm,
+            liveDeltaMin: null,
+            slowRoadWarn: false
+          };
           recordCheckin(nextItem.node.id, 'arr', nowLocalMin(), 'GPS 围栏自动识别到站');
           return;
         }
@@ -1026,7 +1106,7 @@
         lng: lng.toFixed(4),
         speedKmh,
         accuracy: Math.round(accuracy || 0),
-        nearestName: nearest ? `${nearest.shortName || nearest.name} (${minDist.toFixed(1)}km)` : '--',
+        nearestName,
         remKm,
         liveDeltaMin,
         slowRoadWarn
@@ -1528,6 +1608,7 @@
                       }`
                     : `🛰️ 自动监测：开启后进站自动打卡，并实时测算剩余时间与死线风险`
                 }
+                ${gpsFreshHtml()}
               </div>
               <button type="button" class="cp-gps-toggle ${state.gpsActive ? 'on' : ''}" id="cp-gps-btn">
                 ${state.gpsActive ? '🛰️ GPS监测中(点击关闭)' : '🛰️ 开启GPS实时监测'}
