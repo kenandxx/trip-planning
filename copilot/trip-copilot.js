@@ -1011,25 +1011,27 @@
       gpsFreshTimer = setInterval(updateGpsFreshness, 5000);
     }
 
-    // Returns { level: 'wait'|'ok'|'warn', text } describing how fresh/trustworthy the GPS fix is.
+    // One glanceable status for the GPS pill. Plain words first; numbers only in `detail`.
+    // level: 'wait' (connecting) | 'ok' (live) | 'weak' (poor accuracy) | 'lost' (no recent fix)
     function gpsFreshness() {
-      if (!state.gpsLastFixAt) {
-        return state.gpsLastError
-          ? { level: 'warn', text: `⚠️ 尚未取得定位（${state.gpsLastError}），继续搜索中` }
-          : { level: 'wait', text: '⏳ 正在获取首次定位…' };
-      }
-      const ageSec = gpsAgeSec();
-      const ageTxt = ageSec < 60 ? `${ageSec} 秒前` : `${Math.floor(ageSec / 60)} 分钟前`;
       const acc = state.gpsInfo ? state.gpsInfo.accuracy : null;
-      const accTxt = acc != null ? `精度 ±${acc}m` : '精度未知';
+      const ageSec = gpsAgeSec();
+      const ageTxt = ageSec == null ? '' : ageSec < 60 ? `${ageSec} 秒前` : `${Math.floor(ageSec / 60)} 分钟前`;
+      const detail = ageSec == null
+        ? (state.gpsLastError ? `尚未收到任何位置（${state.gpsLastError}）` : '尚未收到任何位置')
+        : `最后更新 ${ageTxt} · 误差约 ${acc != null ? acc + 'm' : '未知'}`;
+      if (ageSec == null) {
+        return state.gpsLastError
+          ? { level: 'lost', label: '搜不到信号', hint: '到站请先手动打卡', detail }
+          : { level: 'wait', label: '正在连接…', hint: '', detail };
+      }
       if (ageSec >= GPS_STALE_SEC) {
-        const gapTxt = ageSec < 60 ? `${ageSec} 秒` : `${Math.floor(ageSec / 60)} 分钟`;
-        return { level: 'warn', text: `⚠️ 已 ${gapTxt}无新定位（地下/室内，或曾锁屏、切到后台）｜上次${accTxt}` };
+        return { level: 'lost', label: '信号中断', hint: '地下或室内时，到站请手动打卡', detail };
       }
       if (acc != null && acc > GPS_POOR_ACCURACY_M) {
-        return { level: 'warn', text: `🟡 最后更新 ${ageTxt}｜${accTxt}（精度较差，围栏打卡可能不准）` };
+        return { level: 'weak', label: '信号弱', hint: '位置可能偏差几百米', detail };
       }
-      return { level: 'ok', text: `🟢 最后更新 ${ageTxt}｜${accTxt}` };
+      return { level: 'ok', label: '定位中', hint: '', detail };
     }
 
     function gpsAgeSec() {
@@ -1042,13 +1044,23 @@
       return Boolean(state.gpsActive && state.gpsInfo && age != null && age < GPS_STALE_SEC);
     }
 
-    function gpsFreshHtml() {
-      if (!state.gpsActive) return '';
+    let gpsShowDetail = false; // details (seconds / metres) hidden by default
+
+    function gpsPillInner() {
       const f = gpsFreshness();
-      return `<div class="cp-gps-fresh ${f.level}" id="cp-gps-fresh">${escapeHtml(f.text)}</div>`;
+      return `<button type="button" class="cp-gps-pill ${f.level}" id="cp-gps-pill" aria-expanded="${gpsShowDetail}" title="点击查看详情">
+          <span class="cp-gps-dot" aria-hidden="true"></span><b>${escapeHtml(f.label)}</b>${
+            f.hint ? `<span class="cp-gps-hint">${escapeHtml(f.hint)}</span>` : ''
+          }<span class="cp-gps-more" aria-hidden="true">${gpsShowDetail ? '▴' : '▾'}</span>
+        </button>${gpsShowDetail ? `<div class="cp-gps-detail">${escapeHtml(f.detail)}</div>` : ''}`;
     }
 
-    // Lightweight update of only the freshness line (no full re-render every few seconds).
+    function gpsFreshHtml() {
+      if (!state.gpsActive) return '';
+      return `<div class="cp-gps-fresh" id="cp-gps-fresh">${gpsPillInner()}</div>`;
+    }
+
+    // Lightweight update of only the status pill (no full re-render every few seconds).
     function updateGpsFreshness() {
       const el = document.getElementById('cp-gps-fresh');
       if (!el || !state.gpsActive) return;
@@ -1058,10 +1070,15 @@
         render();
         return;
       }
-      const f = gpsFreshness();
-      el.className = `cp-gps-fresh ${f.level}`;
-      el.textContent = f.text;
+      el.innerHTML = gpsPillInner();
     }
+
+    // Pill is re-created every few seconds, so handle its clicks by delegation.
+    document.addEventListener('click', e => {
+      if (!e.target.closest || !e.target.closest('#cp-gps-pill')) return;
+      gpsShowDetail = !gpsShowDetail;
+      updateGpsFreshness();
+    });
 
     function handleGpsPosition(coords) {
       const { latitude: lat, longitude: lng, speed, accuracy } = coords;
