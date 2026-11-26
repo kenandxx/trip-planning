@@ -163,6 +163,7 @@
 
     let watchId = null;
     let gpsFreshTimer = null;
+    let lastRenderedGpsFresh = false; // isGpsFresh() as of the last full render()
     const GPS_STALE_SEC = 30; // no new fix for this long → show "signal lost"
     const GPS_POOR_ACCURACY_M = 100; // accuracy worse than this → show "poor accuracy"
     let wakeLockSentinel = null;
@@ -421,7 +422,8 @@
         const ref = a.event === 'dep' ? base.dep : base.arr;
         delta = a.timeMin + (a.extraDelayMin || 0) - ref;
       }
-      if (state.gpsInfo && state.gpsInfo.liveDeltaMin != null) {
+      // Only trust the GPS-derived ETA while the fix is fresh; a stale fix would freeze an old delay.
+      if (isGpsFresh() && state.gpsInfo.liveDeltaMin != null) {
         delta = Math.max(delta, state.gpsInfo.liveDeltaMin);
       }
       return delta;
@@ -1016,7 +1018,7 @@
           ? { level: 'warn', text: `⚠️ 尚未取得定位（${state.gpsLastError}），继续搜索中` }
           : { level: 'wait', text: '⏳ 正在获取首次定位…' };
       }
-      const ageSec = Math.max(0, Math.round((Date.now() - state.gpsLastFixAt) / 1000));
+      const ageSec = gpsAgeSec();
       const ageTxt = ageSec < 60 ? `${ageSec} 秒前` : `${Math.floor(ageSec / 60)} 分钟前`;
       const acc = state.gpsInfo ? state.gpsInfo.accuracy : null;
       const accTxt = acc != null ? `精度 ±${acc}m` : '精度未知';
@@ -1030,6 +1032,16 @@
       return { level: 'ok', text: `🟢 最后更新 ${ageTxt}｜${accTxt}` };
     }
 
+    function gpsAgeSec() {
+      return state.gpsLastFixAt ? Math.max(0, Math.round((Date.now() - state.gpsLastFixAt) / 1000)) : null;
+    }
+
+    // True while GPS is on and the last fix is younger than GPS_STALE_SEC.
+    function isGpsFresh() {
+      const age = gpsAgeSec();
+      return Boolean(state.gpsActive && state.gpsInfo && age != null && age < GPS_STALE_SEC);
+    }
+
     function gpsFreshHtml() {
       if (!state.gpsActive) return '';
       const f = gpsFreshness();
@@ -1040,6 +1052,12 @@
     function updateGpsFreshness() {
       const el = document.getElementById('cp-gps-fresh');
       if (!el || !state.gpsActive) return;
+      const fresh = isGpsFresh();
+      if (fresh !== lastRenderedGpsFresh) {
+        // Fresh ↔ stale transition changes the delay verdict: do one full re-render.
+        render();
+        return;
+      }
       const f = gpsFreshness();
       el.className = `cp-gps-fresh ${f.level}`;
       el.textContent = f.text;
@@ -1258,8 +1276,11 @@
     function buildAiEmergencyPrompt(sim, delayMin, customWish) {
       const isTransit = config.mode === 'transit';
       const aNode = config.nodes.find(n => n.id === state.anchor.nodeId) || config.nodes[0];
+      const gpsStale = state.gpsInfo && !isGpsFresh();
       const gpsStr = state.gpsInfo
-        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，移动速度 ${state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'}`
+        ? `GPS (${state.gpsInfo.lat}, ${state.gpsInfo.lng})，邻近 ${state.gpsInfo.nearestName}，移动速度 ${state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '未知'}${
+            gpsStale ? `（注意：这是 ${gpsAgeSec() ?? '?'} 秒前的旧定位，可能已不准）` : ''
+          }`
         : `打卡节点「${aNode.name}」（坐标约 ${aNode.lat}, ${aNode.lng}）`;
 
       const doneList = config.nodes
@@ -1394,6 +1415,7 @@
 
     // Main Render
     function render() {
+      lastRenderedGpsFresh = isGpsFresh();
       const sim = simulateSchedule({});
       const delayMin = getDelayVsBaseline();
       const showReplan = sim.riskLevel !== 'ok' || delayMin >= 20 || state.activePlanId !== 'current' || state.emergencyMode;
@@ -1602,7 +1624,7 @@
                     ? `🛰️ 实时定位：距下一站约 <b>${state.gpsInfo.remKm ?? '--'}km</b>｜速度 <b>${
                         state.gpsInfo.speedKmh != null ? state.gpsInfo.speedKmh + 'km/h' : '测算中'
                       }</b>｜邻近 ${escapeHtml(state.gpsInfo.nearestName)}${
-                        state.gpsInfo.slowRoadWarn && config.mode !== 'transit'
+                        state.gpsInfo.slowRoadWarn && isGpsFresh() && config.mode !== 'transit'
                           ? '<br><b style="color:var(--cp-err)">⚠️ 车速持续低于32km/h！请核查是否未上ETC收费高速或遇严重拥堵！</b>'
                           : ''
                       }`
