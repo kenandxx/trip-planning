@@ -958,3 +958,48 @@ body.has-cp-dock .toast {
 .cp-now-tips li.err { border-left-color: var(--cp-err); background: var(--cp-err-bg); }
 .cp-now-tips li.info { border-left-color: var(--cp-nav); }
 .cp-now-tips li .cp-now-mini { margin-left: 6px; }
+
+/* One-line target summary on the live card */
+.cp-dl-line {
+  display: flex; justify-content: space-between; gap: 8px; margin: 8px 0 2px; padding: 7px 10px;
+  border-radius: 10px; border: 1.5px solid var(--cp-line); background: var(--cp-card);
+  color: var(--cp-ink); font-size: 13px; text-decoration: none;
+}
+.cp-dl-line span { color: var(--cp-nav); flex: none; }
+
+/* ⏰ 死线倒推 tab */
+.cp-dlt { display: grid; gap: 12px; }
+.cp-dlt-form {
+  display: grid; gap: 10px; padding: 12px; border-radius: 14px;
+  background: var(--cp-card); border: 1.5px solid var(--cp-line);
+}
+.cp-dlt-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.cp-dlt-row .grow { flex: 1 1 180px; }
+.cp-dlt-form label { display: grid; gap: 3px; font-size: 12px; font-weight: 700; color: var(--cp-soft); }
+.cp-dlt-form input, .cp-dlt-form select {
+  font: inherit; font-size: 16px; padding: 8px 9px; border-radius: 9px; min-width: 0; width: 100%;
+  border: 1px solid var(--cp-line); background: var(--cp-paper); color: var(--cp-ink); box-sizing: border-box;
+}
+.cp-dlt-link { display: grid; gap: 8px; }
+.cp-dlt-link[hidden] { display: none; }
+.cp-dlt-hint { font-size: 12px; color: var(--cp-soft); }
+.cp-dlt-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.cp-dlt-err { font-size: 13px; color: var(--cp-err); font-weight: 700; }
+.cp-dlt-err:empty { display: none; }
+.cp-dlt-res {
+  --now: var(--cp-ok);
+  padding: 12px 13px; border-radius: 14px; border: 2px solid var(--now);
+  background: color-mix(in srgb, var(--now) 6%, var(--cp-card));
+}
+.cp-dlt-res.warn { --now: var(--cp-warn); }
+.cp-dlt-res.err { --now: var(--cp-err); }
+.cp-dlt-target { font-size: 15px; }
+.cp-dlt-verdict { font-size: 30px; font-weight: 800; color: var(--now); line-height: 1.2; margin: 6px 0 4px; }
+.cp-dlt-rec { font-size: 15px; line-height: 1.5; padding: 8px 10px; border-radius: 10px; background: var(--cp-card); border-left: 4px solid var(--now); }
+.cp-dlt-res h3 { font-size: 14px; margin: 14px 0 6px; }
+.cp-dlt-modes { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-dlt-modes td { padding: 6px 4px; border-top: 1px dashed var(--cp-line); vertical-align: top; }
+.cp-dlt-modes tr.ok .sl { color: var(--cp-ok); font-weight: 700; }
+.cp-dlt-modes tr.warn .sl { color: var(--cp-warn); font-weight: 700; }
+.cp-dlt-modes tr.err .sl { color: var(--cp-err); font-weight: 700; }
+.cp-dlt-modes a { color: var(--cp-nav); font-weight: 700; white-space: nowrap; }

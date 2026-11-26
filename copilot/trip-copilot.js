@@ -1467,7 +1467,6 @@
       config.nodes[config.nodes.length - 1];
 
     let lastNowCard = null;
-    let deadlineEdit = null; // { id, nodeId, time, label } while the edit form is open
     const leaveAlertPrev = {}; // deadline id -> minutes-to-leave at the previous refresh
     const gpsTrail = []; // recent fixes [{ t, lat, lng }] for "moving away" detection
 
@@ -1497,7 +1496,7 @@
     // Wanted stops that come before this deadline in the plan order (all of them for a free-form place)
     const nodeOrder = id => config.nodes.findIndex(n => n.id === id);
     function stopsBefore(dl, list) {
-      if (!dl.nodeId) return list;
+      if (!dl.nodeId) return []; // a place outside the plan: just get there
       const k = nodeOrder(dl.nodeId);
       return list.filter(n => n.id !== dl.nodeId && nodeOrder(n.id) < k);
     }
@@ -1515,7 +1514,7 @@
     function estimateLegMin(km) {
       const pace = state.paceFactor || 1;
       let m;
-      if (config.mode === 'transit') m = km <= 1.5 ? (km * 1.25 / 4.8) * 60 : 8 + (km * 1.3 / 25) * 60;
+      if (config.mode === 'transit') m = km <= 1.5 ? (km * 1.25 / 4.8) * 60 : 10 + (km * 1.3 / 25) * 60;
       else m = 3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60;
       return Math.max(1, Math.round(m * pace));
     }
@@ -1782,67 +1781,9 @@
     }
 
     // ---- Rendering ----
-    function deadlineTagsHtml(L) {
-      const nm = x => escapeHtml(x.shortName || x.name);
-      const tags = getDeadlines()
-        .map(d => {
-          const p = deadlinePlace(d);
-          const isActive = d.id === L.dl.id;
-          const sl = isActive ? L.planned.slack : (L.chain.find(c => c.dl.id === d.id) || {}).slack;
-          const past = d.time < L.now - 5;
-          const cls = past ? 'past' : sl == null ? '' : sl < 0 ? 'err' : sl < 10 ? 'warn' : 'ok';
-          return `<button type="button" class="cp-dl-tag ${cls} ${isActive ? 'active' : ''}" data-dl-edit="${escapeAttr(d.id)}">
-              ⏰ <b>${fmtTime(d.time)}</b> 前到「${nm(p)}」${d.label ? `<span class="cp-dl-lbl">${escapeHtml(d.label)}</span>` : ''}${
-                past ? '<span class="cp-dl-st">已过</span>' : sl != null ? `<span class="cp-dl-st">${sl >= 0 ? `余裕 ${sl} 分` : `晚 ${-sl} 分`}</span>` : ''
-              }<span class="cp-dl-edit">改</span>
-            </button>`;
-        })
-        .join('');
-      return `<div class="cp-dl-tags">${tags}<button type="button" class="cp-dl-add" data-dl-edit="__new">＋ 加死线</button></div>${deadlineFormHtml()}`;
-    }
-
-    function deadlineFormHtml() {
-      if (!deadlineEdit) return '';
-      const e = deadlineEdit;
-      const opts = config.nodes
-        .map(n => `<option value="${escapeAttr(n.id)}" ${e.nodeId === n.id ? 'selected' : ''}>${escapeHtml(n.shortName || n.name)}</option>`)
-        .join('');
-      const gpsOpt = state.gpsInfo ? `<option value="__gps" ${e.nodeId === '__gps' ? 'selected' : ''}>📍 我现在的位置</option>` : '';
-      const customOpt = e.lat != null && e.nodeId === '__custom' ? `<option value="__custom" selected>${escapeHtml(e.placeName || '自定位置')}</option>` : '';
-      return `<div class="cp-dl-form" id="cp-dl-form">
-          <label>几点前<input type="time" id="cp-dl-time" value="${fmtTime(e.time)}"></label>
-          <label>必须到<select id="cp-dl-place">${opts}${gpsOpt}${customOpt}</select></label>
-          <label>备注<input type="text" id="cp-dl-label" value="${escapeAttr(e.label || '')}" placeholder="例：赶末班 / 约了朋友"></label>
-          <div class="cp-dl-form-btns">
-            <button type="button" class="cp-plan-apply" id="cp-dl-save">保存</button>
-            ${e.id !== '__new' ? '<button type="button" class="cp-now-mini" id="cp-dl-del">删除</button>' : ''}
-            <button type="button" class="cp-now-mini" id="cp-dl-cancel">取消</button>
-            ${state.live.deadlines ? '<button type="button" class="cp-now-mini" id="cp-dl-reset">恢复计划默认</button>' : ''}
-          </div>
-        </div>`;
-    }
-
-    function buildNowCard() {
-      const L = computeLive();
-      const { now, start, planned, best, tight, fallback } = L;
-      const nm = x => escapeHtml(x.shortName || x.name);
+    function altBlocksHtml(L) {
+      const { planned, best, tight, fallback } = L;
       const slack = planned.slack;
-      const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
-
-      let whereTxt;
-      if (start.here) whereTxt = `在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到）`;
-      else if (start.source === 'gps') whereTxt = `GPS 定位中（最近的站点：${escapeHtml(state.gpsInfo.nearestName)}）`;
-      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）<span class="cp-now-sub">不对的话点下面的站标「我在这」，或打开 GPS</span>`;
-
-      const first = planned.legs.find(l => !l.here);
-      const navNode = first ? first.node : planned.place;
-      const navBtn = navNode && navNode.navUrl
-        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>` : '';
-
-      const tips = buildTips(L)
-        .map(t => `<li class="${t.lvl}">${t.html}</li>`)
-        .join('');
-
       let altHtml = '';
       if (slack < 0 || !L.bestIsPlanned) {
         if (best && best.slack >= 0 && !L.bestIsPlanned) {
@@ -1873,6 +1814,32 @@
         }
       }
 
+      return altHtml;
+    }
+
+    function buildNowCard() {
+      const L = computeLive();
+      const { now, start, planned, best, tight, fallback } = L;
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const slack = planned.slack;
+      const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
+
+      let whereTxt;
+      if (start.here) whereTxt = `在「${nm(start.here)}」（${fmtTime(start.hereArr)} 到）`;
+      else if (start.source === 'gps') whereTxt = `GPS 定位中（最近的站点：${escapeHtml(state.gpsInfo.nearestName)}）`;
+      else whereTxt = `假设在「${nm(start.aNode)}」（最后打卡 ${fmtTime(start.aTime)}）<span class="cp-now-sub">不对的话点下面的站标「我在这」，或打开 GPS</span>`;
+
+      const first = planned.legs.find(l => !l.here);
+      const navNode = first ? first.node : planned.place;
+      const navBtn = navNode && navNode.navUrl
+        ? `<a class="cp-now-nav" href="${navNode.navUrl}" target="_blank" rel="noopener">🧭 导航去「${nm(navNode)}」</a>` : '';
+
+      const tips = buildTips(L)
+        .map(t => `<li class="${t.lvl}">${t.html}</li>`)
+        .join('');
+
+      const altHtml = altBlocksHtml(L);
+
       const chips = stopNodes()
         .map(n => {
           const st = start.here && start.here.id === n.id ? 'here' : liveStatus(n);
@@ -1884,7 +1851,9 @@
       const planLbl = state.live.appliedAt != null ? `重算方案（${fmtTime(state.live.appliedAt)} 启动）` : '原定安排（按现在位置重算）';
       const html = `<div class="cp-now ${lvl}" id="cp-now">
           <div class="cp-now-hd"><span>🧭 此刻导航</span><span class="cp-now-clock">现在 ${fmtTime(now)}</span></div>
-          ${deadlineTagsHtml(L)}
+          <a class="cp-dl-line" href="#deadline">⏰ 目标：<b>${fmtTime(L.dl.time)}</b> 前到「${nm(planned.place)}」${
+            L.dl.label ? `（${escapeHtml(L.dl.label)}）` : ''
+          }<span>改 ›</span></a>
           <div class="cp-now-prog">${slack >= 0 ? `余裕 ${slack} 分钟` : `落后 ${-slack} 分钟`}</div>
           <ul class="cp-now-tips">${tips}</ul>
           <div class="cp-now-btns">${navBtn}</div>
@@ -1905,6 +1874,7 @@
       wrap.innerHTML = card.html;
       bindNowCard(wrap);
       fireLeaveAlerts(card.L);
+      renderDeadlineResult(card.L);
       const dockBadge = document.getElementById('cp-dock-badge');
       const dockSub = document.getElementById('cp-dock-sub');
       const ls = card.L.planned.slack;
@@ -1934,70 +1904,263 @@
           render();
         })
       );
-      root.querySelectorAll('[data-dl-edit]').forEach(btn =>
-        btn.addEventListener('click', () => {
-          const id = btn.dataset.dlEdit;
-          if (id === '__new') {
-            const last = getDeadlines().slice(-1)[0];
-            deadlineEdit = { id: '__new', nodeId: destNode().id, time: (last ? last.time : nowLocalMin()) + 30, label: '' };
-          } else {
-            const d = getDeadlines().find(x => x.id === id);
-            if (!d) return;
-            deadlineEdit = Object.assign({}, d, { nodeId: d.nodeId || '__custom' });
+    }
+
+    // ===== "⏰ 死线倒推" tab: be at PLACE by TIME → ahead / behind from live GPS → alternatives =====
+    // Reads a coordinate out of a pasted Google Maps link or a "lat, lng" pair (no network, no API key).
+    function parsePlaceInput(raw) {
+      const txt = (raw || '').trim();
+      if (!txt) return { error: '请粘贴地图链接或坐标' };
+      let s = txt;
+      try { s = decodeURIComponent(txt); } catch (_) {}
+      const pats = [
+        /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, // exact place pin
+        /[?&](?:q|query|destination|daddr|ll)=(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/,
+        /@(-?\d+\.\d+),(-?\d+\.\d+)/, // map centre
+        /^\s*(-?\d{1,2}\.\d+)\s*[,，\s]\s*(-?\d{1,3}\.\d+)\s*$/
+      ];
+      for (const re of pats) {
+        const m = s.match(re);
+        if (m) {
+          const lat = +m[1];
+          const lng = +m[2];
+          if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+            const nm = s.match(/\/place\/([^/@?]+)/);
+            return { lat, lng, name: nm ? nm[1].replace(/\+/g, ' ').slice(0, 40) : '' };
           }
-          refreshNowCard();
+        }
+      }
+      if (/goo\.gl|maps\.app/.test(s)) {
+        return { error: '这是短链接，读不出坐标。请在浏览器打开它，再复制地址栏里的完整链接；或在地图上长按地点，复制坐标（如 35.7318, 139.7111）' };
+      }
+      return { error: '没找到坐标。请粘贴完整的 Google 地图链接，或「纬度, 经度」' };
+    }
+
+    // Rough door-to-door minutes by mode, from straight-line distance (offline estimate)
+    function modeEstimates(km) {
+      const out = [];
+      if (km <= 3) out.push({ key: 'walk', icon: '🚶', name: '步行', min: Math.max(1, Math.round((km * 1.25 / 4.8) * 60)), tm: 'walking' });
+      if (config.mode === 'transit') {
+        if (km >= 1) out.push({ key: 'transit', icon: '🚃', name: '电车', min: Math.round(10 + (km * 1.3 / 25) * 60), tm: 'transit', note: '含走到车站＋等车约 10 分' });
+      } else {
+        out.push({ key: 'car', icon: '🚗', name: '开车', min: Math.round(3 + (km * 1.3 / (km > 20 ? 70 : 35)) * 60 * (state.paceFactor || 1)), tm: 'driving' });
+      }
+      if (km >= 0.8) out.push({ key: 'taxi', icon: '🚕', name: '打车', min: Math.round(5 + (km * 1.3 / (km > 15 ? 45 : 20)) * 60), tm: 'driving', note: '含叫车约 5 分' });
+      return out;
+    }
+
+    let dlFormDraft = null; // { time, place, link, label } while typing
+
+    function injectDeadlineTab() {
+      if (config.deadlineTab === false || document.getElementById('deadline')) return;
+      const host = mount.closest('section') || mount;
+      const sec = document.createElement('section');
+      sec.id = 'deadline';
+      sec.innerHTML = `
+        <div class="sec-head"><div><div class="sec-k">DEADLINE BACK-PLANNER</div><h2>⏰ 死线倒推</h2></div>
+          <span class="tag warn">几点前必须到哪</span></div>
+        <div class="cp-dlt">
+          <div id="cp-dlt-form"></div>
+          <div id="cp-dlt-result"></div>
+        </div>`;
+      host.parentNode.insertBefore(sec, host);
+      const nav = document.querySelector('nav .wrap') || document.querySelector('nav');
+      if (nav) {
+        const a = document.createElement('a');
+        a.href = '#deadline';
+        a.textContent = '⏰ 死线倒推';
+        nav.insertBefore(a, nav.firstChild);
+      }
+      renderDeadlineForm();
+    }
+
+    function renderDeadlineForm() {
+      const box = document.getElementById('cp-dlt-form');
+      if (!box) return;
+      const cur = getDeadlines()[0];
+      const d = dlFormDraft || {
+        time: cur.time,
+        place: cur.nodeId || '__link',
+        link: cur.nodeId ? '' : cur.lat != null ? `${cur.lat}, ${cur.lng}` : '',
+        name: cur.nodeId ? '' : cur.placeName || '',
+        label: cur.label || ''
+      };
+      const opts = config.nodes
+        .map(n => `<option value="${escapeAttr(n.id)}" ${d.place === n.id ? 'selected' : ''}>${escapeHtml(n.shortName || n.name)}</option>`)
+        .join('');
+      box.innerHTML = `
+        <div class="cp-dlt-form">
+          <div class="cp-dlt-row">
+            <label>几点前<input type="time" id="dlt-time" value="${fmtTime(d.time)}"></label>
+            <label class="grow">必须到<select id="dlt-place">
+              <optgroup label="行程里的地点">${opts}</optgroup>
+              <option value="__link" ${d.place === '__link' ? 'selected' : ''}>🔗 其他地点（粘贴地图链接/坐标）</option>
+              ${state.gpsInfo ? `<option value="__gps" ${d.place === '__gps' ? 'selected' : ''}>📍 我现在站的地方</option>` : ''}
+            </select></label>
+          </div>
+          <div class="cp-dlt-link" ${d.place === '__link' ? '' : 'hidden'}>
+            <label>Google 地图链接 或 坐标<input type="text" id="dlt-link" inputmode="url" value="${escapeAttr(d.link || '')}" placeholder="https://www.google.com/maps/place/... 或 35.7318, 139.7111"></label>
+            <label>地点名字<input type="text" id="dlt-name" value="${escapeAttr(d.name || '')}" placeholder="例：滝不動駅"></label>
+            <div class="cp-dlt-hint">在 Google 地图点开地点 →「分享」→ 复制链接；短链接（maps.app.goo.gl）要先在浏览器打开，再复制地址栏</div>
+          </div>
+          <label>备注（可不填）<input type="text" id="dlt-label" value="${escapeAttr(d.label || '')}" placeholder="例：赶末班 / 约了朋友"></label>
+          <div class="cp-dlt-btns">
+            <button type="button" class="cp-plan-apply" id="dlt-save">▶ 开始倒推</button>
+            ${state.live.deadlines ? '<button type="button" class="cp-now-mini" id="dlt-reset">恢复行程默认目标</button>' : ''}
+          </div>
+          <div class="cp-dlt-err" id="dlt-err"></div>
+        </div>`;
+      const $ = id => box.querySelector('#' + id);
+      const readDraft = () => {
+        const tv = $('dlt-time').value;
+        const [h, m] = /^\d{1,2}:\d{2}$/.test(tv) ? tv.split(':').map(Number) : [null, null];
+        dlFormDraft = {
+          time: h != null ? h * 60 + m : d.time,
+          place: $('dlt-place').value,
+          link: $('dlt-link').value,
+          name: $('dlt-name').value,
+          label: $('dlt-label').value.slice(0, 40)
+        };
+      };
+      box.querySelectorAll('input,select').forEach(el => el.addEventListener('input', readDraft));
+      $('dlt-place').addEventListener('change', () => {
+        readDraft();
+        box.querySelector('.cp-dlt-link').hidden = dlFormDraft.place !== '__link';
+      });
+      $('dlt-reset')?.addEventListener('click', () => {
+        dlFormDraft = null;
+        saveDeadlines(null);
+        renderDeadlineForm();
+        render();
+      });
+      $('dlt-save').addEventListener('click', () => {
+        readDraft();
+        const f = dlFormDraft;
+        const entry = { id: 'user', time: f.time, label: f.label || '' };
+        if (f.place === '__link') {
+          const p = parsePlaceInput(f.link);
+          if (p.error) {
+            $('dlt-err').textContent = p.error;
+            return;
+          }
+          Object.assign(entry, { lat: p.lat, lng: p.lng, placeName: (f.name || p.name || '目的地').slice(0, 40) });
+        } else if (f.place === '__gps' && state.gpsInfo) {
+          Object.assign(entry, { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng, placeName: (f.name || '设定时站的地方').slice(0, 40) });
+        } else {
+          entry.nodeId = f.place;
+          const def = defaultDeadlines()[0];
+          if (def.nodeId === entry.nodeId) entry.fromConfig = true; // keep the plan's train logic
+        }
+        dlFormDraft = null;
+        saveDeadlines([entry]);
+        renderDeadlineForm();
+        render();
+        const p = deadlinePlace(entry);
+        showPageToast(`⏰ 目标：${fmtTime(entry.time)} 前到「${p.shortName || p.name}」`);
+        document.getElementById('cp-dlt-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    function renderDeadlineResult(L) {
+      const box = document.getElementById('cp-dlt-result');
+      if (!box) return;
+      const nm = x => escapeHtml(x.shortName || x.name);
+      const { now, start, planned, dl } = L;
+      const place = planned.place;
+      const slack = planned.slack;
+      const lvl = slack < 0 ? 'err' : slack < 10 ? 'warn' : 'ok';
+      const remaining = dl.time - now;
+
+      // Where from
+      const from = start.here || (start.source === 'gps' ? { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng } : start.aNode);
+      const km = from.lat != null && place.lat != null ? haversineKm(from.lat, from.lng, place.lat, place.lng) : null;
+      const fromTxt = start.here
+        ? `在「${nm(start.here)}」`
+        : start.source === 'gps'
+        ? 'GPS 当前位置'
+        : `「${nm(start.aNode)}」（最后打卡，GPS 未开${state.gpsActive ? '或信号中断' : ''}）`;
+
+      // Leave now, by each mode
+      const modes = km != null ? modeEstimates(km) : [];
+      const leaveAt = start.here ? Math.max(now, planned.legs[0] ? planned.legs[0].dep : now) : now;
+      const modeRows = modes
+        .map(m => {
+          const arr = now + m.min;
+          const sl = dl.time - arr;
+          const url = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=${m.tm}`;
+          return `<tr class="${sl < 0 ? 'err' : sl < 5 ? 'warn' : 'ok'}">
+              <td>${m.icon} ${m.name}${m.note ? `<span class="cp-now-sub">${m.note}</span>` : ''}</td>
+              <td>约 ${m.min} 分</td>
+              <td><b>${fmtTime(arr)}</b> 到</td>
+              <td class="sl">${sl >= 0 ? `余裕 ${sl} 分` : `晚 ${-sl} 分`}</td>
+              <td><a href="${url}" target="_blank" rel="noopener">导航</a></td>
+            </tr>`;
+        })
+        .join('');
+
+      // Going straight there the normal way, right now
+      const directMin = from.lat != null && place.lat != null ? legMin(start.here || from, place) : null;
+      const directSlack = directMin != null ? dl.time - (now + directMin) : null;
+
+      // Recommendation
+      const okModes = modes.filter(m => now + m.min <= dl.time);
+      const hasStops = planned.stops.length || planned.legs.some(l => l.here);
+      let rec;
+      if (slack >= 0) {
+        rec = hasStops
+          ? `✅ 按现在的安排（${planned.stops.map(nm).join('、') || '当前这站'}）能赶到，最晚 <b>${fmtTime(L.leaveBy)}</b> ${start.here ? '离开' : '出发'}`
+          : `✅ 来得及：最晚 <b>${fmtTime(L.leaveBy)}</b> 出发（还有 ${L.leaveBy - now} 分钟）`;
+      } else if (L.best && L.best.slack >= 0 && hasStops) {
+        rec = `⚠️ 按现在的安排会晚 ${-slack} 分钟 → 改走法就能赶上（见下面「行程调整」）`;
+      } else if (okModes.length) {
+        const m = okModes[0];
+        rec = `⚠️ 现在马上出发，<b>${m.icon} ${m.name}</b> 能赶上（${fmtTime(now + m.min)} 到，余裕 ${dl.time - now - m.min} 分）`;
+      } else if (modes.length) {
+        const fastest = modes.slice().sort((a, b) => a.min - b.min)[0];
+        rec = `🚨 所有方式都来不及。最快是 ${fastest.icon} ${fastest.name}，${fmtTime(now + fastest.min)} 到（晚 ${now + fastest.min - dl.time} 分）→ 建议现在就联系对方，或把目标时间改晚`;
+      } else {
+        rec = `🚨 会晚 ${-slack} 分钟`;
+      }
+
+      box.innerHTML = `
+        <div class="cp-dlt-res ${lvl}">
+          <div class="cp-dlt-target">⏰ <b>${fmtTime(dl.time)}</b> 前到「${nm(place)}」${dl.label ? `（${escapeHtml(dl.label)}）` : ''}
+            <span class="cp-now-sub">现在 ${fmtTime(now)}，离目标时间还有 ${remaining} 分钟${km != null ? `｜从${fromTxt}直线 ${km < 1 ? Math.round(km * 1000) + 'm' : km.toFixed(1) + 'km'}` : ''}</span>
+          </div>
+          <div class="cp-dlt-verdict">${slack >= 0 ? `Ahead・余裕 ${slack} 分钟` : `Behind・会晚 ${-slack} 分钟`}</div>
+          ${hasStops ? `<div class="cp-now-sub">按现在的安排算（路上还要去：${planned.legs.map(l => nm(l.node)).join('、')}）${
+            directSlack != null ? `；直接去的话${directSlack >= 0 ? `余裕 ${directSlack} 分` : `也会晚 ${-directSlack} 分`}` : ''
+          }</div>` : ''}
+          <div class="cp-dlt-rec">${rec}</div>
+
+          <h3>🚦 现在出发，各种方式几点到</h3>
+          ${modeRows ? `<table class="cp-dlt-modes"><tbody>${modeRows}</tbody></table>
+            <div class="cp-now-sub">按直线距离估算，仅供参考；点「导航」看 Google 地图的实际时间</div>` : '<div class="cp-now-sub">目的地没有坐标，无法估算</div>'}
+          ${start.here && leaveAt > now ? `<div class="cp-now-sub">注意：你在「${nm(start.here)}」，按计划 ${fmtTime(leaveAt)} 才离开；上表按「现在马上走」计算</div>` : ''}
+
+          ${hasStops || L.want.length || !L.bestIsPlanned ? `<h3>🛍️ 行程调整（路上还要去的地方）</h3>
+            <div class="cp-now-route">${describeRoute(planned)}</div>
+            ${altBlocksHtml(L) || '<div class="cp-now-sub">不用调整</div>'}
+            <div class="cp-now-sub">哪站去过、不去了，在「🛰️ 实时护航」卡片底部的各站按钮里改</div>` : ''}
+
+          <h3>⏳ 最晚出发</h3>
+          <div>${L.leaveBy != null
+            ? `最晚 <b>${fmtTime(L.leaveBy)}</b> ${start.here ? `离开「${nm(start.here)}」` : '出发'}（还有 ${L.leaveBy - now} 分钟）。15 / 5 / 0 分钟前会响铃＋震动提醒（页面要开着）`
+            : directSlack != null && directSlack >= 0
+            ? `按现在的安排来不及。<b>直接去</b>的话最晚 <b>${fmtTime(now + directSlack)}</b> 出发（还有 ${directSlack} 分钟）`
+            : '直接去也来不及，请看上面最快的交通方式'}</div>
+        </div>`;
+      box.querySelectorAll('[data-live-apply]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const r = btn.dataset.liveApply === 'tight' ? L.tight : L.best;
+          if (r) applyLiveRoute(r);
         })
       );
-      const form = root.querySelector('#cp-dl-form');
-      if (!form) return;
-      const keepDraft = () => {
-        const tv = form.querySelector('#cp-dl-time').value;
-        if (/^\d{1,2}:\d{2}$/.test(tv)) {
-          const [h, m] = tv.split(':').map(Number);
-          deadlineEdit.time = h * 60 + m;
-        }
-        deadlineEdit.nodeId = form.querySelector('#cp-dl-place').value;
-        deadlineEdit.label = form.querySelector('#cp-dl-label').value.slice(0, 40);
-      };
-      form.querySelectorAll('input,select').forEach(el => el.addEventListener('input', keepDraft));
-      form.querySelector('#cp-dl-cancel').addEventListener('click', () => { deadlineEdit = null; refreshNowCard(); });
-      form.querySelector('#cp-dl-reset')?.addEventListener('click', () => {
-        deadlineEdit = null;
-        saveDeadlines(null);
-        render();
-      });
-      form.querySelector('#cp-dl-del')?.addEventListener('click', () => {
-        const list = getDeadlines().filter(d => d.id !== deadlineEdit.id);
-        deadlineEdit = null;
-        if (!list.length) { showPageToast('至少要保留一个死线'); refreshNowCard(); return; }
-        saveDeadlines(list);
-        render();
-      });
-      form.querySelector('#cp-dl-save').addEventListener('click', () => {
-        keepDraft();
-        const e = deadlineEdit;
-        const entry = { id: e.id === '__new' ? `dl${Date.now().toString(36)}` : e.id, time: e.time, label: e.label || '' };
-        if (e.nodeId === '__gps' && state.gpsInfo) {
-          Object.assign(entry, { lat: +state.gpsInfo.lat, lng: +state.gpsInfo.lng, placeName: '设定时的位置' });
-        } else if (e.nodeId === '__custom') {
-          Object.assign(entry, { lat: e.lat, lng: e.lng, placeName: e.placeName });
-        } else {
-          entry.nodeId = e.nodeId;
-        }
-        // Keep the plan's train logic only while its own deadline keeps its place
-        const orig = getDeadlines().find(d => d.id === e.id);
-        if (orig && orig.fromConfig && entry.nodeId === orig.nodeId) entry.fromConfig = true;
-        const list = getDeadlines().filter(d => d.id !== entry.id).concat([entry]);
-        deadlineEdit = null;
-        saveDeadlines(list);
-        showPageToast(`⏰ 死线已设：${fmtTime(entry.time)} 前到「${deadlinePlace(entry).shortName || deadlinePlace(entry).name}」`);
-        render();
-      });
     }
 
     // 30 s heartbeat so the countdown, tips and alerts stay live without any tap
     setInterval(() => {
-      if (document.visibilityState === 'visible' && !deadlineEdit) refreshNowCard();
+      if (document.visibilityState === 'visible') refreshNowCard();
     }, 30000);
 
     // Main Render
@@ -2721,6 +2884,7 @@
       return false;
     }
 
+    injectDeadlineTab();
     render();
     applyUrlParams();
 
