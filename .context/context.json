@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "hub_source": "kenandxx/ob-life-hub",
-  "content_hash": "2c53f64175c4a18d",
+  "content_hash": "5d271e9210f0d472",
   "project": "trip-planning",
   "repo": "kenandxx/trip-planning",
   "visibility": "public",
@@ -39,6 +39,22 @@
       ],
       "text": "平日晚间外出活动统一以 **22:00 前回到滝不動駅** 作为硬死线，所有晚间交通或探店工具默认开启末班电车倒推与出租车兜底计算",
       "source": "01-Daily/2026-11-26.md"
+    },
+    {
+      "date": "2026-11-26",
+      "domains": [
+        "travel"
+      ],
+      "text": "秋冬自驾出行新习惯：行前检查清单必须提醒带保温杯装热茶",
+      "source": "00-Inbox/quick-notes.md"
+    },
+    {
+      "date": "2026-11-26",
+      "domains": [
+        "global"
+      ],
+      "text": "5G手机上传成功了",
+      "source": "00-Inbox/quick-notes.md"
     },
     {
       "date": "2026-11-26",
