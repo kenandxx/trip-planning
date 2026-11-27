@@ -32,6 +32,7 @@
 | ✅ 已上线 | **2026-11-23（Day 1）东京 → 伊豆Skyline → 修善寺＆弘法の湯** | `/`（根目录保留兼容微信旧链） | https://kenandxx.github.io/trip-planning/ |
 | ✅ 已上线（主推） | **2026-11-24（Day 2 新版）沼津深海避雨 / 虹之乡＆净莲瀑布（跳过修禅寺＆碧テラス）** | `trips/2026-11-24-izu-day2/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-izu-day2/ |
 | 🛰️ 已实装 v2.0 护航 | **2026-11-25（Day 3・含实时护航＆13:30晚点复盘重排）湘南＋海ほたる → 新鎌ヶ谷直达成田** | `trips/2026-11-25-izu-return/` | https://kenandxx.github.io/trip-planning/trips/2026-11-25-izu-return/ |
+| 🆕 明天・日帰り | **2026-11-28（周六）亀山湖红叶游船＋濃溝の滝 → 16:00 前到家** | `trips/2026-11-28-kameyama-autumn/` | https://kenandxx.github.io/trip-planning/trips/2026-11-28-kameyama-autumn/ |
 | 🧪 v2.0 电车压测 | **2026-11-26（今晚实测・电车＋40分×2防加钟护航）池袋西口2轩连刷 → 22:00前抵滝不動** | `trips/2026-11-26-ikebukuro-night/` | https://kenandxx.github.io/trip-planning/trips/2026-11-26-ikebukuro-night/ |
 | 📁 旧版归档 | **2026-11-24（Day 2 备查旧版・含修善寺）** | `trips/2026-11-24-nishi-izu/` | https://kenandxx.github.io/trip-planning/trips/2026-11-24-nishi-izu/ |
 | 📝 占位 | **2027-01 冬季滑雪温泉自驾（白马 / 越后汤泽 / 苗场）** | `trips/2027-01-snow-trip/` | https://kenandxx.github.io/trip-planning/trips/2027-01-snow-trip/ |
@@ -64,6 +65,7 @@ trip-planning/
     ├── index.html                                # 旅行总览目录页（Trip Hub）
     ├── 2026-11-24-izu-day2/                      # 2026-11-24 Day 2 新版全天候攻略（跳过修禅寺＆碧テラス）
     ├── 2026-11-25-izu-return/                    # 2026-11-25 Day 3（已实装 v2.0 实时护航＋13:30晚点自动重排复盘）
+    ├── 2026-11-28-kameyama-autumn/               # 2026-11-28 日帰り（亀山湖红叶游船＋濃溝の滝→16:00到家）
     ├── 2026-11-26-ikebukuro-night/               # 2026-11-26 今晚实测（电车＋池袋40分×2防加钟护航→22:00滝不動）
     ├── 2026-11-24-nishi-izu/                     # 2026-11-24 Day 2 历史备选归档
     ├── template/                                 # v2.0 空白新行程模板（brief.md + index.html + manifest + 护航演示）
