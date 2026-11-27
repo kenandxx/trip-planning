@@ -1,0 +1,20 @@
+name: Receive OB Life Hub Context Event
+
+on:
+  repository_dispatch:
+    types: [ob-context-updated]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-synced-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify .context/PERSONAL_CONTEXT.md Integrity
+        run: |
+          test -s .context/PERSONAL_CONTEXT.md
+          test -s .context/context.json
+          jq -r '"✅ Synced from " + .hub_source + " | hash=" + .content_hash + " | latest_date=" + .latest_note_date + " | updates=" + (.recent_updates|length|tostring)' .context/context.json

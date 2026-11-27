@@ -45,12 +45,13 @@
 
 ```text
 trip-planning/
-├── notes/                                        # 🧠 Obsidian 随手种草＆长期自驾记忆库（纯 Markdown，iCloud 轻量同步）
-│   ├── driver-memory.md                          # 实战沉淀的收费站现金坑、节奏系数、送机套路与二刷红黑榜
-│   ├── inbox.md                                  # iPhone 随手丢链接/灵感草稿收件箱
-│   ├── places/                                   # 宝藏餐厅/温泉/PA 可复用双链卡片
-│   └── README-obsidian-workflow.md               # 零付费打通 iPhone Obsidian ↔ Mac ↔ Git 完整指南
-├── scripts/sync-obsidian.sh                      # 🔄 一键双向同步 Mac iCloud Obsidian 笔记与本地 Git 仓库
+├── .context/                                     # 🧠 由私密总库 kenandxx/ob-life-hub 自动脱敏推送的实时生活与习惯切片
+│   ├── PERSONAL_CONTEXT.md                       # 最新作息死线、驾驶节奏、UI审美与近期 #sync/travel 动态
+│   └── context.json                              # 结构化元数据与内容指纹校验
+├── scripts/sync-life-context.sh                  # 🔁 双向同步脚本：拉取 ob-life-hub 最新切片 / 反向回流本项目新经验
+├── notes/                                        # 📍 本仓库出行专项沉淀（宝藏店铺双链卡片与自驾收费台账）
+│   ├── driver-memory.md                          # 实战收费站现金坑、节奏系数与送机套路
+│   └── places/                                   # 宝藏餐厅/温泉/PA 可复用卡片
 ├── copilot/                                      # 🛰️ v2.0 通用行中实时护航＆强提醒＆自动重排引擎 (CSS + JS + PWA Icons)
 ├── sw.js                                         # 根作用域 Service Worker（海底隧道离线缓存＋PWA原生系统通知）
 ├── index.html                                    # 2026-11-23 Day 1 伊豆攻略（已发微信群，保持根目录不失效）
