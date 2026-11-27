@@ -45,6 +45,12 @@
 
 ```text
 trip-planning/
+├── notes/                                        # 🧠 Obsidian 随手种草＆长期自驾记忆库（纯 Markdown，iCloud 轻量同步）
+│   ├── driver-memory.md                          # 实战沉淀的收费站现金坑、节奏系数、送机套路与二刷红黑榜
+│   ├── inbox.md                                  # iPhone 随手丢链接/灵感草稿收件箱
+│   ├── places/                                   # 宝藏餐厅/温泉/PA 可复用双链卡片
+│   └── README-obsidian-workflow.md               # 零付费打通 iPhone Obsidian ↔ Mac ↔ Git 完整指南
+├── scripts/sync-obsidian.sh                      # 🔄 一键双向同步 Mac iCloud Obsidian 笔记与本地 Git 仓库
 ├── copilot/                                      # 🛰️ v2.0 通用行中实时护航＆强提醒＆自动重排引擎 (CSS + JS + PWA Icons)
 ├── sw.js                                         # 根作用域 Service Worker（海底隧道离线缓存＋PWA原生系统通知）
 ├── index.html                                    # 2026-11-23 Day 1 伊豆攻略（已发微信群，保持根目录不失效）

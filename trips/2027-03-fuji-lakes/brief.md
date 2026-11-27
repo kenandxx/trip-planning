@@ -1,3 +1,14 @@
+---
+type: trip-brief
+trip_date: 2027-03-20
+status: idea
+region: 富士五湖・河口湖
+origin: 千叶滝不動駅
+deadline: 17:30 湖畔旅馆入住
+pax: 2
+pace: 1.2
+---
+
 # 🗻 富士五湖・河口湖绝景周末自驾 — 行程需求单（Brief）
 
 > 填完下面带 `[待填]` 的项后，把本文件交给 **Antigravity**（直接调用 `japan-self-drive-trip-planner` 技能）或任意其他 AI（附带仓库内的 `skills/japan-self-drive-trip-planner/SKILL.md`），即可按全规格生成交互导航页、9图晚餐推荐与微信分享长图，并发布到 `https://kenandxx.github.io/trip-planning/trips/2027-03-fuji-lakes/`。

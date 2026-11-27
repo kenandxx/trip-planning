@@ -1,0 +1,18 @@
+{
+  "attachmentFolderPath": "notes/attachments",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "notes",
+  "alwaysUpdateLinks": true,
+  "useMarkdownLinks": false,
+  "showFrontmatter": true,
+  "userIgnoreFilters": [
+    "copilot/",
+    "img/",
+    "trips/.*/img/",
+    ".*\\.html$",
+    ".*\\.png$",
+    ".*\\.svg$",
+    ".*\\.webmanifest$",
+    "sw\\.js$"
+  ]
+}

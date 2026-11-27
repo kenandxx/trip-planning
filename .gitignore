@@ -1,0 +1,18 @@
+# Obsidian dynamic local state & sensitive plugin tokens (keep core .obsidian/*.json)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/graph.json
+.obsidian/bookmarks.json
+.obsidian/plugins/*/data.json
+.trash/
+
+# macOS & iCloud system artifacts
+.DS_Store
+._*
+*.icloud
+
+# Local node / test scratch
+node_modules/
+playwright-report/
+test-results/
