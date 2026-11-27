@@ -1,7 +1,8 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "hub_source": "kenandxx/ob-life-hub",
-  "content_hash": "5d271e9210f0d472",
+  "content_hash": "c2a212d3bfbfa0a3",
+  "mode": "public-safe-shielded",
   "project": "trip-planning",
   "repo": "kenandxx/trip-planning",
   "visibility": "public",
@@ -12,59 +13,8 @@
     "dev"
   ],
   "life_phase": "2026秋冬 · 高效生活自动化与个人定制工具链构建期",
-  "latest_note_date": "2026-11-26",
-  "recent_updates": [
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "travel"
-      ],
-      "text": "计时消费制探店（如 40 分钟制）必须把「受付带位 4 分钟 + 结账等电梯 6 分钟」算入总耗时（按 50 分钟门到门排期），并在第 30 分钟触发口袋震动与 Bark 强提醒防超时自动延长",
-      "source": "01-Daily/2026-11-26.md"
-    },
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "dev",
-        "ui"
-      ],
-      "text": "移动端交互改版实测结论：砍掉同屏堆叠的双面板，统一采用「顶部 3 步上手折叠提示 + STEP 1/2/3 分区卡片 + 底部收纳工具抽屉」，单手使用清爽度提升巨大",
-      "source": "01-Daily/2026-11-26.md"
-    },
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "global",
-        "travel"
-      ],
-      "text": "平日晚间外出活动统一以 **22:00 前回到滝不動駅** 作为硬死线，所有晚间交通或探店工具默认开启末班电车倒推与出租车兜底计算",
-      "source": "01-Daily/2026-11-26.md"
-    },
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "travel"
-      ],
-      "text": "秋冬自驾出行新习惯：行前检查清单必须提醒带保温杯装热茶",
-      "source": "00-Inbox/quick-notes.md"
-    },
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "global"
-      ],
-      "text": "5G手机上传成功了",
-      "source": "00-Inbox/quick-notes.md"
-    },
-    {
-      "date": "2026-11-26",
-      "domains": [
-        "travel"
-      ],
-      "text": "2027年1月滑雪自驾优先考虑关越道汤泽方向，雪地行车默认按 `1.35×` 节奏系数排期并提前核验链条管制区间",
-      "source": "00-Inbox/quick-notes.md"
-    }
-  ],
+  "latest_note_date": "2026-11-27",
+  "raw_notes_included": false,
   "playbooks": [
     {
       "title": "⚡ 当前生活习惯与实时进度（随生活动态演进）",
