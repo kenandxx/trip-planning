@@ -6,6 +6,17 @@ description: Plan Japan self-drive trips to the v2.0 WeChat-shareable interactiv
 
 Follow this end-to-end specification whenever planning or updating a self-drive trip for the user.
 
+## 0. Global Rule — Every Recommendation States "Why This Season / Weather / Day" (2026-11-27)
+Every trip page and every chat recommendation MUST include a **`🌦️ 为什么是这里、为什么是这天（推荐理由）`** section placed right after the hero (before the timetable), covering all of:
+1. **Season (季节)**: Why this place is at its best in this specific season/week (e.g., foliage/flower/snow stage with the latest status source, limited-period events such as seasonal cruises or festivals, and when the window closes).
+2. **Weather (天气)**: How the exact forecast for that day shapes the plan (hour-by-hour rain end, wind, visibility, temperature) and which activity is placed in which weather window, including the rain/wind fallback.
+3. **Day (日子)**: Why this weekday/date works — weekday vs weekend operating schedules, regular closing days (`定休日`), events and crowds, and the official hourly congestion forecast windows the timetable is designed to avoid, plus the hard deadline buffer.
+4. **Driver fit**: Why the route suits the driver profile (wide roads, no narrow mountain roads, large free parking).
+5. **Rejected alternatives (❌ 为什么没选)**: 2–3 candidates that were considered and the concrete season/weather/day reason each was rejected.
+Cite the sources (forecast, foliage status, operator schedule, congestion forecast) with the query date.
+
+---
+
 ## 1. Defaults & User Profile (Override When Provided)
 - **Language**: Write all user-facing prose, web UI, posters, `.ics` calendar alarms, voice alerts, and WeChat copy in **Simplified Chinese (`zh-CN`)**, while preserving official Japanese place, road, IC/JCT, SA/PA, and restaurant names so the driver can match road signs and navigation screens.
 - **Default Driver Context** (confirm or override if the user specifies otherwise):
@@ -86,6 +97,7 @@ Every trip page under `trips/YYYY-MM-<slug>/` MUST include `manifest.webmanifest
 ## 5. Full Page Deliverables & Section Architecture
 Build a cohesive, mobile-first (390px+), dark-mode-ready web app (`index.html`) + PWA manifest + WeChat share kit:
 1. **Hero & Sticky Section Nav**: Trip date, weather/sunset/anchor badges, `#copilot` first tab + jump links.
+   - **`🌦️ 推荐理由` card (Global Rule §0)**: season / weather / day / driver fit / rejected alternatives, with sources.
 2. **Section 0 — 行中实时进度护航 ＆ 晚点自动重排副驾台 (`#copilot`)**: Powered by `TripCopilot.init(...)` + sticky bottom `.cp-dock`.
 3. **Section 1 — 沿途绝景 / 20分钟彩蛋 ＆ SA/PA 名物**: Real photos (with tap-to-zoom lightbox), priority tags (`核心` vs `可选弹性`), toll/cash tips, downhill advice.
 4. **Section 2 — 新手逐段一键导航 ＆ 老司机 Drive 要点**: Sequential relay cards, `1秒选线核对`, JCT lane mnemonics, zero-mountain backup, WeChat copy button.
