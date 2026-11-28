@@ -12,7 +12,8 @@ This is the single project-level rule entry point for every AI and human contrib
 2. [`HANDOFF.md`](HANDOFF.md) — current project state, open work, verification evidence, and next steps.
 3. [`.context/PERSONAL_CONTEXT.md`](.context/PERSONAL_CONTEXT.md) — the owner's personal rules, auto-synced as a PUBLIC-SAFE slice from `kenandxx/ob-life-hub` (`02-Profile/*.md` and `03-Domains/*.md` files marked `export: public-safe`). Check the update dates in its section headings and `.context/context.json` (`latest_note_date`).
    - If the session can also read `kenandxx/ob-life-hub` and a source file there is newer than this slice, follow the newer source and note the sync lag in `HANDOFF.md`.
-   - Connecting only `trip-planning` gives you this slice and nothing else from ob-life-hub. Do not read `dist/MASTER_CONTEXT.md`, `01-Daily/`, `00-Inbox/` or `99-Private/` without the owner's explicit authorization for the current task (see §2).
+   - Connecting only `trip-planning` gives you this slice and nothing else from ob-life-hub. Do not read `dist/MASTER_CONTEXT.md`, `00-Inbox/` or `99-Private/` without the owner's explicit authorization for the current task (see §2).
+   - **Standing authorization for `01-Daily/` (owner, 2026-11-28):** for any planning task, if `kenandxx/ob-life-hub` is readable, read the recent daily notes **only through** `python3 scripts/read_daily_notes.py --days 14` run in the ob-life-hub clone (never open the files directly). The script applies the LifeOS privacy firewall, so `#secret` / `#private` / `#nosync` lines and sections and `#secret-file`, `secret: true`, `private: true`, `export: none` notes are already removed. Use only the travel and night-out related parts (dates, plans, places, constraints, reflections), apply them transiently in this session, and never copy note text into this public repository, its PRs, logs, or generated assets.
 4. [`notes/driver-memory.md`](notes/driver-memory.md) and relevant cards under [`notes/places/`](notes/places/).
 5. The canonical domain Skill: [`skills/japan-self-drive-trip-planner/SKILL.md`](skills/japan-self-drive-trip-planner/SKILL.md). This is the only source to edit. The `.agents/skills/` copy is a generated mirror.
 6. The central [LifeOS AI Handoff Protocol](https://github.com/kenandxx/ob-life-hub/blob/main/protocols/AI_HANDOFF_PROTOCOL.md) for the execution lifecycle. It lives in a private repository; if you cannot open it, §5–§7 of this file are the minimum you must follow.
@@ -44,6 +45,7 @@ This is an index, not a copy: the detail lives in the sources named in each line
 - [ ] Conclusion first, then Plan 1 / Plan 2 / Plan 3 fallback. → PERSONAL_CONTEXT「决策与工具哲学」
 - [ ] User-facing text in Simplified Chinese (`zh-CN`); official Japanese names for stations, IC/JCT, SA/PA, stores, and places. → PERSONAL_CONTEXT, Skill
 - [ ] Drives: Pre-Flight 2-Lock Gate (tolls/highways not avoided, ETC + coins) and SA/PA search wording. → PERSONAL_CONTEXT, Skill, driver-memory
+- [ ] Recent `01-Daily/` notes checked through the filtered reader when ob-life-hub is readable (§1.3).
 - [ ] §4 owner exclusions applied.
 
 ## 4. Owner exclusions
