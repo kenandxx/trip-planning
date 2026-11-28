@@ -48,3 +48,4 @@
 | 2026-11-28 | ChatGPT | Created 11/29 Kameyama trip page with revised Sunday timing and source-backed risk notes | PR pending |
 
 | 2026-11-28 | ChatGPT | Enlarged the 11/29 page's sticky horizontal navigation touch targets to 48px minimum height and added a numbered five-step execution flow before the Co-Pilot | UX follow-up PR pending |
+| 2026-11-28 | Claude | AGENTS.md: chat-only plans must follow the reading order; added rule-ownership table, planning checklist gate, and owner exclusions for 池袋 night plans | PR pending |
