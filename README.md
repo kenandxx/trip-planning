@@ -47,7 +47,7 @@
 ```text
 trip-planning/
 ├── .context/                                     # 🧠 由私密总库 kenandxx/ob-life-hub 自动脱敏推送的实时生活与习惯切片
-│   ├── PERSONAL_CONTEXT.md                       # 最新作息死线、驾驶节奏、UI审美与近期 #sync/travel 动态
+│   ├── PERSONAL_CONTEXT.md                       # Life Hub v2.0 筛选后的 PUBLIC-SAFE 领域上下文（不含日记原文）
 │   └── context.json                              # 结构化元数据与内容指纹校验
 ├── scripts/sync-life-context.sh                  # 🔁 双向同步脚本：拉取 ob-life-hub 最新切片 / 反向回流本项目新经验
 ├── notes/                                        # 📍 本仓库出行专项沉淀（宝藏店铺双链卡片与自驾收费台账）
