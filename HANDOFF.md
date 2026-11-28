@@ -36,7 +36,7 @@
 - [x] Add generic pull-request validation workflow.
 - [x] Merge PR #13 for canonical Skill sync and generic CI after CI passed.
 - [x] Apply the Protocol on the 2026-11-29 Kameyama itinerary update and record planning sources and assumptions.
-- [ ] After itinerary PR merges, verify GitHub Pages deployment and test on a physical iPhone before relying on it for navigation.
+- [ ] Verify GitHub Pages deployment and test on a physical iPhone before relying on it for navigation.
 
 ## Work log
 | Date (JST) | Contributor | Change | Reference |
@@ -46,3 +46,5 @@
 | 2026-11-28 | ChatGPT | Added Skill single-source sync and generic CI; PR CI passed | [PR #13](https://github.com/kenandxx/trip-planning/pull/13), [run #46100804571](https://github.com/kenandxx/trip-planning/actions/runs/46100804571) |
 
 | 2026-11-28 | ChatGPT | Created 11/29 Kameyama trip page with revised Sunday timing and source-backed risk notes | PR pending |
+
+| 2026-11-28 | ChatGPT | Enlarged the 11/29 page's sticky horizontal navigation touch targets to 48px minimum height and added a numbered five-step execution flow before the Co-Pilot | UX follow-up PR pending |
