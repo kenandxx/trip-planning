@@ -2,7 +2,7 @@
 # 🛡️ 个人偏好与工程准则（`trip-planning` 公开安全版）
 
 - **隐私安全级别**：`PUBLIC-SAFE`（本仓库为公开仓库，**绝不写入任何私人日记原文或私密标签内容**）
-- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`58f673bedf60fd5e`
+- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`36d21257c8d261c8`
 
 > **🤖 AI Agent 必读工作流（最小权限原则）**：
 > 1. 本文件及 `.context/context.json` 只包含经筛选的 `PUBLIC-SAFE` 领域 Playbooks，不包含日记原文。
@@ -36,7 +36,8 @@
 - **开工第一步（任何任务，包括只在聊天里给方案、不改文件的任务）**：先读项目 `AGENTS.md`，再读 `HANDOFF.md` 与 `.context/PERSONAL_CONTEXT.md`，然后才开始规划或回答。`AGENTS.md` 是唯一项目规则入口；部分 AI 工具不会自动加载它，必须自己打开。
 - **LifeOS 是否已连接，决定读什么**：
   1. **只连接了项目仓库**：`.context/PERSONAL_CONTEXT.md` 就是全部个人上下文（ob-life-hub 每次推送 main 时自动同步，只含该项目订阅领域的内容）。
-  2. **同时连接了 `kenandxx/ob-life-hub`**：额外直接读取 `02-Profile/*.md` 与 `03-Domains/*.md` 中与任务领域相关的文件。若比 `.context/` 里的版本更新，以 ob-life-hub 原文为准，并在 `HANDOFF.md` 记一句同步滞后。公开仓库只用 `export: public-safe` 的文件；`01-Daily/`、`00-Inbox/`、`dist/MASTER_CONTEXT.md`、`99-Private/` 等仍需所有者对当前任务明确授权。
+  2. **同时连接了 `kenandxx/ob-life-hub`**：额外直接读取 `02-Profile/*.md` 与 `03-Domains/*.md` 中与任务领域相关的文件。若比 `.context/` 里的版本更新，以 ob-life-hub 原文为准，并在 `HANDOFF.md` 记一句同步滞后。公开仓库只用 `export: public-safe` 的文件；`01-Daily/`、`00-Inbox/`、`dist/MASTER_CONTEXT.md`、`99-Private/` 等仍需所有者明确授权（对当前任务，或在项目 `AGENTS.md` 中写明的常设授权）。
+  3. **读取 `01-Daily/` 时**：不要直接打开文件，必须运行 ob-life-hub 的 `python3 scripts/read_daily_notes.py --days 14`。它与编译器使用同一套隐私防火墙，会剔除 `#secret` / `#private` / `#nosync` 行与段落，以及 `#secret-file`、`secret: true`、`private: true`、`export: none` 的整份笔记。读到的内容只在本次会话中临时使用，绝不写入公开仓库、PR、日志或生成资产。
 - **新项目设置清单（Claude 等支持多仓库连接的工具）**：
   1. 新建项目时，**同时连接「项目仓库 + `kenandxx/ob-life-hub`」**，让 AI 能读到最新原文。
   2. 用 `scripts/new-life-project.sh` 立项，确保项目写入 `registry/projects.toml`，否则不会收到任何自动同步。
