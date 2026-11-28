@@ -2,7 +2,7 @@
 # 🛡️ 个人偏好与工程准则（`trip-planning` 公开安全版）
 
 - **隐私安全级别**：`PUBLIC-SAFE`（本仓库为公开仓库，**绝不写入任何私人日记原文或私密标签内容**）
-- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`e9dc15a6115665df`
+- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`58f673bedf60fd5e`
 
 > **🤖 AI Agent 必读工作流（最小权限原则）**：
 > 1. 本文件及 `.context/context.json` 只包含经筛选的 `PUBLIC-SAFE` 领域 Playbooks，不包含日记原文。
@@ -41,6 +41,7 @@
   1. 新建项目时，**同时连接「项目仓库 + `kenandxx/ob-life-hub`」**，让 AI 能读到最新原文。
   2. 用 `scripts/new-life-project.sh` 立项，确保项目写入 `registry/projects.toml`，否则不会收到任何自动同步。
   3. 确认 `registry/projects.toml` 里的 `domains` 覆盖该项目实际会做的事（例如在出行项目里做夜间探店方案，就要订阅 `nightlife`）。
+  4. 把新仓库加进 ob-life-hub 的 `HUB_FANOUT_PAT`（fine-grained token）的仓库列表，否则同步会失败（手顺见 ob-life-hub `protocols/FANOUT_TOKEN_SETUP.md`）。
 - **执行流程最低要求**（完整版见 ob-life-hub `protocols/AI_HANDOFF_PROTOCOL.md`）：使用任务分支并提交 PR；未获所有者对该操作的明确授权，不推送 main、不合并、不部署；区分本地测试、CI、浏览器 QA、真机 QA 与部署结果，不拿一种冒充另一种；收工前更新 `HANDOFF.md`（当前状态 / 已完成 / 验证证据 / 风险 / 下一步 / 作业日志）。
 
 ### 晚间探店方案准则（更新于 `2026-11-28`）
