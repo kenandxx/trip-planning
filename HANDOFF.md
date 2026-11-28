@@ -20,7 +20,7 @@
 - No application/runtime behavior was changed by the handoff pilot.
 - LifeOS GitHub Actions validation passed on PR #5 head `c310793`: Python unit tests, shell syntax, and registry TOML validation.
 - Trip Planning changes were documentation-only; no browser or physical iPhone QA was required or performed.
-- The Skill single-source and generic CI changes are proposed in PR `chatgpt/skill-single-source-pr-ci`; add the actual GitHub Actions result after it runs.
+- PR #13 (`chatgpt/skill-single-source-pr-ci`) is open; GitHub Actions run #1 (run ID `46100804571`) passed on head commit `9937fae7501ab99277261e1d9d69266938b7a292` (`Trip Planning CI`, validation job successful).
 - For future code changes, record exact local test commands, GitHub Actions CI results, browser/Playwright viewport and flows, physical-device checks (if performed), and Pages deployment status separately.
 - Do not describe a local browser emulation as physical iPhone QA.
 
@@ -42,4 +42,4 @@
 |---|---|---|---|
 | 2026-11-28 | ChatGPT | Initial project handoff log and AI Handoff pilot integration | PR #11 |
 | 2026-11-28 | ChatGPT | Recorded merge status and LifeOS validation evidence | PR #12 |
-| 2026-11-28 | ChatGPT | Added Skill single-source sync and generic CI proposal | PR pending |
+| 2026-11-28 | ChatGPT | Added Skill single-source sync and generic CI; PR CI passed | [PR #13](https://github.com/kenandxx/trip-planning/pull/13), [run #46100804571](https://github.com/kenandxx/trip-planning/actions/runs/46100804571) |
