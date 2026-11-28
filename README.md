@@ -101,7 +101,7 @@ https://raw.githubusercontent.com/kenandxx/trip-planning/main/skills/japan-self-
 ```
 
 ### 3. 本地 Agent / IDE（Claude Code / Cursor / Codex）
-本仓库已内置 `.agents/skills/japan-self-drive-trip-planner/SKILL.md`。克隆仓库后，在终端或编辑器里直接说「按 `japan-self-drive-trip-planner` 规划 `trips/<目录>/brief.md`」即可；如需全局生效，可复制一份到 `~/.claude/skills/` 或 `~/.codex/skills/`。
+本仓库已内置 Skill：唯一编辑源为 `skills/japan-self-drive-trip-planner/SKILL.md`，`.agents/skills/` 为自动生成的镜像。克隆仓库后先读 `AGENTS.md`，再在终端或编辑器里直接说「按 `japan-self-drive-trip-planner` 规划 `trips/<目录>/brief.md`」即可。
 
 ---
 
