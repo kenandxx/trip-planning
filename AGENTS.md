@@ -4,6 +4,7 @@ This is the single project-level rule entry point for every AI and human contrib
 
 ## 0. Applies to every task — including chat-only plans
 - Any request for a plan or recommendation (trip, day out, night out in 池袋, restaurant, route, timetable) MUST complete the reading order in §1 and pass the checklist in §3 before the answer is sent, even when no repository file will change.
+- Every plan, including train-based and night-out plans, is built to the shared Skill in §1 item 5 (`skills/japan-self-drive-trip-planner/SKILL.md`): a `trips/YYYY-MM-DD-<slug>/` page with the Live Co-Pilot (GPS check-in, ahead/behind, target arrival times, rescue plans). Open that file directly; do not rely on a vendor-specific skill folder to discover it. Skills are kept only in the shared `skills/` source and its `.agents/skills/` mirror.
 - Lesson (2026-11-28): a 池袋 night plan was produced without reading this file or `.context/PERSONAL_CONTEXT.md`, so it missed the timing reasons, rejected alternatives, sources, buffers, and alarms the owner requires. Do not repeat this.
 
 ## 1. Required reading order
