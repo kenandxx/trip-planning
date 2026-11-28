@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "hub_source": "kenandxx/ob-life-hub",
-  "content_hash": "7f1a374d41681fb0",
+  "content_hash": "46d896b923def8a5",
   "mode": "public-safe-shielded",
   "project": "trip-planning",
   "repo": "kenandxx/trip-planning",
@@ -80,15 +80,6 @@
       "updated": "2026-11-28",
       "source": "01-Daily (#rule/global)",
       "body": "- 決める前に選択肢を3つ並べる（来源：2026-11-28 日记 `#rule`）"
-    },
-    {
-      "title": "日记中标记的规则（travel）",
-      "domains": [
-        "travel"
-      ],
-      "updated": "2026-11-28",
-      "source": "01-Daily (#rule/travel)",
-      "body": "- テスト：ホテルは駅から徒歩10分以内（来源：2026-11-28 日记 `#rule/travel`）"
     }
   ]
 }
