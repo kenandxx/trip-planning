@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)">
+<title>11/28 周六｜池袋 ミルキーパイ→Jewels 40分×2 → 滝不動</title>
+<meta name="description" content="2026年11月28日（周六）v3.0 实时打卡护航：池袋2丁目48番 ミルキーパイ→Jewels（各フリー40分¥5,000）连刷，GPS当前位置打卡、Ahead/Behind实时计算、晚点3套重排，目标22:00前抵滝不動。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kenandxx.github.io/trip-planning/trips/2026-11-28-ikebukuro-night/">
+<meta property="og:title" content="11/28 周六｜池袋 ミルキーパイ→Jewels 40分×2 → 滝不動">
+<meta property="og:description" content="GPS打卡＋Ahead/Behind＋晚点重排（砍Jewels / 30分快闪 / 首都高タクシー）。">
+<meta property="og:image" content="https://kenandxx.github.io/trip-planning/trips/2026-11-28-ikebukuro-night/og-cover.png?v=1128v1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../copilot/icon-192.png">
+<link rel="stylesheet" href="../../copilot/trip-copilot.css?v=3.0">
+<style>
+:root{
+  --paper:#f4efe6; --card:#fcfaf5; --card2:#ede6d8; --ink:#191816; --soft:#655d52; --line:#dcd3c3;
+  --accent:#c24b2a; --accent-soft:#f7e1d8; --indigo:#1b3f60; --indigo-soft:#dce9f5;
+  --plum:#6b2d5c; --plum-soft:#f3e2ef;
+  --nav:#1a73e8; --nav-dark:#1558b0;
+  --ok:#1d6d48; --ok-bg:#dcf2e7; --warn:#9a5b06; --warn-bg:#f9ebd0; --err:#b91c1c; --err-bg:#fce2e2;
+  --shadow:0 1px 2px rgba(20,30,45,.06),0 6px 18px rgba(20,30,45,.05);
+  --serif:"Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#12141a; --card:#1b1e26; --card2:#252934; --ink:#ede8df; --soft:#a39d93; --line:#323744;
+    --accent:#ee7b54; --accent-soft:#3a241d; --indigo:#86bfe0; --indigo-soft:#1b2e40;
+    --plum:#e091cb; --plum-soft:#331d2e;
+    --nav:#4c92f4; --nav-dark:#2f74d0;
+    --ok:#52b788; --ok-bg:#183226; --warn:#eab856; --warn-bg:#382a12; --err:#f27474; --err-bg:#3b1c1e;
+    --shadow:0 2px 12px rgba(0,0,0,.42);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+.wx-thumb{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* Hub strip */
+.hub-bar{background:#101a2b;color:rgba(255,255,255,.9);font-size:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.hub-bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 14px;flex-wrap:wrap}
+.hub-bar a{color:#cfe6ff;font-weight:600}
+.hub-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#131d33 0%,#233a5e 52%,#7a3248 100%);color:#fff;padding:22px 16px 18px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-45px;top:-45px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,205,165,.24),transparent 70%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding:0}
+.kicker{font:600 11.5px/1.2 var(--mono);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.kicker span{background:rgba(255,255,255,.15);padding:4px 9px;border-radius:99px}
+.kicker span.ok{background:rgba(82,183,136,.35);color:#e4fcef}
+.kicker span.hot{background:rgba(240,113,113,.36);color:#ffe8e8}
+.hero h1{margin:0;font:600 21px/1.32 var(--serif);letter-spacing:.01em}
+.hero .sub{margin:7px 0 0;font-size:13px;opacity:.93;line-height:1.55}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.hstat{background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:7px 9px;min-width:0}
+.hstat .l{font-size:11px;opacity:.84}
+.hstat .v{font:700 12.5px/1.3 var(--mono);margin-top:2px}
+
+/* Sticky Nav */
+nav{position:sticky;top:0;z-index:30;background:var(--paper);background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:12.5px;font-weight:700;color:var(--soft);padding:6px 11px;border-radius:99px;white-space:nowrap}
+nav a.on{background:var(--ink);color:var(--paper)}
+
+main{padding:16px 0 44px}
+section{margin-bottom:26px;scroll-margin-top:58px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.sec-k{font:700 11px/1 var(--mono);letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+h2{margin:3px 0 0;font:600 18.5px/1.3 var(--serif)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.card+.card{margin-top:10px}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.tag.err{background:var(--err-bg);color:var(--err)}
+.tag.blue{background:var(--indigo-soft);color:var(--indigo)}
+.tag.plum{background:var(--plum-soft);color:var(--plum)}
+
+.alert{border-radius:12px;padding:11px 13px;font-size:13px;border:1px solid;line-height:1.55}
+.alert.err{background:var(--err-bg);border-color:color-mix(in srgb,var(--err) 35%,transparent)}
+.alert.ok{background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.alert.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.alert ul{margin:6px 0 0;padding-left:18px}
+.alert li{margin:4px 0}
+
+/* Venue Cluster & Custom Input */
+.scenic-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.scenic-strip figure{margin:0;border-radius:11px;overflow:hidden;border:1px solid var(--line);background:var(--card2);position:relative}
+.scenic-strip img{width:100%;height:96px;object-fit:cover}
+.scenic-strip figcaption{font-size:10.5px;padding:4px 6px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.venue-binder{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:12px}
+.vb-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:7px}
+@media(min-width:560px){.vb-grid{grid-template-columns:1fr 1fr}}
+.vb-field label{display:block;font-size:11.5px;font-weight:700;color:var(--soft);margin-bottom:3px}
+.vb-field input{width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13px}
+
+.nav-card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.nav-card.s1{border-color:var(--plum);background:color-mix(in srgb,var(--plum) 4%,var(--card))}
+.nav-card.s2{border-color:var(--nav);background:color-mix(in srgb,var(--nav) 4%,var(--card))}
+.nav-card.rail{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 5%,var(--card))}
+.nav-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.leg-num{font:700 11.5px/1 var(--mono);background:var(--ink);color:var(--paper);padding:4px 8px;border-radius:6px}
+.nav-title{font:700 15.5px/1.35 var(--serif);margin:2px 0 6px}
+.nav-meta{font-size:12.5px;color:var(--soft);line-height:1.55;margin-bottom:9px}
+.nav-btns{display:flex;flex-wrap:wrap;gap:7px}
+.gmap-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--nav);color:#fff !important;font-weight:700;font-size:13px;padding:9px 13px;border-radius:10px;border:none;flex:1 1 190px;text-align:center}
+.gmap-btn.sec{background:var(--card2);color:var(--ink) !important;border:1px solid var(--line);flex:0 1 auto}
+
+/* Train Timetable */
+.rail-card{background:linear-gradient(180deg,color-mix(in srgb,var(--indigo) 8%,var(--card)),var(--card));border:1.5px solid color-mix(in srgb,var(--indigo) 45%,var(--line));border-radius:15px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.train-list{display:grid;gap:8px;margin-top:10px}
+.trow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;font-size:12.5px}
+.trow.gold{border:1.5px solid var(--ok);background:color-mix(in srgb,var(--ok) 9%,var(--card))}
+.trow.last{border:1.5px solid var(--err);background:color-mix(in srgb,var(--err) 8%,var(--card))}
+.ttime{font:800 14.5px/1.25 var(--mono);color:var(--ink)}
+.ttime span{color:var(--accent)}
+.tname{font-weight:700;font-size:12.5px;margin-top:3px}
+.tnote{font-size:11.5px;color:var(--soft);margin-top:2px;line-height:1.45}
+.tbadge{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.tdur{font:700 11.5px/1 var(--mono);color:var(--indigo)}
+
+/* Restaurants */
+.rest-card{background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.rest-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.rest-title{margin:0;font:700 16.5px/1.32 var(--serif)}
+.rest-info{font-size:12.5px;color:var(--soft);margin-bottom:9px;line-height:1.55}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.photo-grid figure{margin:0;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--card2)}
+.photo-grid img{width:100%;height:96px;object-fit:cover}
+.photo-grid figcaption{font-size:10.5px;padding:4px 5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rev-list{display:grid;gap:6px;margin:9px 0}
+.rev{background:var(--card2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:7px 10px;font-size:12px;line-height:1.5}
+.rev b{color:var(--indigo)}
+
+/* Interactive Sandbox Simulator */
+.sim-controls{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+@media(min-width:560px){.sim-controls{grid-template-columns:1fr 1fr}}
+.sim-box{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.sim-box label{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px}
+.sim-box input[type="range"]{width:100%;accent-color:var(--accent)}
+.seg-row{display:flex;gap:5px;flex-wrap:wrap}
+.seg-btn{flex:1 1 auto;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:12px;font-weight:700;text-align:center}
+.seg-btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tl-list{display:grid;gap:7px;margin-top:10px}
+.tl-row{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:baseline;padding:8px 10px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:12.5px}
+.tl-row code{font:700 12px/1.2 var(--mono);color:var(--accent)}
+.tl-row.crit{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--card))}
+.tl-row.over{border-color:var(--err);background:color-mix(in srgb,var(--err) 9%,var(--card))}
+
+/* Risk & Checklist */
+.risk-grid{display:grid;gap:8px}
+.risk-item{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:10px 12px;font-size:12.5px}
+.risk-item.red{border-left-color:var(--err)}
+.chk-list{display:grid;gap:7px}
+.chk-item{display:flex;align-items:flex-start;gap:9px;background:var(--card2);border-radius:10px;padding:9px 11px;font-size:13px;cursor:pointer}
+.chk-item input{width:18px;height:18px;margin-top:2px;accent-color:var(--ok);flex:none}
+
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:99px;font-size:12.5px;font-weight:700;max-width:min(90vw,360px);white-space:normal;text-align:center;opacity:0;pointer-events:none;transition:.25s;z-index:120;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;font-size:12px;color:var(--soft);padding:16px 14px 36px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<img class="wx-thumb" src="og-cover.png?v=1128v1" alt="11/28 周六｜池袋 ミルキーパイ→Jewels 40分×2 → 22:00前抵滝不動">
+
+<div class="hub-bar">
+  <div class="wrap">
+    <a href="../">← 返回攻略总览 (Trip Hub)</a>
+    <div class="hub-links">
+      <a href="../2026-11-26-ikebukuro-night/">对照 11/26 版</a>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">
+      <span class="ok">🛰️ v3.0 实时打卡护航</span>
+      <span>2026.11.28 (土) 夜</span>
+      <span class="hot">🎯 目标 22:00 前抵滝不動</span>
+    </div>
+    <h1>池袋 ミルキーパイ → Jewels 40分×2 → 电车回滝不動</h1>
+    <p class="sub">两店同在 <b>池袋2丁目48番</b>（徒歩30秒），今天都有<b>メルマガ限定 フリー40分 ¥5,000（ALL TIME）</b>。支持<b>当前位置 / 附近车站一键打卡</b>、<b>Ahead / Behind 实时计算</b>与<b>晚点自动重排</b>。AFTER V 设为可选第3轩（默认关闭）。</p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="l">开场 → 离池（Must）</div>
+        <div class="v">18:45 → 20:37</div>
+      </div>
+      <div class="hstat">
+        <div class="l">本命电车 → 滝不動</div>
+        <div class="v">约20:4x発→约21:57</div>
+      </div>
+      <div class="hstat">
+        <div class="l">基本料金</div>
+        <div class="v">¥10,000〜</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav aria-label="章节导航">
+  <div class="wrap">
+    <a href="#why" class="on">🗓️ 为什么是今晚</a>
+    <a href="#copilot">🛰️ 实时打卡＆取舍</a>
+    <a href="#venues">🥂 2轩动线</a>
+    <a href="#transit">🚆 回滝不動</a>
+    <a href="#food">🍜 快食3选</a>
+    <a href="#sim">📊 沙盘</a>
+    <a href="#risk">⚠️ 排雷＆清单</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section id="why">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">CONCLUSION · TIMING · REJECTED</div>
+        <h2>🗓️ 结论 ＆ 为什么是今晚</h2>
+      </div>
+      <span class="tag blue">信息查询 2026-11-28 13:00</span>
+    </div>
+    <div class="card">
+      <div style="font-size:13.5px;line-height:1.7">
+        <b>结论：</b>18:45 池袋西口集合 → <b>18:45–19:40 ミルキーパイ（40分）</b> → 徒歩30秒 → <b>19:41–20:31 Jewels（40分）</b> → <b>20:37 进 JR池袋北改札</b> → 约 21:57 抵 <b>滝不動駅</b>。<br>
+        • <b>Plan 1（首推）</b>：上面 2 轩，各 40分，节奏系数 1.20×。<br>
+        • <b>Plan 2（晚点时）</b>：Jewels 压到 30分，或直接砍 Jewels，只保 ミルキーパイ。<br>
+        • <b>Plan 3（想多玩）</b>：开启可选第3轩 AFTER V，或 Jewels 改 60分（¥8,000），回程改首都高タクシー（约¥15,500）。
+      </div>
+    </div>
+    <div class="card">
+      <b style="font-size:14px">⏱️ 时机理由（为什么是今天这两家）</b>
+      <ul style="font-size:13px;line-height:1.65;margin:6px 0 0;padding-left:18px">
+        <li><b>ミルキーパイ</b>：チャイナweek 只到 <b>11/29（日）</b>，期间 フリー ALL TIME 40分¥5,000／60分¥9,000；今天 体入リクエスト指名 无料（フリー中付10分）；そら バースデー 11/24–11/29。</li>
+        <li><b>Jewels</b>：<b>11/28（土）限定</b> メルマガ割 フリー40分¥5,000／60分¥8,000，今天 体験入店 2名予定，体入リク 无料。与 ミルキーパイ 同一集团，<b>スタンプカード 3店（ミルキーパイ・部活・Jewels）共用</b>，连刷可累计。</li>
+        <li><b>星期</b>：周六没有平日限定的 ハッピーアワー／場内指名半額，所以只选「ALL TIME」有效的折扣店。周六晚人多，<b>19:00 前进第1轩</b>减少待合室等位。</li>
+        <li><b>动线</b>：两店地址 池袋2-48-2 / 2-48-4，徒歩30秒，零换场风险，最符合「锁死西口・北口3分圈」铁律。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <b style="font-size:14px">❌ 落选备选 ＆ 原因</b>
+      <ul style="font-size:13px;line-height:1.65;margin:6px 0 0;padding-left:18px">
+        <li><b>AFTER V</b>（ランジェリーコスプレ 〜11/29，24:00閉店）：メルマガ未写料金，地址未核实 → 设为可选第3轩，去前电话确认 <code>03-6907-0666</code>。</li>
+        <li><b>Beauty Street</b>（今天 アイドル制服）：入場¥1,000 OFF 只到 14:00，晚上无折扣；料金只在邮件图片里，未能核实。</li>
+        <li><b>ミルキーパイ「3の付く日」大還元</b>：今天 28 日不适用，本指名没有优惠，所以两店都按フリー排。</li>
+      </ul>
+    </div>
+    <div class="alert warn">
+      <b>📎 信息来源（2026-11-28 查询）：</b>ミルキーパイ メルマガ（11/28 11:00）、Jewels メルマガ（11/28 12:45）、AFTER V メルマガ（11/28 08:00・12:00）、Beauty Street メルマガ（11/28 10:45）。<b>电车时刻为 11/26 平日实测值，土休日时刻未核实</b>，出发前请用下方「实时电车导航」确认。
+    </div>
+  </section>
+
+  <section id="copilot">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">LIVE CHECK-IN &amp; RESCUE CO-PILOT</div>
+        <h2>🛰️ 行中实时打卡 ＆ 晚点重排控制台</h2>
+      </div>
+      <span class="tag blue">3步闭环</span>
+    </div>
+    <div id="copilot-mount"></div>
+  </section>
+
+  <section id="venues">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">IKEBUKURO 2-48 CLUSTER</div>
+        <h2>🥂 池袋2丁目48番「徒歩30秒」2轩连刷动线</h2>
+      </div>
+      <span class="tag ok">同一街区</span>
+    </div>
+
+    <div class="alert warn" style="margin-bottom:12px">
+      <b>💴 算账：</b>两店 フリー40分 各 ¥5,000（メルマガ画面给前台看）。指名・延長・小姐饮料另算，现金建议备 <b>¥25,000</b>（含可选第3轩）。第30分钟主动说 <code>「延長なしで先会計お願いします」</code>。
+    </div>
+
+    <div class="nav-card s1">
+      <div class="nav-top">
+        <span class="leg-num">STOP 1 · 18:45–19:40 (50m) · Must</span>
+        <span class="tag plum">フリー40分 ¥5,000</span>
+      </div>
+      <div class="nav-title">ミルキーパイ（東京都豊島区池袋2-48-2 レスタージュ池袋3階・13:00〜24:00）</div>
+      <div class="nav-meta">
+        • チャイナweek（〜11/29）全员チャイナ服；体入リクエスト 无料（フリー中付10分，未见过的女孩限定）。<br>
+        • 电车コース +¥2,000。<b>先在前台办 スタンプカード</b>（Jewels 也能用）。<br>
+        • TEL <code>03-6907-3252</code>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-2&travelmode=walking" target="_blank" rel="noopener">🚶 一键步行导航：去ミルキーパイ（约5分）</a>
+      </div>
+    </div>
+
+    <div class="nav-card s2">
+      <div class="nav-top">
+        <span class="leg-num">STOP 2 · 19:41–20:31 (50m) · Must</span>
+        <span class="tag blue">20:21 闹钟响即先会計</span>
+      </div>
+      <div class="nav-title">Jewels（東京都豊島区池袋2-48-4 KHAビル3階）</div>
+      <div class="nav-meta">
+        • 11/28 限定 メルマガ割：フリー40分 ¥5,000 ／60分 ¥8,000（选60分会把离店推到 20:51，需改 Plan 3 回程）。<br>
+        • 新人割 40分¥9,000／80分¥18,000；体験入店 2名予定，体入リク 无料。
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&origin=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-2&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-4&travelmode=walking" target="_blank" rel="noopener">🚶 ミルキーパイ → Jewels（徒歩30秒）</a>
+      </div>
+    </div>
+
+    <div class="nav-card s2">
+      <div class="nav-top">
+        <span class="leg-num">OPTIONAL · 第3轩（默认关闭）</span>
+        <span class="tag warn">料金・地址 未核实</span>
+      </div>
+      <div class="nav-title">AFTER V（ランジェリーコスプレ 11/23〜11/29・10:00〜24:00）</div>
+      <div class="nav-meta">
+        • ミスヘブン2026 第3位 のい、第6位 みお 在籍；今日新人 みれい。<br>
+        • 开启后回程无法赶 22:00，请在控制台选「首都高タクシー」或晚班电车。去前电话 <code>03-6907-0666</code> 确认料金与出勤。
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn sec" href="https://www.google.com/maps/search/?api=1&query=AFTER+V+%E6%B1%A0%E8%A2%8B" target="_blank" rel="noopener">🔎 在地图上查 AFTER V 位置</a>
+      </div>
+    </div>
+
+    <div class="nav-card rail">
+      <div class="nav-top">
+        <span class="leg-num">FINAL LEG · 20:31–20:37 进站 · Must</span>
+        <span class="tag ok">JR北改札</span>
+      </div>
+      <div class="nav-title">Jewels → JR池袋駅「北改札」→ 山手線外回り（日暮里方面）</div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&origin=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-4&destination=%E6%B1%A0%E8%A2%8B%E9%A7%85%E5%8C%97%E5%8F%A3&travelmode=walking" target="_blank" rel="noopener">🏃 步行回 JR池袋北口（约6分）</a>
+        <a class="gmap-btn sec" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit" target="_blank" rel="noopener">🚆 池袋→滝不動 实时电车导航</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="transit">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">RETURN TO TAKIFUDO</div>
+        <h2>🚆 回程（池袋 → 滝不動）</h2>
+      </div>
+      <span class="tag warn">土休日时刻未核实</span>
+    </div>
+    <div class="rail-card">
+      <div style="font-size:13px;line-height:1.55">
+        <b>换乘轴：</b><code>JR山手線外回り</code> → <b>日暮里駅</b> → <code>JR常磐線快速</code> → <b>松戸駅</b> → <code>京成松戸線</code> → <b>滝不動駅</b>（约65–75分）。<br>
+        <b style="color:var(--warn)">⚠️ 下表是 11/26（平日）实测班次，仅作目标设计参考。今天是周六（土休日ダイヤ），20:30 前请点「实时电车导航」核对实际班次。</b>
+      </div>
+      <div class="train-list">
+        <div class="trow">
+          <div><div class="ttime">约20:34 池袋発 → <span>约21:43 滝不動着</span></div><div class="tname">提前班（Jewels 30分快闪时）</div></div>
+          <div class="tbadge"><span class="tag ok">余裕</span></div>
+        </div>
+        <div class="trow gold">
+          <div><div class="ttime">约20:42 池袋発 → <span>约21:57 滝不動着</span></div><div class="tname">⭐ 本命（2轩各40分刚好衔接）</div></div>
+          <div class="tbadge"><span class="tag ok">⭐ 目标</span></div>
+        </div>
+        <div class="trow last">
+          <div><div class="ttime">约20:53 池袋発 → <span>约21:57 滝不動着</span></div><div class="tname">22:00 目标的最后一班（需当场确认）</div></div>
+          <div class="tbadge"><span class="tag err">压哨</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <b style="font-size:14px">🛟 22:00 目标赶不上时</b>
+      <div style="font-size:12.5px;color:var(--soft);line-height:1.6">
+        今天是周六，22:00 是「平日死线」习惯的延用目标，不是硬性红线。晚点时：① 改搭下一班电车（约晚15–20分）；② 首都高タクシー（<code>GO</code> App，東池袋IC→首都高→京葉道路 花輪IC，约45分・约¥15,500）。
+      </div>
+    </div>
+  </section>
+
+  <section id="food">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">15-MIN WEST EXIT QUICK DINING</div>
+        <h2>🍜 开场垫肚／解酒收尾：西口极速美食 3 选 1</h2>
+      </div>
+      <span class="tag ok">全在西口徒歩4分内</span>
+    </div>
+
+    <!-- Restaurant 1: Kizunaya -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag err">① 浓厚家系・空腹垫肚首推</span>
+          <h3 class="rest-title">輝道家直系 皇綱家（きづなや）池袋西口店</h3>
+        </div>
+        <span class="tag blue">JR西口徒歩2分 · 现金食券</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋1-18-1 五光ビル1F ｜ 🕒 11:00–15:45 / <b>17:30–23:45 (L.O.)</b> ｜ 💴 约 ¥950–¥1,300<br>
+        野方名店「輝道家」直系×「王道家」特注麺，出餐极快（落座 4 分钟上桌，15 分钟完食），饮酒前垫胃防醉神器。
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/kizunaya-1.jpg" alt="皇綱家 特製家系ラーメン"><figcaption>皇綱特製ラーメン（海苔・味玉）</figcaption></figure>
+        <figure><img src="img/kizunaya-2.jpg" alt="皇綱家 濃厚豚骨醤油スープ"><figcaption>濃厚豚骨醤油スープ＆燻製チャーシュー</figcaption></figure>
+        <figure><img src="img/kizunaya-3.jpg" alt="皇綱家 チャーシュー麺と王道家無限ニンニク"><figcaption>王道家刻みにんにく＆白飯絶配</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 Tsukasa.N：</b>「池袋駅西口からすぐ！輝道家直系の超濃厚豚骨醤油スープに燻製チャーシューの香りが抜群。回転も速くサクッと最高の一杯がキマる。」</div>
+        <div class="rev"><b>Retty 实名食客 T.Satou：</b>「しょう油強めの骨太な家系スープに王道家の短め中太麺が完全マッチ！卓上の無限ニンニクと海苔巻きライスが止まらない中毒性。」</div>
+        <div class="rev"><b>池袋グルメ实测口碑：</b>「晚间18点前半几乎零排队，买完食券5分钟上碗；汤头偏浓建议首次点『味ふつう（普通咸度）』。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E7%9A%87%E7%B6%B1%E5%AE%B6+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 皇綱家（西口2分）</a>
+      </div>
+    </article>
+
+    <!-- Restaurant 2: Tonchin -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag ok">② ロマンス通り隔壁・24時間営業零L.O.风险</span>
+          <h3 class="rest-title">東京豚骨拉麺 屯ちん（とんちん）池袋西口店</h3>
+        </div>
+        <span class="tag ok">ロマンス通り徒歩1分 · 24h营业</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋1-27-1 ｜ 🕒 <b>24時間営業（年中無休）</b> ｜ 💴 约 ¥920–¥1,150（大盛＆ライス無料）<br>
+        就在セクキャバ最密集的ロマンス通り旁边！无论开场空余 15 分钟还是砍掉第2轩后解酒收尾，0 秒绕路、绝无闭店风险。
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/tonchin-1.jpg" alt="屯ちん 東京豚骨ラーメン"><figcaption>招牌東京豚骨ラーメン</figcaption></figure>
+        <figure><img src="img/tonchin-2.jpg" alt="屯ちん 自家製ちぢれ麺"><figcaption>自家製手揉み中太ちぢれ麺</figcaption></figure>
+        <figure><img src="img/tonchin-3.jpg" alt="屯ちん 得入り豚骨ラーメン"><figcaption>丸得トッピング濃厚魚介豚骨</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 口コミ：</b>「池袋発祥の東京豚骨！こってりなのに後味すっきり、自家製のちぢれ麺がスープによく絡んで飲んだ前後に最高の一杯。」</div>
+        <div class="rev"><b>Retty 常客评价：</b>「24時間営業＆ロマンス通りすぐ横の立地が神。並・中・大盛同料金で提供スピードも3〜4分と爆速、電車の時間調整にも完璧！」</div>
+        <div class="rev"><b>西口夜游老手口碑：</b>「店员动作极麻利，从进门扫码/食券到吃完出门13分钟搞定，转身走2分钟就进JR北改札。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E5%B1%AF%E3%81%A1%E3%82%93+%E6%B1%A0%E8%A2%8B%E8%A5%BF%E5%8F%A3%E5%BA%97&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 屯ちん西口店（1分）</a>
+      </div>
+    </article>
+
+    <!-- Restaurant 3: Kitchen ABC -->
+    <article class="rest-card">
+      <div class="rest-head">
+        <div>
+          <span class="tag warn">③ 池袋昭和洋食灵魂・铁板秒出餐</span>
+          <h3 class="rest-title">キッチンABC 西池袋店</h3>
+        </div>
+        <span class="tag warn">西口徒歩4分 · LO 21:30</span>
+      </div>
+      <div class="rest-info">
+        📍 東京都豊島区西池袋3-26-6 サンサーラ西池袋102 ｜ 🕒 11:00–22:00（<b>L.O. 21:30</b>） ｜ 💴 约 ¥950–¥1,250<br>
+        创业半世纪的池袋传奇洋食屋，名物「オリエンタルライス（秘制蒜香韭菜炒猪肉盖饭＋生蛋黄）」与「黒カレー」大火快炒 4 分钟上桌！
+      </div>
+      <div class="photo-grid">
+        <figure><img src="img/abc-1.jpg" alt="キッチンABC オリエンタルライス＆黒カレー"><figcaption>名物オリエンタルライス＆黒カレー</figcaption></figure>
+        <figure><img src="img/abc-2.jpg" alt="キッチンABC オムカレーセット"><figcaption>とろとろオム黒カレー＆ハンバーグ</figcaption></figure>
+        <figure><img src="img/abc-3.jpg" alt="キッチンABC からし焼肉定食"><figcaption>スタミナ満点！からし焼肉＆豚汁</figcaption></figure>
+      </div>
+      <div class="rev-list">
+        <div class="rev"><b>Retty 实名食客 口コミ：</b>「池袋西口といえばキッチンABC！ニンニクが効いたオリエンタルライスに卵黄を崩して食べるとレンゲが止まらない旨さ！」</div>
+        <div class="rev"><b>Retty 洋食好き评价：</b>「スパイシーな黒カレーと手ごねハンバーグのコンビが最高。注文から提供まで驚くほど早く、ガッツリ食べたい夜に頼れる名店。」</div>
+        <div class="rev"><b>注意 L.O. 红线：</b>「21:30 最后点单，适合 18:15 提前抵池袋吃饱再开刷两轩，不适合 21 点后赶末班时前往。」</div>
+      </div>
+      <div class="nav-btns">
+        <a class="gmap-btn" href="https://www.google.com/maps/dir/?api=1&destination=%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3ABC+%E8%A5%BF%E6%B1%A0%E8%A2%8B%E5%BA%97&travelmode=walking" target="_blank" rel="noopener">🚶 步行导航去 キッチンABC（西口4分）</a>
+      </div>
+    </article>
+  </section>
+
+  <!-- SECTION 4: INTERACTIVE TIMELINE SANDBOX -->
+
+  <section id="sim">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">INTERACTIVE DEADLINE SANDBOX</div>
+        <h2>📊 交互式「到达目标时间」沙盘</h2>
+      </div>
+      <span class="tag blue">选项秒算</span>
+    </div>
+    <div class="card">
+      <div class="sim-controls">
+        <div class="sim-box">
+          <label><span>⌚ 池袋西口集合时间</span><b id="sb-start-lbl">18:45</b></label>
+          <input type="range" id="sb-start" min="1110" max="1170" step="5" value="1125">
+        </div>
+        <div class="sim-box">
+          <label><span>⏱️ 单轩门到门耗时</span><b id="sb-stay-lbl">50分 (标准)</b></label>
+          <div class="seg-row" id="sb-stay-seg">
+            <button type="button" class="seg-btn" data-stay="45">45分(极速)</button>
+            <button type="button" class="seg-btn on" data-stay="50">50分(标准)</button>
+            <button type="button" class="seg-btn" data-stay="65">65分(等位)</button>
+          </div>
+        </div>
+        <div class="sim-box">
+          <label><span>🥂 Jewels 策略</span><b id="sb-s2-lbl">满40分</b></label>
+          <div class="seg-row" id="sb-s2-seg">
+            <button type="button" class="seg-btn on" data-s2="full">40分</button>
+            <button type="button" class="seg-btn" data-s2="short">30分快闪</button>
+            <button type="button" class="seg-btn" data-s2="long">60分(¥8,000)</button>
+            <button type="button" class="seg-btn" data-s2="cut">砍掉</button>
+          </div>
+        </div>
+      </div>
+      <div class="alert ok" id="sb-verdict">正在计算…</div>
+      <div class="tl-list" id="sb-timeline"></div>
+    </div>
+  </section>
+
+  <section id="risk">
+    <div class="sec-head">
+      <div>
+        <div class="sec-k">RISK MATRIX &amp; CHECKLIST</div>
+        <h2>⚠️ 排雷 ＆ 出发核对</h2>
+      </div>
+      <span class="tag err">防宰防超时</span>
+    </div>
+    <div class="risk-grid" style="margin-bottom:14px">
+      <div class="risk-item red"><b>🚨 自動延長：</b>落座就点控制台「▶️ 落座开表」，第30分钟强震动时说 <code>「延長なしで先会計お願いします」</code>。</div>
+      <div class="risk-item red"><b>🚨 客引き：</b>只直接走进本页两家店，街头拉客一律不理。</div>
+      <div class="risk-item"><b>⚠️ 周六等位：</b>待合室等超过 7 分钟就换到另一家（徒歩30秒），顺序对调即可。</div>
+      <div class="risk-item"><b>⚠️ 地下/楼内没信号：</b>开场前导入 <b>.ics 双闹钟</b>（提前15分＋准点），离线也会响。</div>
+    </div>
+    <div class="card" id="prep">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <b style="font-size:15px">✅ 出发前 30 秒核对</b>
+        <button type="button" class="gmap-btn sec" id="copy-wx-summary" style="padding:6px 11px;font-size:12px">📋 复制摘要</button>
+      </div>
+      <div class="chk-list">
+        <label class="chk-item"><input type="checkbox" data-chk="c1"><span>已在控制台导入 <b>.ics 双闹钟</b>（19:30 第1轩先会計、20:21 第2轩先会計、20:37 进改札）</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c2"><span>20:30 前用「实时电车导航」确认 <b>土休日</b> 实际班次</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c3"><span>Suica 余额 ≥ ¥1,500 ＋ 现金 ¥25,000（千元钞）＋ 两店 メルマガ画面</span></label>
+        <label class="chk-item"><input type="checkbox" data-chk="c4"><span>带年龄证件；装好 <code>GO</code> App（Plan 3 打车用）</span></label>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div>kenandxx/trip-planning ｜ 2026-11-28 池袋 ミルキーパイ→Jewels 40分×2 → 滝不動 v3.0 实时打卡护航页</div>
+</footer>
+
+<div class="toast" id="toast">已更新！</div>
+
+<script src="../../copilot/trip-copilot.js?v=3.0"></script>
+<script>
+(function () {
+  'use strict';
+  const fmt = m => {
+    const x = ((Math.round(m) % 1440) + 1440) % 1440;
+    return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0');
+  };
+  const showToast = msg => {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove('show'), 2800);
+  };
+
+  const copilot = window.TripCopilot.init({
+    tripId: '2026-11-28-ikebukuro-night',
+    date: '2026-11-28',
+    title: '11/28 池袋 ミルキーパイ→Jewels 40分×2 → 滝不動',
+    mode: 'transit',
+    mountSelector: '#copilot-mount',
+    swPath: '../../sw.js',
+    defaultDepMin: 1125, // 18:45 池袋西口集合
+    defaultPaceFactor: 1.2,
+    gateLabels: {
+      readyTitle: '✅ 开场核查已就位（Suica＋メルマガ画面＋先会計快撤）',
+      lockedTitle: '🛑 开场前核查 2 项（Suica余额＋メルマガ画面）',
+      lock1Title: '① 只进本页两家店 ＋ 不理客引き ＋ Suica余额≥¥1,500：',
+      lock2Title: '② 入店声明「40分延長なし」＋ 第30分钟先会計：',
+      paceTitle: '③ 节奏系数（规则默认 1.20×，周六人多可切 1.35×）',
+      icsPreflightTitle: '确认Suica余额＋メルマガ画面＋先会計快撤'
+    },
+    tollReminder: '两店同在池袋2丁目48番（徒歩30秒）。<span class="danger-inline">街头客引き一律不理，被缠住会直接吃掉回程缓冲！</span>',
+    etcCashReminder: '1セット40分实际含受付＋结账约<b>50分钟</b>！第30分钟用千元现金先会計，到点秒撤。',
+    pacePresets: [
+      [1.0, '1.00× 熟路快步', '零绕路'],
+      [1.2, '1.20× 规则默认(推荐)', '真实生活缓冲'],
+      [1.35, '1.35× 周六人多/微醺', '大缓冲']
+    ],
+    bumpPresets: [
+      [10, '待合室等位 +10分', '⏳ 等位 +10m'],
+      [20, '加钟延长20分 +20分', '🥂 加钟 +20m'],
+      [8, '结账/等电梯慢 +8分', '🧾 结账慢 +8m'],
+      [-5, '先会計秒撤追回 5分', '⚡ 快撤 -5m']
+    ],
+    guardListTitle: '🍜 顺路快食＆门店时段排雷：',
+    modalTrapWarn: '⚠️ 警告：继续按原计划会赶不上 22:00 目标班次！请在下方方案中拍板。',
+    planAName: '🛡️ 方案一（首推）：砍掉 Jewels，从容搭电车',
+    planBName: '⚡ 方案二：Jewels 改30分快闪＋先会計，冲最后一班',
+    nodes: [
+      { id: 'origin', role: 'origin', name: '池袋駅 西口・北口（集合）', shortName: '池袋西口集合', stayMin: 0,
+        lat: 35.7316, lng: 139.7105,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%B1%A0%E8%A2%8B%E9%A7%85%E8%A5%BF%E5%8F%A3&travelmode=transit',
+        navLabel: '导航至池袋西口' },
+      { id: 'shop1', role: 'meal', name: 'ミルキーパイ（池袋2-48-2・フリー40分¥5,000）', shortName: 'ミルキーパイ(40分)',
+        driveMin: 5, stayMin: 50, minStayMin: 40, lat: 35.7347, lng: 139.7079,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-2&travelmode=walking',
+        navLabel: '步行去ミルキーパイ' },
+      { id: 'shop2', role: 'core', enabledByDefault: true, name: 'Jewels（池袋2-48-4・フリー40分¥5,000）', shortName: 'Jewels(40分)',
+        driveMin: 1, stayMin: 50, minStayMin: 30, lat: 35.7348, lng: 139.7077,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%9D%B1%E4%BA%AC%E9%83%BD%E8%B1%8A%E5%B3%B6%E5%8C%BA%E6%B1%A0%E8%A2%8B2-48-4&travelmode=walking',
+        navLabel: '步行去Jewels(30秒)' },
+      { id: 'shop3', role: 'optional', enabledByDefault: false, name: 'AFTER V（可选・料金/地址未核实）', shortName: 'AFTER V(可选)',
+        driveMin: 8, stayMin: 50, minStayMin: 40, lat: 35.7300, lng: 139.7100,
+        navUrl: 'https://www.google.com/maps/search/?api=1&query=AFTER+V+%E6%B1%A0%E8%A2%8B',
+        navLabel: '在地图上查 AFTER V' },
+      { id: 'jr_ike', role: 'destination', name: 'JR池袋駅 北改札（山手線外回り → 日暮里 → 松戸 → 滝不動）', shortName: 'JR池袋北改札',
+        driveMin: 6, stayMin: 0, lat: 35.7318, lng: 139.7111,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit',
+        navLabel: '开启池袋→滝不動电车乘换' },
+      { id: 'takifudo', role: 'after', name: '滝不動駅（京成松戸線・目标 22:00 前）', shortName: '滝不動駅',
+        driveMin: 70, stayMin: 0, lat: 35.7235, lng: 140.0131,
+        navUrl: 'https://www.google.com/maps/dir/?api=1&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=transit',
+        navLabel: '导航至滝不動駅' }
+    ],
+    directDriveMap: {
+      'origin->shop1': 5, 'shop1->shop2': 1, 'shop1->jr_ike': 6, 'shop2->jr_ike': 6,
+      'shop2->shop3': 8, 'shop1->shop3': 8, 'shop3->jr_ike': 6,
+      'jr_ike->takifudo': 70, 'shop1->takifudo': 76, 'shop2->takifudo': 76, 'shop3->takifudo': 76, 'origin->takifudo': 72
+    },
+    mealGuards: [
+      { name: '① 皇綱家 池袋西口店（家系ラーメン）', loMin: 1425, warnBeforeLoMin: 30, note: '23:45 L.O.（周六营业时间未核实）' },
+      { name: '② 屯ちん 池袋西口店（東京豚骨）', loMin: 1439, warnBeforeLoMin: 5, note: '24時間営業' },
+      { name: '③ キッチンABC 西池袋店（洋食）', loMin: 1290, warnBeforeLoMin: 35, note: '21:30 L.O.，只适合开场前' },
+      { name: 'ミルキーパイ 营业至24:00', loMin: 1440, warnBeforeLoMin: 40, note: '13:00〜24:00' },
+      { name: 'AFTER V 营业至24:00', loMin: 1440, warnBeforeLoMin: 40, note: '10:00〜24:00' }
+    ],
+    deadlineSpec: {
+      destNodeId: 'jr_ike',
+      destName: 'JR池袋北改札',
+      finalDestLabel: '滝不動预计抵达',
+      missFinalArr: '22:00 之后',
+      transferBufferMin: 4,
+      targetArrMin: 1238, // 20:38 进北改札 → 约20:42発
+      hardArrMin: 1249,   // 20:49 进北改札 → 约20:53発
+      trains: [
+        { dep: 1234, name: '约20:34 山手線 → 约21:43 抵滝不動（平日参考）', finalArr: '21:43', finalBadge: '滝不動 约21:43' },
+        { dep: 1242, name: '约20:42 山手線 ⭐本命 → 约21:57 抵滝不動（平日参考）', finalArr: '21:57', finalBadge: '滝不動 约21:57' },
+        { dep: 1253, name: '约20:53 山手線 压哨 → 约21:57 抵滝不動（平日参考）', finalArr: '21:57', finalBadge: '滝不動 约21:57' }
+      ],
+      emergencyDirect: {
+        includeRemainingCore: true,
+        keepFullStays: true,
+        isFinalHome: true,
+        fixedPace: 1.0,
+        safeAirportArrMin: 1320,
+        driveFrom: { shop1: 45, shop2: 45, shop3: 45, jr_ike: 45, origin: 45 },
+        title: 'Jewels 照玩满 ＋ 首都高タクシー直达滝不動駅（約45分）',
+        desc: '不砍第2轩，出门即上 GO 出租车 東池袋IC→首都高→京葉道路 花輪IC',
+        cardName: '🚕 方案三：照玩满 ＋ 首都高出租车直达滝不動（约¥15,500）',
+        shortBadge: '首都高タクシー直达',
+        destBadgePrefix: '滝不動',
+        legCode: '首都高45m',
+        navUrl: 'https://www.google.com/maps/dir/?api=1&origin=%E6%B1%A0%E8%A2%8B%E9%A7%85%E8%A5%BF%E5%8F%A3&destination=%E6%BB%9D%E4%B8%8D%E5%8B%95%E9%A7%85&travelmode=driving',
+        navLabel: '查看首都高打车路线(45分)',
+        headlineFn: (arr, buf, dep) => buf >= 0
+          ? `🚕 首都高タクシー：${dep} 上车 → 预计 ${arr} 抵滝不動（比22:00提前 ${buf} 分，约¥15,500）`
+          : `⚠️ 打车也要 ${arr} 才到滝不動（超出 ${-buf} 分）；周六可接受就照玩，否则选方案一`,
+        summaryFn: (arr, dep) => `${dep} 店门口上 GO 出租车走首都高，预计 ${arr} 抵滝不動（约¥15,500）`,
+        pillsFn: arr => [
+          { cls: 'keep', txt: '🥂 不缩水' },
+          { cls: 'keep', txt: `🚕 预计 ${arr} 抵滝不動` },
+          { cls: 'trim', txt: '💴 约¥15,500' }
+        ],
+        legDescFn: (arr, dep) => `${dep} 上车 東池袋IC→首都高→花輪IC → ${arr} 抵滝不動駅`,
+        wxEtaLineFn: arr => `• 预计抵滝不動駅：${arr}（首都高タクシー，约¥15,500）`
+      }
+    },
+    replayScenarios: [
+      { label: '🔴 演练：ミルキーパイ等位，20:05 才出第1轩（晚+20分）', cls: 'err', nodeId: 'shop1', event: 'dep',
+        timeMin: 1205, paceFactor: 1.2, resetEnabled: true, reason: '演练：周六等位，20:05 才出ミルキーパイ' },
+      { label: '🟠 演练：19:15 才到池袋西口（晚+25分）', cls: '', nodeId: 'origin', event: 'dep',
+        timeMin: 1155, paceFactor: 1.2, resetEnabled: true, reason: '演练：19:15 才从池袋西口出发' }
+    ],
+    onApplyPlan: patch => {
+      if (patch && patch.enabledNodes) {
+        if (!patch.enabledNodes.shop2) setSandboxMode('cut');
+        else if (patch.stayOverrides && patch.stayOverrides.shop2 && patch.stayOverrides.shop2 <= 35) setSandboxMode('short');
+        else setSandboxMode('full');
+      }
+    }
+  });
+  window.ikeCopilot = copilot;
+
+  // Sandbox
+  const sbState = { start: 1125, stay: 50, s2: 'full' };
+  const trains = [
+    { dep: 1234, ike: '约20:34', taki: '约21:43' },
+    { dep: 1242, ike: '约20:42', taki: '约21:57' },
+    { dep: 1253, ike: '约20:53', taki: '约21:57' }
+  ];
+  function renderSandbox() {
+    document.getElementById('sb-start-lbl').textContent = fmt(sbState.start);
+    let t = sbState.start;
+    const rows = [{ time: fmt(t), txt: '📍 池袋駅 西口・北口集合', cls: '' }];
+    const s1Arr = t + 5, s1Dep = s1Arr + sbState.stay;
+    rows.push({ time: `${fmt(s1Arr)}–${fmt(s1Dep)}`, txt: `🥂 ミルキーパイ（フリー40分・门到门${sbState.stay}m）`, cls: '' });
+    t = s1Dep;
+    if (sbState.s2 !== 'cut') {
+      const st = sbState.s2 === 'short' ? 30 : sbState.s2 === 'long' ? sbState.stay + 20 : sbState.stay;
+      const a = t + 1, d = a + st;
+      rows.push({ time: `${fmt(a)}–${fmt(d)}`, txt: `🥂 Jewels（${sbState.s2 === 'short' ? '30分快闪' : sbState.s2 === 'long' ? '60分¥8,000' : '40分¥5,000'}・门到门${st}m）`, cls: '' });
+      t = d;
+    } else {
+      rows.push({ time: '已砍掉', txt: '✂️ 跳过 Jewels', cls: '' });
+    }
+    const gate = t + 6;
+    const m = trains.find(tr => tr.dep >= gate + 4);
+    const v = document.getElementById('sb-verdict');
+    if (m) {
+      rows.push({ time: `${fmt(gate)} 进改札`, txt: `🚆 衔接 ${m.ike} 山手線 → 日暮里 → 松戸 → ${m.taki} 抵滝不動（平日参考时刻）`, cls: 'crit' });
+      v.className = m.dep <= 1242 ? 'alert ok' : 'alert warn';
+      v.innerHTML = `<b>${m.dep <= 1242 ? '✅ 节奏良好' : '⚠️ 压哨'}：</b>预计 <b>${fmt(gate)}</b> 进 JR池袋北改札，搭 ${m.ike} 班，${m.taki} 抵滝不動。`;
+    } else {
+      rows.push({ time: `${fmt(gate)} 才进站`, txt: `🚨 赶不上 22:00 目标班次｜🚕 首都高タクシー预计 ${fmt(t + 45)} 抵滝不動`, cls: 'over' });
+      v.className = 'alert err';
+      v.innerHTML = `<b>🚨 超出 22:00 目标：</b>预计 <b>${fmt(gate)}</b> 才进站。改 Jewels 30分快闪 / 砍掉，或接受晚班电车・打车（周六可选）。`;
+    }
+    document.getElementById('sb-timeline').innerHTML = rows.map(r => `<div class="tl-row ${r.cls}"><code>${r.time}</code><span>${r.txt}</span></div>`).join('');
+  }
+  function setSandboxMode(mode) {
+    sbState.s2 = mode;
+    document.querySelectorAll('#sb-s2-seg .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.s2 === mode));
+    document.getElementById('sb-s2-lbl').textContent = { cut: '砍掉', short: '30分快闪', long: '60分', full: '满40分' }[mode];
+    renderSandbox();
+  }
+  document.getElementById('sb-start').addEventListener('input', e => { sbState.start = Number(e.target.value); renderSandbox(); });
+  document.querySelectorAll('#sb-stay-seg .seg-btn').forEach(btn => btn.addEventListener('click', () => {
+    sbState.stay = Number(btn.dataset.stay);
+    document.querySelectorAll('#sb-stay-seg .seg-btn').forEach(b => b.classList.toggle('on', b === btn));
+    document.getElementById('sb-stay-lbl').textContent = btn.textContent;
+    renderSandbox();
+  }));
+  document.querySelectorAll('#sb-s2-seg .seg-btn').forEach(btn => btn.addEventListener('click', () => setSandboxMode(btn.dataset.s2)));
+  renderSandbox();
+
+  // Checklist & summary
+  const CHK_KEY = 'ike_1128_chk_v1';
+  let chkMap = {};
+  try { chkMap = JSON.parse(localStorage.getItem(CHK_KEY) || '{}'); } catch (_) {}
+  document.querySelectorAll('[data-chk]').forEach(el => {
+    el.checked = Boolean(chkMap[el.dataset.chk]);
+    el.addEventListener('change', () => {
+      chkMap[el.dataset.chk] = el.checked;
+      try { localStorage.setItem(CHK_KEY, JSON.stringify(chkMap)); } catch (_) {}
+    });
+  });
+  document.getElementById('copy-wx-summary').addEventListener('click', () => {
+    const msg = [
+      '🥂【11/28 周六｜池袋 ミルキーパイ → Jewels 40分×2 → 滝不動】',
+      '• 18:45 池袋西口集合 → 18:45-19:40 ミルキーパイ(フリー40分¥5,000) → 徒歩30秒 → 19:41-20:31 Jewels(フリー40分¥5,000) → 20:37 进JR北改札',
+      '• 回程：约20:42 山手線 → 日暮里 → 松戸 → 约21:57 抵滝不動（土休日时刻需确认）',
+      '• 实时打卡＋Ahead/Behind＋晚点重排：',
+      location.href
+    ].join('\n');
+    if (navigator.clipboard) navigator.clipboard.writeText(msg).catch(() => {});
+    showToast('📋 已复制摘要');
+  });
+
+  const navLinks = Array.from(document.querySelectorAll('nav a'));
+  const secs = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 95;
+    let cur = secs[0];
+    secs.forEach(s => { if (s.offsetTop <= y) cur = s; });
+    if (cur) navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur.id));
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
