@@ -4,11 +4,10 @@
 - **隐私安全级别**：`PUBLIC-SAFE`（本仓库为公开仓库，**绝不写入任何私人日记原文或私密标签内容**）
 - **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`7b802f376da1afdd`
 
-> **🤖 AI Agent 必读工作流（全量生活上下文隔空读取协议）**：
-> 1. 为保护公开仓库隐私，オーナー在 `LifeOS` 中的日常随笔与私人标签笔记**不会**直接写入本公开文件。
-> 2. **在规划新功能或调整体验前**，若当前 AI 环境已授权访问私密总库 `kenandxx/ob-life-hub`，请直接在内存中读取全量非 `#secret` 笔记并自主思考哪些习惯适用于本项目：
->    `gh api repos/kenandxx/ob-life-hub/contents/dist/MASTER_CONTEXT.md -H "Accept: application/vnd.github.raw"`
-> 3. **严禁**将从 `MASTER_CONTEXT.md` 读到的私人生活原文或私人标签原样粘贴进本公开仓库的任何文件中；仅将其转化为脱敏后的产品功能与体验设计。
+> **🤖 AI Agent 必读工作流（最小权限原则）**：
+> 1. 本文件及 `.context/context.json` 只包含经筛选的 `PUBLIC-SAFE` 领域 Playbooks，不包含日记原文。
+> 2. 规划与开发时默认只使用本文件、项目 `AGENTS.md`、项目 Skill 和公开项目资料；**不得默认批量读取**私密 `dist/MASTER_CONTEXT.md`。
+> 3. 只有在オーナー明确授权当前任务且确有必要时，才可从私密 LifeOS 获取最小相关信息；仅在内存中临时使用，严禁写入公开仓库、PR、日志或生成资产。
 
 ---
 
