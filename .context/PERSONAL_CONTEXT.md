@@ -2,7 +2,7 @@
 # 🛡️ 个人偏好与工程准则（`trip-planning` 公开安全版）
 
 - **隐私安全级别**：`PUBLIC-SAFE`（本仓库为公开仓库，**绝不写入任何私人日记原文或私密标签内容**）
-- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`36d21257c8d261c8`
+- **当前生活阶段**：2026秋冬 · 高效生活自动化与个人定制工具链构建期 ｜ **内容指纹**：`ee96b280e1fdef7b`
 
 > **🤖 AI Agent 必读工作流（最小权限原则）**：
 > 1. 本文件及 `.context/context.json` 只包含经筛选的 `PUBLIC-SAFE` 领域 Playbooks，不包含日记原文。
@@ -38,6 +38,7 @@
   1. **只连接了项目仓库**：`.context/PERSONAL_CONTEXT.md` 就是全部个人上下文（ob-life-hub 每次推送 main 时自动同步，只含该项目订阅领域的内容）。
   2. **同时连接了 `kenandxx/ob-life-hub`**：额外直接读取 `02-Profile/*.md` 与 `03-Domains/*.md` 中与任务领域相关的文件。若比 `.context/` 里的版本更新，以 ob-life-hub 原文为准，并在 `HANDOFF.md` 记一句同步滞后。公开仓库只用 `export: public-safe` 的文件；`01-Daily/`、`00-Inbox/`、`dist/MASTER_CONTEXT.md`、`99-Private/` 等仍需所有者明确授权（对当前任务，或在项目 `AGENTS.md` 中写明的常设授权）。
   3. **读取 `01-Daily/` 时**：不要直接打开文件，必须运行 ob-life-hub 的 `python3 scripts/read_daily_notes.py --days 14`。它与编译器使用同一套隐私防火墙，会剔除 `#secret` / `#private` / `#nosync` 行与段落，以及 `#secret-file`、`secret: true`、`private: true`、`export: none` 的整份笔记。读到的内容只在本次会话中临时使用，绝不写入公开仓库、PR、日志或生成资产。
+- **日记只留在 ob-life-hub，项目里只有提炼后的规则**：日记原文不会同步到任何项目仓库（公开、私密都一样）。日记中的有用信息有两条路进入各项目：① オーナー在日记正文行末写 `#rule`（跨项目通用，归入 global）或 `#rule/<domain>`（只给该领域），编译器自动汇总为「日记中标记的规则」；② AI 按 ob-life-hub `protocols/DAILY_TO_RULES.md` 定期提炼成 `03-Domains/` 规则并提交 PR，经オーナー合并后同步。规则行末的「来源：YYYY-MM-DD 日记」表示出处日期。
 - **新项目设置清单（Claude 等支持多仓库连接的工具）**：
   1. 新建项目时，**同时连接「项目仓库 + `kenandxx/ob-life-hub`」**，让 AI 能读到最新原文。
   2. 用 `scripts/new-life-project.sh` 立项，确保项目写入 `registry/projects.toml`，否则不会收到任何自动同步。
