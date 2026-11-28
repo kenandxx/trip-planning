@@ -8,6 +8,7 @@
 - Shared runtime: `copilot/trip-copilot.js`, `copilot/trip-copilot.css`, and root `sw.js`.
 - Public context: `.context/PERSONAL_CONTEXT.md` contains approved PUBLIC-SAFE domain guidance only.
 - Default branch: `main`; changes should be developed on task-specific branches and proposed through PRs.
+- Canonical trip-planner Skill: `skills/japan-self-drive-trip-planner/SKILL.md`; the `.agents/skills/` copy is a generated mirror maintained by `scripts/sync-skills.sh`.
 
 ## Completed baseline
 - LifeOS v2.0 documentation alignment merged through PR #4 in `kenandxx/ob-life-hub`.
@@ -19,21 +20,26 @@
 - No application/runtime behavior was changed by the handoff pilot.
 - LifeOS GitHub Actions validation passed on PR #5 head `c310793`: Python unit tests, shell syntax, and registry TOML validation.
 - Trip Planning changes were documentation-only; no browser or physical iPhone QA was required or performed.
+- PR #13 (`chatgpt/skill-single-source-pr-ci`) is open; GitHub Actions run #1 (run ID `46100804571`) passed on head commit `9937fae7501ab99277261e1d9d69266938b7a292` (`Trip Planning CI`, validation job successful).
 - For future code changes, record exact local test commands, GitHub Actions CI results, browser/Playwright viewport and flows, physical-device checks (if performed), and Pages deployment status separately.
 - Do not describe a local browser emulation as physical iPhone QA.
 
-## Open risks / decisions
-- Keep the two Trip Planner Skill copies synchronized until a single-source distribution mechanism is deliberately adopted.
-- No generic PR CI workflow exists for documentation-only Trip Planning changes; the existing QA workflows are path-specific.
+## Open issues / risks
+- The Skill is maintained in one canonical source and copied to the `.agents/skills/` runtime path; CI detects drift. Contributors must edit the canonical file, then run `bash scripts/sync-skills.sh`.
+- Existing path-specific QA workflows remain specialized; the new generic PR CI is a baseline validator, not a replacement for trip-specific browser/device QA.
 - Preserve the privacy boundary: never write private LifeOS notes or personal identifiers into this public repository.
 
 ## Next steps
 - [x] LifeOS AI Handoff Protocol merged (PR #5).
 - [x] Trip Planning pilot merged (PR #11).
-- [ ] Apply the protocol on the next real Trip Planning code change and record actual browser/device/deployment evidence.
+- [x] Add a canonical Skill source and generated mirror sync/check script.
+- [x] Add generic pull-request validation workflow.
+- [ ] Review and merge PR for the Skill/CI changes after CI passes.
+- [ ] Apply the Protocol on the next real Trip Planning code change and record actual browser/device/deployment evidence.
 
 ## Work log
 | Date (JST) | Contributor | Change | Reference |
 |---|---|---|---|
 | 2026-11-28 | ChatGPT | Initial project handoff log and AI Handoff pilot integration | PR #11 |
 | 2026-11-28 | ChatGPT | Recorded merge status and LifeOS validation evidence | PR #12 |
+| 2026-11-28 | ChatGPT | Added Skill single-source sync and generic CI; PR CI passed | [PR #13](https://github.com/kenandxx/trip-planning/pull/13), [run #46100804571](https://github.com/kenandxx/trip-planning/actions/runs/46100804571) |
