@@ -1,0 +1,24 @@
+{
+  "name": "11/28 周六｜池袋 ミルキーパイ→Jewels → 滝不動",
+  "short_name": "11/28池袋护航",
+  "description": "池袋西口40分×2防自动延长倒计时、电车末班红线监测、四通道手机强提醒与晚点3套自动重排控制台",
+  "start_url": "./?copilot=1",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f0e7",
+  "theme_color": "#162038",
+  "icons": [
+    {
+      "src": "../../copilot/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../../copilot/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
