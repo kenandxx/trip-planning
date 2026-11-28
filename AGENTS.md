@@ -7,7 +7,7 @@ This is the single project-level rule entry point for every AI and human contrib
 2. [`HANDOFF.md`](HANDOFF.md) — current project state, open work, verification evidence, and next steps.
 3. [`.context/PERSONAL_CONTEXT.md`](.context/PERSONAL_CONTEXT.md) — the approved PUBLIC-SAFE context for this public repository.
 4. [`notes/driver-memory.md`](notes/driver-memory.md) and relevant cards under [`notes/places/`](notes/places/).
-5. The relevant domain Skill: [`skills/japan-self-drive-trip-planner/SKILL.md`](skills/japan-self-drive-trip-planner/SKILL.md).
+5. The canonical domain Skill: [`skills/japan-self-drive-trip-planner/SKILL.md`](skills/japan-self-drive-trip-planner/SKILL.md). This is the only source to edit. The `.agents/skills/` copy is a generated mirror.
 6. The central [LifeOS AI Handoff Protocol](https://github.com/kenandxx/ob-life-hub/blob/main/protocols/AI_HANDOFF_PROTOCOL.md) for the execution lifecycle.
 
 ## 2. Context and privacy boundary
