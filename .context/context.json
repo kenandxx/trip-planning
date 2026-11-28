@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "hub_source": "kenandxx/ob-life-hub",
-  "content_hash": "af534840f5958b70",
+  "content_hash": "7f1a374d41681fb0",
   "mode": "public-safe-shielded",
   "project": "trip-planning",
   "repo": "kenandxx/trip-planning",
@@ -71,6 +71,24 @@
       "updated": "2026-11-26",
       "source": "03-Domains/ui-and-product-taste.md",
       "body": "- **清爽 3 步分区卡片 UI（渐进式披露）**：\n  - 核心操作区拆分为边界分明、一眼看懂的 **3 步闭环卡片**（如 `① 定目标 → ② 现地打卡/输入 → ③ 看结论与方案`），顶部配可折叠「3 步上手提示」。\n  - 低频高级设置、模拟演练与调试开关一律收进**底部可折叠工具箱抽屉**，拒绝首屏按钮堆砌杂乱。\n- **移动端严苛品控（iPhone 390×844 基准）**：\n  - 全页面（含展开态弹窗、折叠面板、长表格）严禁任何横向滚动溢出（`scrollWidth <= innerWidth`）。\n  - 支持深色/浅色高对比度阅读，微信内打开顺畅，分享配备防缓存版本号的 `og-cover.png` 与高清一图流海报。\n- **零后端高可靠静态架构偏好**：\n  - 优先采用 **纯静态 HTML/CSS/JS + PWA Service Worker 离线缓存 + `localStorage` 本地状态持久化 + GitHub Pages 自动部署**，做到隧道/地下室断网可用、零服务器运维成本。"
+    },
+    {
+      "title": "日记中标记的规则（global）",
+      "domains": [
+        "global"
+      ],
+      "updated": "2026-11-28",
+      "source": "01-Daily (#rule/global)",
+      "body": "- 決める前に選択肢を3つ並べる（来源：2026-11-28 日记 `#rule`）"
+    },
+    {
+      "title": "日记中标记的规则（travel）",
+      "domains": [
+        "travel"
+      ],
+      "updated": "2026-11-28",
+      "source": "01-Daily (#rule/travel)",
+      "body": "- テスト：ホテルは駅から徒歩10分以内（来源：2026-11-28 日记 `#rule/travel`）"
     }
   ]
 }
