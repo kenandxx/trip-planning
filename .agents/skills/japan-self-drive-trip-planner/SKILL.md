@@ -119,4 +119,4 @@ Build a cohesive, mobile-first (390px+), dark-mode-ready web app (`index.html`) 
 2. **Playwright Mobile QA (390×844) Before Finishing**:
    - Zero JS console/page errors and zero horizontal overflow (`scrollWidth <= innerWidth`), including when Co-Pilot replan cards, folds, and urgent modals are open!
    - Test Pre-Flight Gate, 1-tap delay replay scenario (verifying 3 Re-Plan options & `L.O.` guard render and sync with Gantt simulator), `.ics` calendar builder, and AI emergency prompt preview.
-   - Commit, push to `origin main`, and verify GitHub Pages build status `"built"`.
+   - Finish on a task-specific branch and open a PR to `main`; do not push directly to `main` or merge without explicit owner approval. Verify GitHub Actions CI, browser QA, physical iPhone QA, and GitHub Pages deployment as separate evidence.
