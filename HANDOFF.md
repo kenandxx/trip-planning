@@ -20,7 +20,7 @@
 - No application/runtime behavior was changed by the handoff pilot.
 - LifeOS GitHub Actions validation passed on PR #5 head `c310793`: Python unit tests, shell syntax, and registry TOML validation.
 - Trip Planning changes were documentation-only; no browser or physical iPhone QA was required or performed.
-- PR #13 (`chatgpt/skill-single-source-pr-ci`) is open; GitHub Actions run #1 (run ID `46100804571`) passed on head commit `9937fae7501ab99277261e1d9d69266938b7a292` (`Trip Planning CI`, validation job successful).
+- PR #13 (`chatgpt/skill-single-source-pr-ci`) merged; GitHub Actions runs #1 and #2 passed, including run #2 on commit `57d58094d20c0fea883e178531de3f290bd71180`.
 - For future code changes, record exact local test commands, GitHub Actions CI results, browser/Playwright viewport and flows, physical-device checks (if performed), and Pages deployment status separately.
 - Do not describe a local browser emulation as physical iPhone QA.
 
@@ -34,8 +34,9 @@
 - [x] Trip Planning pilot merged (PR #11).
 - [x] Add a canonical Skill source and generated mirror sync/check script.
 - [x] Add generic pull-request validation workflow.
-- [ ] Review and merge PR for the Skill/CI changes after CI passes.
-- [ ] Apply the Protocol on the next real Trip Planning code change and record actual browser/device/deployment evidence.
+- [x] Merge PR #13 for canonical Skill sync and generic CI after CI passed.
+- [x] Apply the Protocol on the 2026-11-29 Kameyama itinerary update and record planning sources and assumptions.
+- [ ] After itinerary PR merges, verify GitHub Pages deployment and test on a physical iPhone before relying on it for navigation.
 
 ## Work log
 | Date (JST) | Contributor | Change | Reference |
@@ -43,3 +44,5 @@
 | 2026-11-28 | ChatGPT | Initial project handoff log and AI Handoff pilot integration | PR #11 |
 | 2026-11-28 | ChatGPT | Recorded merge status and LifeOS validation evidence | PR #12 |
 | 2026-11-28 | ChatGPT | Added Skill single-source sync and generic CI; PR CI passed | [PR #13](https://github.com/kenandxx/trip-planning/pull/13), [run #46100804571](https://github.com/kenandxx/trip-planning/actions/runs/46100804571) |
+
+| 2026-11-28 | ChatGPT | Created 11/29 Kameyama trip page with revised Sunday timing and source-backed risk notes | PR pending |
